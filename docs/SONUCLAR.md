@@ -898,6 +898,113 @@ kısa olabilir).
 
 ---
 
+### 2026-09-12 — CANLI/ÇEVRİMDIŞI UÇURUMU ÇÖZÜLDÜ: eval'in ısınma adımı
+
+**Sebep:** `eval_policy_isaacsim.py` içindeki `warmup()` fonksiyonu
+`env.step(torch.zeros(...))` yapıyordu. IK-Abs aksiyon uzayında sıfır aksiyon
+*"hedef EE pozu (0,0,0), quaternion (0,0,0,0)"* demek — geçersiz bir hedef.
+IK çözücü saçma eklem hedefleri üretiyor ve kol tek adımda fırlıyor. Politika
+sonra eğitimde **hiç görülmemiş** bir kol konfigürasyonundan başlıyor. Kol
+kameranın gördüğü en büyük nesne olduğu için gözlemin tamamı dağıtım dışı.
+
+**Düzeltme:** ısınma artık fizik adımı atmıyor — `sim.render()` +
+`scene.update(0.0)`. Isınmanın amacı zaten nişanlama sonrası kamerayı
+tazelemekti. Eski davranış `--legacy_warmup` ile korundu (A/B için).
+
+| | adım 0 medyan | x eğim | x kor | y eğim | y kor | x kayma | kayma çıkınca |
+|---|---|---|---|---|---|---|---|
+| ESKİ ısınma | 59.9 mm | 0.715 | 0.722 | 0.673 | 0.849 | −39.0 mm | 54.6 mm |
+| **YENİ ısınma** | **36.4 mm** | **0.932** | **0.840** | **0.919** | **0.976** | **−11.1 mm** | **31.2 mm** |
+
+**Uçurum kapandı, hatta tersine döndü:** canlı 36.4 mm, aynı modelin çevrimdışı
+taze veri sonucu 41.4 mm.
+
+**Mekanizma doğrulandı** (`--dump_step 0`, hiçbir komut verilmeden):
+
+```
+EE pozu, adim/kare 0
+  EGITIM      (+0.458, -0.001, +0.386)
+  CANLI YENI  (+0.463, +0.000, +0.385)
+  FARK        5.3 mm      eklem sapmasi: toplam 0.124 rad, en buyuk 0.022
+```
+
+#### DERS: yanlış sonuçtan yanlış ders çıkarıldı, dal 9 gün kapalı kaldı
+
+2026-09-03'te ısınma `hold_action()` ile düzeltilmeye çalışıldı ve **daha kötü**
+çıktı (61.5 vs 52.8 mm). Koda *"Sifir komutta kal"* notu düşüldü ve dal kapandı.
+Yön doğruymuş: o denemede kolu tutmak için okunan `ee_frame` sıfırlamadan hemen
+sonra **bayattı**, kol önceki bölümün pozuna çağrılıyordu. Yani hem eski hem yeni
+davranış bozuktu; ölçüm "sıfır komut daha iyi" dedi ve yanlış sonuç kalıcı bir
+nota dönüştü.
+
+Render-only ısınma her iki tuzaktan da kaçıyor: hiçbir komut verilmiyor.
+
+#### Bu düzeltmenin ÇÖZMEDİĞİ
+
+Kapalı döngü hâlâ **0/20**. İki sorun duruyor:
+
+1. Algı canlıda 36.4 mm, kavrama eşiği 20 mm — hâlâ ~1.8 kat uzak
+2. Bölüm ilerledikçe bozulma (adım 160'ta medyan 150 mm) — ama bu sayı
+   devrilen küplerle kirli, algı ölçüsü olarak kullanılamaz
+
+Ayrıca canlı görüntüler hâlâ eğitim görüntülerinden ~2 kat daha değişken
+(parlaklık std 30.7 vs 14.6). Algı artık çalıştığı için engel değil, ama
+açıklanmadı.
+
+---
+
+### 2026-09-12 — İKİ DAL DAHA KAPANDI + BİR İDDİA ÇÜRÜTÜLDÜ
+
+**Yan kamera geometri kontrolü — UYUŞMAZLIK YOK.**
+
+```
+            parlaklik   masa alani   ufuk satiri
+YAN  fark      -1.4      -4.9 puan    -0.3 satir
+ON   fark      +2.2      -8.2 puan    +0.3 satir   <- eslestigini bildigimiz kontrol
+```
+
+Yan kameranın canlı/eğitim farkı, eşleştiğini bildiğimiz ön kameranınkinden daha
+küçük. (2026-09-04'teki gerçek uyuşmazlıkta ufuk 12 satır kaymıştı.)
+
+**Görü kodlayıcıyı çözmek — DEĞMEZ.** `freeze_vision_encoder=True` VE
+`train_expert_only=True` → 450M'nin sadece 100M'i eğitiliyor. Ama donuk
+özellikler sıfırdan CNN'den **daha iyi**:
+
+| | medyan | x kor | y kor |
+|---|---|---|---|
+| taban (hep ortalama) | 105.3 mm | — | — |
+| DONUK SigLIP + kafa | **61.2 mm** | 0.358 | 0.872 |
+| sıfırdan CNN (192K) | 82.0 mm | 0.295 | 0.618 |
+
+`scripts/diagnostics/frozen_feat_probe.py`. Ayrıca `train_expert_only` sonra
+çalışıp **VLM'in tamamını** (görü dahil) dondurduğu için tek başına
+`freeze_vision_encoder=false` geçmek sessiz bir boş deney olurdu.
+
+**"246K CNN 12 mm" İDDİASI ÇÜRÜDÜ.** `vision_probe.py` eğitim/doğrulama ayrımını
+**kare bazlı** yapıyordu. Bir bölüm içinde küpün konumu sabit ve her bölümden 12
+kare alınıyor; karelerin bir kısmı eğitime bir kısmı doğrulamaya düşünce model
+"bu sahne böyle görünüyor → küp şurada" ezberliyor. **Bölüm bazlı** ayrımla aynı
+mimari 82 mm veriyor, 12 mm değil.
+
+Bu, "bilgi görüntüde VAR" iddiasının dayanağıydı. İddia yanlış olmayabilir ama
+**kanıtlanmış değil** — bölüm bazlı ayrımda eğitimde sadece 123 farklı küp konumu
+kalıyor ve her iki sonda da veri açlığı çekiyor. Doğru ifade: *elimizde
+ulaşılabilir taban için geçerli bir gösterim yok.*
+
+**Servis yolu suçsuz.** Canlı dökümdeki gerçek görüntüler modele çevrimdışı
+verildi (`scripts/diagnostics/offline_on_live.py`):
+
+| | canlı döngü | çevrimdışı taze veri | çevrimdışı CANLI görüntülerle |
+|---|---|---|---|
+| 3kam | 79.6 mm | 33.6 mm | 70.6 mm |
+| geo3 | 59.9 mm | 41.4 mm | 56.9 mm |
+
+Çevrimdışı-canlı-görüntülerle ≈ canlı döngü → sorun görüntülerde, soket/sıra/
+zamanlama değil. (Sonradan anlaşıldı: görüntüleri bozan şey ısınmanın fırlattığı
+koldu.)
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in

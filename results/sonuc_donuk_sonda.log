@@ -1,0 +1,27 @@
+cihaz cuda | veri franka_lift_geo.hdf5 | kamera front
+  kup erken kimildadigi icin atlanan bolum: 44
+  164 bolum x 12 kare | egitim 123 bolum / test 41 bolum  (BOLUM BAZLI ayrim)
+  egitim 1476 ornek / test 492 ornek
+
+  TABAN (hep ortalamayi tahmin et): medyan 105.3 mm
+
+=== A) DONUK SigLIP ozellikleri + kucuk kafa ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Reducing the number of VLM layers to 16 ...
+Loading weights from local directory
+  goru kodlayici: donuk=True train_expert_only=True
+  ozellik sekli: 16 token x 960 boyut  (64s)
+  DONUK SigLIP + kafa          medyan   61.2 mm | ort   67.7 mm | 67s
+                                 x: egim +0.289 kor +0.358
+                                 y: egim +0.801 kor +0.872
+
+=== B) Sifirdan kucuk CNN (ayni bolum-bazli ayrim) ===
+  parametre: 192,322
+  sifirdan CNN                 medyan   82.0 mm | ort   91.0 mm | 22s
+                                 x: egim +0.189 kor +0.295
+                                 y: egim +0.428 kor +0.618
+
+==============================================================
+  taban 105.3 mm | DONUK SigLIP 61.2 mm | sifirdan CNN 82.0 mm
+  -> Donuk ozellikler yeterli. Darbogaz baska yerde; cozmek BOSA GIDER.

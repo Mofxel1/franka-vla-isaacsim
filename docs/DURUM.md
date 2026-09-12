@@ -1,25 +1,28 @@
 # Durum — nerede kaldık
 
-Son güncelleme: 2026-09-12
+Son güncelleme: 2026-09-12 (akşam)
 
 ---
 
 ## Tek cümlelik özet
 
-**2026-09-08 sonu.** Gün boyunca üç dal denendi, üçü de kapandı ama ölçüm
-altyapısı çok daha sağlam. Kapalı döngü hâlâ **0/20**.
+**2026-09-12: canlı/çevrimdışı uçurumu ÇÖZÜLDÜ.** Sebep eval'in ısınma adımıydı:
+`env.step(zeros)` IK-Abs'ta geçersiz bir EE hedefi demek ve kolu fırlatıyordu;
+politika eğitimde hiç görülmemiş bir kol pozundan başlıyordu. Isınma artık fizik
+adımı atmıyor (`sim.render()` + `scene.update(0.0)`).
 
-Taze veriyle (tohum 404) dürüst sıralama:
+```
+                adim 0 medyan   x egim   x kor   kayma cikinca
+ESKI isinma        59.9 mm      0.715    0.722      54.6 mm
+YENI isinma        36.4 mm      0.932    0.840      31.2 mm
+```
 
-| model | çevrimdışı medyan | canlı adım 0 | canlı x kor |
-|---|---|---|---|
-| geo3 (2 kam) | 41.4 mm | **59.9 mm** | **0.722** |
-| rest (2 kam) | 41.4 mm | 60.3 mm | — |
-| 3kam (3 kam) | **33.6 mm** | 79.6 mm | 0.285 |
+Canlı 36.4 mm artık **çevrimdışından (41.4 mm) daha iyi** — uçurum kapandı.
+Mekanizma doğrulandı: adım 0'da EE pozu eğitimden sadece **5.3 mm** sapıyor
+(eskiden kol fırlıyordu).
 
-Çevrimdışı en iyi 3 kamera, **canlıda en iyi geo3**. Bir sonraki iş: yan
-kameranın canlı görüntüsü ile eğitim görüntüsünü karşılaştırmak (ön kamerada
-aynı uyuşmazlık 2026-09-04'te bulunmuştu, yan kamera için hiç bakılmadı).
+**Ama kapalı döngü hâlâ 0/20.** Kalan tek engel artık net:
+**algı 36 mm, kavrama eşiği 20 mm.** ~1.8 kat.
 
 ## Kanıtın özeti
 
@@ -107,16 +110,30 @@ sadece x bozulur.
 
 ---
 
-## Sıradaki adım (2026-09-08 akşamı yazıldı)
+## Sıradaki adım (2026-09-12 akşamı yazıldı)
 
-1. **Yan kamera geometri kontrolü** *(ucuz, ~30 dk, en yüksek öncelik)*
-   Toplama HDF5'indeki `observation.images.side` ile canlı eval'deki yan
-   görüntünün istatistiklerini karşılaştır (masa alanı, ufuk satırı, parlaklık)
-   — ön kamerada 2026-09-04'te tam bu yöntemle uçurumun sebebi bulunmuştu.
-   Canlı x korelasyonunun 0.794'ten 0.285'e çökmesi buna işaret ediyor.
-2. **3kam'ı daha uzun eğit** *(~75 dk)* — kayıp 0.032'de hâlâ düşüyordu.
-   Ancak 1. adım bir uyuşmazlık bulursa bu boşa gider; ÖNCE 1.
-3. Aşağıdaki eski liste (DART varyantları, gerçek DAgger) hâlâ geçerli.
+Artık tek bir net hedef var: **algıyı 36 mm'den 20 mm'nin altına indirmek.**
+Canlı/çevrimdışı uçurumu kapandığı için çevrimdışı her kazanç doğrudan canlıya
+yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
+
+1. **TÜM modelleri yeni ısınmayla yeniden ölç.** Eski kapalı döngü sayılarının
+   hepsi (0/20'ler dahil) fırlatılmış kolla alındı, **geçersiz**. Özellikle
+   `train_3kam` (çevrimdışı en iyi, 33.6 mm) yeniden denenmeli — üç kameranın
+   canlıda kötü çıkması bu hatanın eseri olabilir. *(~15 dk/model)*
+2. **3kam'ı daha uzun eğit** — kayıp 0.032'de hâlâ düşüyordu, model üçüncü
+   kamerayı kullanmayı tam öğrenmemiş olabilir. *(~75 dk)*
+3. **Bölüm içi bozulma** — adım 160'ta 150 mm. Ama bu ölçüm devrilen küplerle
+   kirli; önce küpü devirmeyen bölümlerle temiz bir eğri çıkarılmalı.
+4. **Gerçek DAgger** — hâlâ denenmedi, altyapı yok.
+
+### Kapanan dallar (2026-09-12)
+
+- **Yan kamera geometri uyuşmazlığı** — yok, ön kameradan bile daha iyi eşleşiyor
+- **Görü kodlayıcıyı çözmek** — donuk SigLIP özellikleri sıfırdan CNN'den daha
+  iyi (61 vs 82 mm), çözmek değmez
+- **Servis yolu (soket/sıra/zamanlama)** — suçsuz, sorun görüntülerdeydi
+
+### Eski liste (2026-09-08)
 
 ### Eski liste
 

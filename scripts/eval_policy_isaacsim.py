@@ -29,6 +29,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--num_episodes", type=int, default=10)
 parser.add_argument("--res", type=int, default=224)
 parser.add_argument("--env_spacing", type=float, default=8.0)
+parser.add_argument("--legacy_warmup", action="store_true",
+                    help="ESKI isinma: env.step(zeros). IK-Abs'ta sifir aksiyon "
+                         "gecersiz bir EE hedefi demek ve kolu firlatiyor. "
+                         "Sadece A/B karsilastirmasi icin.")
 parser.add_argument("--warmup_steps", type=int, default=1,
                     help="Sifirlama+nisanlama sonrasi kac ISINMA adimi atilsin. "
                          "Isaac Sim'in RTX yolu zamansal biriktirme kullaniyor; "
@@ -178,14 +182,35 @@ def main():
         return torch.cat([p_, q_, g_], dim=-1)
 
     def warmup(n_steps):
-        """Sifirlama sonrasi render'in olusmasi icin adim at.
+        """Sifirlama/nisanlama sonrasi kamerayi tazele -- FIZIK ADIMI ATMADAN.
 
-        NOT: hold_action() ile denendi (2026-09-03) ve DAHA KOTU cikti --
-        sifirlamadan hemen sonra ee_frame verisi bayat olabiliyor, kol onceki
-        bolumun pozuna cagriliyor. Olculdu: n=8 hold ile okuma 61.5mm / x egimi
-        -0.035; sifir komutla n=1 ise 52.8mm / 0.494. Sifir komutta kal."""
+        2026-09-12: eski surum `env.step(zeros)` yapiyordu. IK-Abs aksiyon
+        uzayinda sifir demek "hedef EE pozu (0,0,0), quaternion (0,0,0,0)"
+        demek -- gecersiz bir hedef. IK cozucu sacma eklem hedefi uretiyor ve
+        kol tek adimda firliyordu. OLCULDU (dump_step=2):
+
+            ee pozu   EGITIM (+0.375,+0.057,+0.328)
+                      CANLI  (+0.284,+0.506,+0.107)   y'de 45cm, z'de 22cm fark
+            eklem 4   egitim -2.221  ->  canli +4.036  (6.26 radyan)
+
+        Kol kameranin gordugu en buyuk nesne; egitimde hic gorulmemis bir
+        konfigurasyonda oldugu icin goruntunun tamami dagitim disi kaliyordu.
+        Isinmanin amaci KAMERAYI tazelemek, kolu oynatmak degil.
+
+        NOT: hold_action() de denendi (2026-09-03) ve daha kotu cikti, cunku
+        sifirlamadan hemen sonra ee_frame verisi bayat -- kol onceki bolumun
+        pozuna cagriliyordu. Render-only o sorunu da dogurmuyor: hicbir komut
+        verilmiyor.
+
+        --legacy_warmup ile eski davranisa donulebilir (A/B icin)."""
+        if args_cli.legacy_warmup:
+            for _ in range(max(1, n_steps)):
+                env.step(torch.zeros(env.action_space.shape, device=dev))
+            return
+        u = env.unwrapped
         for _ in range(max(1, n_steps)):
-            env.step(torch.zeros(env.action_space.shape, device=dev))
+            u.sim.render()                 # fizik yok, sadece render
+            u.scene.update(0.0)            # sensor tamponlarini bayat isaretle
 
     client = PolicyClient(args_cli.host, args_cli.port)
     print(f"[TEST] politika sunucusuna baglanildi: {args_cli.host}:{args_cli.port}", flush=True)
@@ -221,10 +246,18 @@ def main():
                 [robot.joint_pos[0].cpu().numpy(), ee_pos, ee_quat]).astype(np.float32)
 
             if len(ep_trace) == args_cli.dump_step and args_cli.dump_obs:
-                obs_dump.append({"front": front.copy(), "wrist": wrist.copy(),
-                                 "state": state.copy(),
-                                 "cube": (env.unwrapped.scene["object"].data.root_pos_w
-                                          - origins)[0].cpu().numpy().copy()})
+                _d = {"front": front.copy(), "wrist": wrist.copy(),
+                      "state": state.copy(),
+                      "cube": (env.unwrapped.scene["object"].data.root_pos_w
+                               - origins)[0].cpu().numpy().copy()}
+                # YAN kamera da dokulmeli: 3 kameralı modelin canli x korelasyonu
+                # 0.794 -> 0.285 cokuyor ve bunun sebebi yan kameranin CANLI
+                # goruntusunun EGITIM goruntusunden farkli olmasi olabilir
+                # (on kamerada ayni uyusmazlik 2026-09-04'te bulunmustu).
+                # Karsilastirabilmek icin once kaydetmek gerek.
+                if side is not None:
+                    _d["side"] = side.copy()
+                obs_dump.append(_d)
             action = client.act(front, wrist, state, args_cli.task_prompt,
                                 first_of_episode, side=side)
             first_of_episode = False
@@ -315,11 +348,12 @@ def main():
     n_ok = sum(r["success"] for r in results)
     print("\n" + "=" * 60, flush=True)
     if args_cli.dump_obs and obs_dump:
-        np.savez_compressed(args_cli.dump_obs,
-                            front=np.stack([o["front"] for o in obs_dump]),
-                            wrist=np.stack([o["wrist"] for o in obs_dump]),
-                            state=np.stack([o["state"] for o in obs_dump]),
-                            cube=np.stack([o["cube"] for o in obs_dump]))
+        _arrs = {k: np.stack([o[k] for o in obs_dump])
+                 for k in ("front", "wrist", "state", "cube")}
+        if all("side" in o for o in obs_dump):
+            _arrs["side"] = np.stack([o["side"] for o in obs_dump])
+        np.savez_compressed(args_cli.dump_obs, **_arrs)
+        print(f"[TEST] dokulen anahtarlar: {sorted(_arrs)}", flush=True)
         print(f"[TEST] {len(obs_dump)} canli gozlem kaydedildi: {args_cli.dump_obs}", flush=True)
     if pred_err:
         print("\n[ALGI] modelin KENDI kup tahmininin hatasi (canli, adim adim):")

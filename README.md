@@ -6,8 +6,8 @@ inference time. The policy is [SmolVLA](https://huggingface.co/blog/smolvla)
 (450M parameters, flow matching, action chunking), trained by imitation from a
 scripted expert that *does* know where the cube is.
 
-> **Status: the closed loop does not work yet (0/20).** Perception is at 33.6 mm
-> median error on held-out data; grasping a 4 cm cube needs better than 20 mm.
+> **Status: the closed loop does not work yet (0/20).** Perception is at 36 mm
+> median error in the live loop; grasping a 4 cm cube needs better than 20 mm.
 > This repository is as much a record of *how the failure was narrowed down* as
 > it is a pipeline. See [What the measurements revealed](#what-the-measurements-revealed).
 
@@ -62,10 +62,14 @@ that mattered was a task-goal probe
 ([`localize_test.py`](scripts/diagnostics/localize_test.py)): take the policy's
 plan, find its lowest point, and compare that XY to where the cube actually is.
 
-**2. The information was in the images the whole time.** A 246K-parameter CNN
-trained on the same 224px frames localizes the cube to 12 mm. SmolVLA, with 450M
-parameters, sat at 131 mm — no better than always guessing the center of the
-table (136 mm). The bottleneck was never the data.
+**2. A probe that "proved" the data was fine was itself leaking.** A small CNN
+trained on the same frames appeared to localize the cube to 12 mm, which for
+weeks anchored the belief that the information was in the images and SmolVLA was
+simply failing to use it. The probe split train/validation **by frame**, but the
+cube is stationary within an episode — so frames of the same episode landed on
+both sides and the model could memorize "this scene looks like that, the cube is
+there". Re-run with an **episode-level** split, the same architecture scores
+82 mm. The claim may still be true; it is no longer demonstrated.
 
 **3. Shortcut learning.** With the robot's joint state in the observation, the
 policy learned to read the arm's position instead of looking at the cube — the
@@ -85,6 +89,7 @@ appeared six separate times, and cost more time than everything else combined:
 | 4 | success filter counted a cube *flung into the air* as a success | one episode out of 550 broke normalization (action std 0.113 → 2.466) |
 | 5 | expert's 0.2 s REST phase wrote `des_ee_pose = ee_pose` | unlearnable labels; also inflated the x action std 7× |
 | 6 | LeRobot ignores dataset cameras if the checkpoint config lists its own | a third camera was about to be *silently dropped* from training |
+| 7 | eval's warmup stepped the sim with a **zero action** | in an IK-Abs action space that is an invalid end-effector target: the arm was flung into a pose never seen in training, and the arm dominates the camera view |
 
 Number 6 is worth dwelling on: [`factory.py:305`](https://github.com/huggingface/lerobot)
 only fills `input_features` from the dataset **if the policy config's copy is
@@ -96,6 +101,16 @@ conclusion that the third camera does not help.
 an x-slope of 0.903 on its own training set and 0.747 on freshly collected
 episodes. The first number looked like a breakthrough. It was memorization.
 
+**6. A wrong fix can close a branch for weeks.** Number 7 in the table above —
+the warmup — was attempted once, nine days before it was found. The attempted
+fix held the arm in place, but read the end-effector pose from a stale buffer
+right after reset, so the arm was commanded to the *previous* episode's pose. It
+measured worse than the zero action, and a comment went into the code saying to
+keep the zero action. Both behaviors were broken; the measurement compared two
+bugs and the losing one became a documented rule. The eventual fix avoids both
+by issuing no command at all — the warmup only ever needed to refresh the camera
+(`sim.render()`), not to step physics.
+
 ---
 
 ## Current numbers
@@ -104,18 +119,21 @@ Measured on `s3_val404` — 32 episodes none of the models have ever seen.
 
 | model | cameras | offline median | closed loop, step 0 | live x correlation |
 |---|---|---|---|---|
-| `train_geo3` | 2 (front + wrist) | 41.4 mm | **59.9 mm** | **0.722** |
-| `train_rest` | 2 (front + wrist) | 41.4 mm | 60.3 mm | — |
-| `train_3kam` | 3 (+ side) | **33.6 mm** | 79.6 mm | 0.285 |
+| `train_geo3` | 2 (front + wrist) | 41.4 mm | **36.4 mm** | **0.840** |
+| `train_rest` | 2 (front + wrist) | 41.4 mm | not re-measured | — |
+| `train_3kam` | 3 (+ side) | **33.6 mm** | not re-measured | — |
 
-Grasp threshold is 20 mm. All three score 0/20 in the closed loop.
+Grasp threshold is 20 mm. The closed loop still scores 0/20.
 
-The open question is the gap between the two middle columns: the same model
-reads the cube to 34–41 mm on stored frames and 60–80 mm on live renders. Camera
-geometry, video compression, render convergence, stale frames, env count,
-measurement-step alignment, the state vector and the REST window have all been
-tested and eliminated or fixed. The side camera's live-versus-training image
-statistics are the next thing to check.
+The live-versus-offline gap that dominated this project for weeks is **closed**:
+live perception (36.4 mm) is now slightly better than offline (41.4 mm). It was
+the warmup bug — see finding 7. Every closed-loop number measured before that fix
+was taken with the arm flung out of distribution and is invalid; the two models
+marked "not re-measured" are the first thing to redo.
+
+What remains is a single, clearly stated problem: **perception is at 36 mm and
+grasping needs 20 mm.** Because the live gap is closed, offline improvements
+should now transfer to the live loop — an assumption that was not true before.
 
 ---
 
@@ -131,7 +149,9 @@ statistics are the next thing to check.
 | DART (noise injection) | degradation curve flattened +80% → +21%, but the error floor doubled |
 | Clean + noisy data mixture | no gain (clean 22 > mixture 38 > noisy 49 mm) |
 | Dropping the expert's REST frames | fixed two real bugs, but did not close the live gap |
-| Third (side) camera | offline 41 → 34 mm, live 60 → 80 mm — unresolved |
+| Third (side) camera | offline 41 → 34 mm; live result invalid (measured before the warmup fix) |
+| Unfreezing the vision encoder | **not worth it** — frozen SigLIP features beat a from-scratch CNN on the same data (61 vs 82 mm) |
+| Render-only warmup in eval | **kept** — closed the live/offline gap (60 → 36 mm) |
 
 ---
 
