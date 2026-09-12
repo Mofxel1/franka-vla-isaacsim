@@ -141,10 +141,22 @@ yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
    Model az eğitilmiş değilmiş. Dal kapandı.
 3. **Bölüm içi bozulma** — adım 160'ta 150 mm. Ama bu ölçüm devrilen küplerle
    kirli; önce küpü devirmeyen bölümlerle temiz bir eğri çıkarılmalı.
-4. **Gerçek DAgger** — hâlâ denenmedi, altyapı yok. **Artık en umut verici dal.**
+4. ~~Gerçek DAgger~~ — **YAPILDI** (2026-09-12 gece). Altyapı yazıldı ve
+   doğrulandı; sonuç DART ile aynı takas: eğri düzleşti (a20→a60: 72→65 mm,
+   geo3'te 43→77), **taban yükseldi** (36.4 → 75.9 mm). 0/20.
+   Muhtemel sebep: DAgger bölümlerinde politika küpü deviriyor ve o karelerin
+   yardımcı etiketi çöp (yardımcı std 0.0556 → 0.0764). **Filtrelenmeli.**
 5. **Daha çok veri** — belirsiz. Kesin cevap: SmolVLA'yı yarım veriyle eğit ve
    tam veriyle karşılaştır (~2 x 100 dk). Sonda eğrisinde medyan doyuyor ama
    eğim/korelasyon hâlâ tırmanıyor.
+
+### AÇIK SORU — en yüksek öncelik
+
+**DAgger toplamasında politika %9.6 başarılı (20/208), eval'de %0 (0/20).**
+Aynı simülatör, aynı checkpoint. `n_samples` elendi (1 ve 8, ikisi de 0/20).
+Kalan şüpheliler: eval'in 0. ortam aksiyonunu 8 ortama yayınlaması, DR
+uygulama sıklığı, `policy.reset()` zamanlaması. Bu çözülürse kapalı döngü
+sonucu tamamen değişebilir.
 
 ### 2026-09-12 akşamı elenen kaldıraçlar
 
@@ -155,6 +167,8 @@ yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
 | görü kodlayıcıyı çözmek | donuk SigLIP 61 mm < sıfırdan CNN 82 mm |
 | 3kam'ı uzun eğitmek | aşırı öğrenme (kayıp ↓, görev metriği ↑) |
 | yan kamera geometrisi | uyuşmazlık yok |
+| örnek ortalaması (n_samples) | 0/20'nin sebebi değil; ama ortalama fırlatmayı şiddetlendiriyor (30.5 m vs 1.95 m) |
+| DAgger | eğriyi düzleştirdi, tabanı yükseltti — DART ile aynı takas |
 
 ### Kapanan dallar (2026-09-12)
 

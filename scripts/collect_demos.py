@@ -33,6 +33,17 @@ parser.add_argument("--side_cam", action="store_true",
                          "birlikte ucgenleme saglar. SmolVLA goruntuleri dongude "
                          "isliyor, kamera basina parametre yok -> katman boyutlari "
                          "degismez, mevcut checkpoint'ten devam edilebilir.")
+parser.add_argument("--dagger_port", type=int, default=0,
+                    help="DAgger modu: verilen porttaki politika sunucusundan "
+                         "aksiyon al ve ONU uygula, ama ETIKET olarak uzmanin "
+                         "ayni durumdan uretecegi komutu kaydet. Boylece veri, "
+                         "politikanin GERCEKTEN gezdigi durumlardan toplanir. "
+                         "DART'tan farki: DART uzmanin kendi yorungesine gurultu "
+                         "ekliyordu (yaklasik), bu tam olarak politikanin "
+                         "dagilimini kullanir. Olculen sorun: hedefleme hatasi "
+                         "adim 20'de 43mm, adim 60'ta 77mm -- kol dagitim disina "
+                         "ciktikca buyuyor.")
+parser.add_argument("--dagger_host", type=str, default="127.0.0.1")
 parser.add_argument("--randomize_arm", type=float, default=0.0,
                     help="Kolun baslangic eklem acilarini +/- bu kadar radyan "
                          "rastgele kaydir (0 = kapali, onerilen 0.15). Veri setinde "
@@ -161,8 +172,31 @@ def main():
     for _ in range(2):
         env.step(actions)
 
+    # --- DAgger istemcisi (istege bagli) ---
+    dagger = None
+    if args_cli.dagger_port:
+        import socket as _socket
+        from bridge_protocol import send_msg, recv_msg
+
+        class _DaggerClient:
+            def __init__(self, host, port):
+                self.sock = _socket.create_connection((host, port))
+                print(f"[DAGGER] politika sunucusuna baglanildi: {host}:{port}", flush=True)
+
+            def act(self, front, wrist, state, task, reset, side=None):
+                msg = {"front": front, "wrist": wrist, "state": state,
+                       "task": task, "reset": reset}
+                if side is not None:
+                    msg["side"] = side
+                send_msg(self.sock, msg)
+                return recv_msg(self.sock)["action"]
+
+        dagger = _DaggerClient(args_cli.dagger_host, args_cli.dagger_port)
+        print("[DAGGER] politika SURUYOR, uzman ETIKETLIYOR", flush=True)
+
     buffers = [defaultdict(list) for _ in range(n)]
     episodes, ep_count, step_count = [], 0, 0
+    dagger_reset = np.ones(n, dtype=bool)
     t0 = time.time()
 
     print(f"[TOPLA] {args_cli.num_episodes} bolum hedefi | {n} paralel ortam | {args_cli.res}px | {1/dt:.0f} Hz",
@@ -216,6 +250,17 @@ def main():
             # karede uzman "buradan toparla" diyen bir komut uretir ve O kaydedilir.
             # Boylece model yorunge disi durumlardan donmeyi ogrenir.
             exec_actions = actions
+            if dagger is not None:
+                # Politika SURUYOR: kol onun gezdigi durumlara gider.
+                # Etiket (adim 3'te kaydedildi) UZMANIN ayni durumdan uretecegi
+                # komut -- "buradan nasil toparlanilir" bilgisi budur.
+                _st = np.concatenate(
+                    [joint_pos.cpu().numpy(), ep_np, eq_np], axis=1).astype(np.float32)
+                _a = dagger.act(front, wrist, _st, args_cli.task_prompt,
+                                dagger_reset.copy(), side=side)
+                dagger_reset[:] = False
+                exec_actions = torch.from_numpy(
+                    np.ascontiguousarray(_a)).float().to(dev)
             if args_cli.action_noise > 0:
                 noise = torch.randn_like(actions) * args_cli.action_noise
                 noise[:, 3:] = 0.0        # sadece KONUM bozulur; quat/gripper aynen
@@ -248,6 +293,7 @@ def main():
                                   f"{'BASARILI' if success else 'basarisiz'})", flush=True)
                     buffers[i] = defaultdict(list)
                 sm.reset_idx(finished)
+                dagger_reset[finished.cpu().numpy()] = True
                 # Yeni bolum -> sahneyi yeniden randomize et
                 dr.apply(front_cam, origins, dev, n, side_cam=side_cam)
                 # NOT (2026-09-03): buraya "isinma" icin env.step(actions) eklendi

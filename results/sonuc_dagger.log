@@ -1,0 +1,15 @@
+bolum 1206 kare 108540
+aksiyon std[:3] [0.0079 0.0206 0.0824]
+yardimci std    [0.0764 0.1577]
+DOGRULAMA: GECTI
+===== DAGGER (uzman verisi + politika dagilimi) =====
+--- cevrimdisi, TAZE veri (s3_val404) ---
+n=30 bolum, kare 2, REST_SKIP=12 | NESNE-MERKEZLI
+  medyan hata :   47.3 mm
+  ortalama    :   55.2 mm   (min 1 / max 121)
+  x: egim +0.633  kesme +0.200  kor +0.698  sapma +14mm
+  y: egim +0.895  kesme +0.003  kor +0.960  sapma +3mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   46.7 mm | ortalama   55.6 mm
+    x: egim +0.626  kor +0.699
+    y: egim +0.876  kor +0.959

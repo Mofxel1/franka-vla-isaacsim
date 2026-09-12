@@ -88,9 +88,12 @@ print(f"[SUNUCU] plan ornegi      : {args.n_samples} "
       f"{'(ORTALAMA alinir)' if args.n_samples > 1 else '(tek cekilis)'}", flush=True)
 
 
-def to_chw_float(img_uint8_hwc):
-    """(H,W,3) uint8 -> (1,3,H,W) float32 [0,1]"""
-    t = torch.from_numpy(img_uint8_hwc).float() / 255.0
+def to_chw_float(img_uint8):
+    """(H,W,3) -> (1,3,H,W) float32 [0,1];  (B,H,W,3) -> (B,3,H,W)  (toplu mod)"""
+    a = np.ascontiguousarray(img_uint8)
+    t = torch.from_numpy(a).float() / 255.0
+    if t.ndim == 4:
+        return t.permute(0, 3, 1, 2)
     return t.permute(2, 0, 1).unsqueeze(0)
 
 
@@ -108,7 +111,64 @@ def _plan(processed):
     return np.mean(chunks, axis=0)
 
 
+_bqueue = None      # (B, n_exec, dim) -- toplu mod icin sunucu tarafi plan kuyrugu
+_bpos = 0
+
+
+def handle_batch(obs):
+    """DAgger icin TOPLU cikarim: B ortamin gozlemi bir kerede islenir.
+
+    Neden: DAgger'da her ortam BAGIMSIZ veri uretir (eval'de oldugu gibi tek
+    ortamin aksiyonunu hepsine yayinlamak yerine). Tek tek sorulursa 8 ortam
+    8 kat yavas olur. Burada tek forward gecisiyle B plan uretilir.
+
+    Plan kuyrugu sunucuda tutulur ve HERHANGI bir ortam sifirlandiginda ya da
+    kuyruk bittiginde HEPSI icin yeniden planlanir (fazladan hesap, ama
+    sifirlanan ortam taze gozlemden plan almis olur -- dogru olan bu).
+    """
+    global _bqueue, _bpos
+    st = np.ascontiguousarray(obs["state"])                 # (B, 16)
+    B = st.shape[0]
+    reset_any = bool(np.any(obs.get("reset", False)))
+
+    if _bqueue is None or _bpos >= _bqueue.shape[1] or reset_any or _bqueue.shape[0] != B:
+        batch = {
+            "observation.images.front": to_chw_float(obs["front"]),
+            "observation.images.wrist": to_chw_float(obs["wrist"]),
+            "observation.state": torch.from_numpy(
+                np.zeros_like(st) if args.zero_state else st).float(),
+            "task": [obs["task"]] * B,
+        }
+        if "side" in obs:
+            batch["observation.images.side"] = to_chw_float(obs["side"])
+        with torch.no_grad():
+            policy.reset()
+            ch = postprocessor(policy.predict_action_chunk(preprocessor(batch)))
+        _bqueue = ch.cpu().numpy()                          # (B, chunk, dim)
+        _bpos = 0
+        n_exec = args.n_action_steps or _bqueue.shape[1]
+        _bqueue = _bqueue[:, :min(n_exec, _bqueue.shape[1])]
+
+    out = _bqueue[:, _bpos].copy()                          # (B, dim)
+    _bpos += 1
+
+    if args.object_centric:
+        if out.shape[1] < 10:
+            raise RuntimeError("--object_centric icin yardimci boyutlar (8,9) sart")
+        out[:, 0] += out[:, 8]
+        out[:, 1] += out[:, 9]
+    elif args.relative_actions:
+        out[:, :3] = out[:, :3] + st[:, 9:12]
+    if out.shape[1] > 8:
+        handle.last_cube_pred = out[:, 8:10].copy()
+        out = out[:, :8]
+    return out
+
+
 def handle(obs):
+    # Toplu mod: goruntu 4 boyutluysa (B,H,W,C) her ortam kendi aksiyonunu alir
+    if np.asarray(obs["front"]).ndim == 4:
+        return handle_batch(obs)
     state = np.ascontiguousarray(obs["state"])
     batch = {
         "observation.images.front": to_chw_float(obs["front"]),

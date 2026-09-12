@@ -1124,6 +1124,76 @@ gerek (~2 x 100 dk).
 
 ---
 
+### 2026-09-12 (gece) — DAgger: EĞRİYİ DÜZLEŞTİRDİ, TABANI YÜKSELTTİ
+
+Teşhis: hedefleme hatası adım 20'de 43 mm, adım 60'ta 77 mm. Veri setinde bu
+bozulma **yok** (kare taraması f40'ta 6.2 mm) → sorun geç kareler değil, kolun
+dağıtım dışına çıkması. Ders kitabı cevabı DAgger.
+
+**Altyapı** (yeni): `policy_server.py`'ye **toplu çıkarım** (8 ortam tek forward
+geçişiyle bağımsız aksiyon → toplama 2 saat yerine 16 dk),
+`collect_demos.py --dagger_port` (politika sürer, uzman etiketler).
+
+Doğrulandı (küçük koşu): ortamlar bağımsız (8/8 farklı küp), etiket uzmanın
+(en düşük-z adımda aksiyon_xy == küp_xy, **0.0 mm** — uzmanın imzası), politika
+sürüyor (|uzman hedefi − kol| medyan 56-83 mm).
+
+**Veri:** 208 DAgger bölümü + 208 orijinal = 1206 bölüm / 108.540 kare.
+
+**Sonuç:**
+
+| | çevrimdışı (taze) | canlı adım 0 | hedefleme a20 | a40 | a60 |
+|---|---|---|---|---|---|
+| geo3 | **41.4 mm** | **36.4 mm** | 43 mm | 73 | 77 (+%79) |
+| dagger | 47.3 mm | 75.9 mm | 72 mm | 80 | 65 (**düz**) |
+
+0/20, tutucu **20/20** bölümde hiç kapanmadı.
+
+**DART ile BİREBİR aynı takas:** eğri düzleşti, taban yükseldi. İki farklı
+kovaryat-kayma çaresi, aynı sonuç.
+
+**Muhtemel sebep (SINANMADI):** DAgger bölümlerinde politika küpe çarpıp
+fırlatıyor; o andan sonra "küpün konumu" etiketi başlangıçtaki küpü bulmayı
+öğrenmek için çöp. Veri setinin yardımcı std'si bunu ele veriyor:
+**0.0556 → 0.0764**. Bu kareler filtrelenmedi. Düzeltme: küp ilk kımıldadıktan
+sonraki kareleri at (`frozen_feat_probe.py`'deki filtrenin aynısı).
+
+#### ELENDİ: örnek ortalaması 0/20'nin sebebi değil
+
+DAgger toplamasında (n_samples=1) politika **%9.6 başarılı** (20/208), aynı
+model eval'de (n_samples=8) **%0**. Ortalama şüphelendi, A/B yapıldı:
+
+| | n_samples=8 | n_samples=1 |
+|---|---|---|
+| adım 0 medyan | 36.4 mm | 41.3 mm |
+| adım 20 | 42.5 mm | 39.3 mm |
+| tutucu kapanmadı | 19/20 | 18/20 |
+| SONUÇ | 0/20 | 0/20 |
+| **tepe_z en yüksek** | **30.5 m** | **1.95 m** |
+
+İkisi de 0/20 → ortalama sebep **değil**. Ama son satır önemli: ortalama
+alınca küp 30 metreye fırlıyor, tek örnekle 2 metreye. Akış eşleştirmenin
+çok modlu planlarını ortalamak davranışı şiddetlendiriyor.
+
+*(Not: bu A/B 2026-09-02'de de yapılmış ve "ikisi de 0/15" çıkmıştı — ama o
+ölçüm bozuk ısınmayla alınmıştı, yani geçersizdi. Şimdi geçerli.)*
+
+#### AÇIK SORU — yarının en değerli ipucu
+
+**DAgger toplamasında %9.6, eval'de %0.** Aynı simülatör, aynı checkpoint,
+aynı aksiyon biçimi. n_samples elendi. Kalan farklar:
+
+- eval **0. ortamın** aksiyonunu 8 ortama yayınlıyor; DAgger'da her ortam
+  kendi aksiyonunu alıyor *(env 0 için fark etmemeli ama doğrulanmadı)*
+- DR uygulama sıklığı: eval env-0 bölüm sonunda, toplama herhangi bir ortam
+  bitince
+- `policy.reset()` zamanlaması: `handle_batch` her yeniden planlamada,
+  tek-ortam yolu sadece bölüm başında
+
+Bu çelişki çözülürse kapalı döngü sonucu tamamen değişebilir.
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in
