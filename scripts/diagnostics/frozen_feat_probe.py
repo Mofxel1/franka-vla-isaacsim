@@ -39,8 +39,13 @@ EPOCHS = int(os.environ.get("EPOCHS", "30"))
 # savrulmus olabiliyor -> 12'den basla. 60'a kadar kol kupu kapatmiyor.
 FR_LO, FR_HI = 12, 60
 CAM = os.environ.get("CAM", "front")
+# COZUNURLUK DUYARLILIGI: goruntuler RES piksele DUSURULUP tekrar 224'e
+# cikarilir (detay kaybi simule edilir). 224 -> 112 az zarar veriyorsa
+# cozunurluk bagliyaci degildir ve 512px'te toplamak da ise yaramaz.
+RES = int(os.environ.get("RES", "0"))
 
-print(f"cihaz {DEV} | veri {os.path.basename(HDF5)} | kamera {CAM}")
+print(f"cihaz {DEV} | veri {os.path.basename(HDF5)} | kamera {CAM}"
+      + (f" | COZUNURLUK {RES}px'e dusuruldu" if RES else " | cozunurluk 224px (ham)"))
 
 # ---------------------------------------------------------------- veri
 imgs_by_ep, cube_by_ep = [], []
@@ -62,7 +67,15 @@ with h5py.File(HDF5, "r") as f:
             n_skip += 1
             continue
         idx = np.linspace(FR_LO, min(FR_HI, n - 1), PER_EP).astype(int)
-        imgs_by_ep.append(ep[f"observation.images.{CAM}"][idx])
+        _im = ep[f"observation.images.{CAM}"][idx]
+        if RES and RES != _im.shape[1]:
+            import torch.nn.functional as _F
+            _t = torch.from_numpy(_im).permute(0, 3, 1, 2).float()
+            _t = _F.interpolate(_t, size=(RES, RES), mode="area")
+            _t = _F.interpolate(_t, size=(_im.shape[1], _im.shape[2]), mode="bilinear",
+                                align_corners=False)
+            _im = _t.permute(0, 2, 3, 1).clamp(0, 255).byte().numpy()
+        imgs_by_ep.append(_im)
         cube_by_ep.append(ep["observation.state.object_pos"][idx][:, :2])
 n_ep = len(imgs_by_ep)
 print(f"  kup erken kimildadigi icin atlanan bolum: {n_skip}")

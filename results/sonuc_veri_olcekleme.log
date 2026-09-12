@@ -1,0 +1,23 @@
+cihaz cuda | franka_lift_geo.hdf5 | kullanilabilir 164 bolum (kup erken kimildadigi icin 44 atlandi)
+  SABIT test: 50 bolum | egitim havuzu: 114 bolum
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Reducing the number of VLM layers to 16 ...
+Loading weights from local directory
+  ozellik cikarimi bitti: 16 token x 960 boyut (24s)
+
+  TABAN (hep ortalamayi tahmin et): 144.6 mm
+
+   bolum   ornek |  medyan mm   x egim   x kor
+  ----------------------------------------------
+      20     240 |      105.1    0.054   0.104   (+-1.7)
+      40     480 |       90.3    0.144   0.287   (+-6.3)
+      60     720 |       81.2    0.184   0.369   (+-2.4)
+      80     960 |       77.6    0.203   0.383   (+-0.8)
+     100    1200 |       74.9    0.266   0.452   (+-0.7)
+     114    1368 |       75.5    0.291   0.497   (+-2.8)
+
+====================================================
+  son iki katlama (80 -> 114 bolum): 77.6 -> 75.5 mm  (+2.7%)
+  -> EGRI DUZ. Darbogaz veri MIKTARI degil; toplamak bosa gider.

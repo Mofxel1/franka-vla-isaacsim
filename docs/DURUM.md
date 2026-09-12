@@ -141,7 +141,20 @@ yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
    Model az eğitilmiş değilmiş. Dal kapandı.
 3. **Bölüm içi bozulma** — adım 160'ta 150 mm. Ama bu ölçüm devrilen küplerle
    kirli; önce küpü devirmeyen bölümlerle temiz bir eğri çıkarılmalı.
-4. **Gerçek DAgger** — hâlâ denenmedi, altyapı yok.
+4. **Gerçek DAgger** — hâlâ denenmedi, altyapı yok. **Artık en umut verici dal.**
+5. **Daha çok veri** — belirsiz. Kesin cevap: SmolVLA'yı yarım veriyle eğit ve
+   tam veriyle karşılaştır (~2 x 100 dk). Sonda eğrisinde medyan doyuyor ama
+   eğim/korelasyon hâlâ tırmanıyor.
+
+### 2026-09-12 akşamı elenen kaldıraçlar
+
+| kaldıraç | sonuç |
+|---|---|
+| kalibrasyon (kayma + eğim düzeltme) | **3 mm**, kaldıraç değil |
+| çözünürlük (512px'te toplamak) | ters yönde — 112px, 224px'ten İYİ |
+| görü kodlayıcıyı çözmek | donuk SigLIP 61 mm < sıfırdan CNN 82 mm |
+| 3kam'ı uzun eğitmek | aşırı öğrenme (kayıp ↓, görev metriği ↑) |
+| yan kamera geometrisi | uyuşmazlık yok |
 
 ### Kapanan dallar (2026-09-12)
 

@@ -1064,6 +1064,66 @@ koldu.)
 
 ---
 
+### 2026-09-12 (akşam) — ÜÇ KALDIRAÇ DAHA ELENDİ
+
+Isınma düzeltmesinden sonra tek engel kaldı: **algı 36 mm, gereken 20 mm.**
+Hangi kaldıracın bunu kapatacağını bulmak için üç ucuz test.
+
+#### 1. Kalibrasyon — KALDIRAÇ DEĞİL (3 mm)
+
+Canlı eğimler 1'in altında (x 0.932, y 0.919) = "ortalamaya çekilme". MSE ile
+eğitilen her regresör bunu yapar ve **sistematik** olduğu için çıkarımda geri
+ölçeklenebilir. Ne kadar kazanç var? (`scripts/diagnostics/calib_headroom.py`)
+
+| kademe | medyan |
+|---|---|
+| 1. HAM | 43.3 mm |
+| 2. kayma düzeltilmiş | 51.2 mm |
+| 3. kayma + eğim düzeltilmiş | 37.3 mm *(iyimser üst sınır)* |
+| 4. aynısı ama **çapraz doğrulanmış** | **40.3 mm** |
+
+En iyi ihtimalle 3 mm. Kalan hata **gerçek saçılma**, düzeltilebilir bir
+bozulma değil. Model bilgiyi taşıyıp yanlış ölçeklemiyor; bilgi belirsiz.
+
+#### 2. Çözünürlük — KALDIRAÇ DEĞİL (ters yönde)
+
+Görüntüler 224px toplanıp SigLIP'e 512'ye büyütülerek veriliyor, yani gerçek
+detay eklenmiyor. 512px'te toplamak işe yarar mı? Ucuz testi: **düşürüp** bak.
+
+| çözünürlük | medyan |
+|---|---|
+| 224 px (ham) | 67.7 mm |
+| 160 px | 65.1 mm |
+| **112 px** | **59.6 mm** |
+| 80 px | 74.0 mm |
+
+Çözünürlüğü **düşürmek iyileştiriyor**. 224px bağlayıcı değil; 512px toplama
+dalı açılmadan kapandı. *(Çekince: sonda SmolVLA'dan zayıf, 60-68 vs 36 mm.)*
+
+#### 3. Daha çok veri — BELİRSİZ
+
+Öğrenme eğrisi, **test seti sabit** tutulup eğitim seti büyütülerek
+(`scripts/diagnostics/data_scaling_probe.py`):
+
+| bölüm | medyan | x eğim | x kor |
+|---|---|---|---|
+| 20 | 105.1 mm | 0.054 | 0.104 |
+| 40 | 90.3 mm | 0.144 | 0.287 |
+| 60 | 81.2 mm | 0.184 | 0.369 |
+| 80 | 77.6 mm | 0.203 | 0.383 |
+| 100 | 74.9 mm | 0.266 | 0.452 |
+| 114 | 75.5 mm | 0.291 | 0.497 |
+
+**Medyan doyuyor ama eğim/korelasyon hiç düzleşmiyor** (60→114 bölümde eğim
+%58 artmış). Betiğin otomatik hükmü ("eğri düz") sadece medyana bakıyor ve
+yanıltıcı: medyan sondanın kendi kapasitesiyle sınırlı, bilgi çıkarımı değil.
+
+Yine de kesin değil: sonda x eğiminde 0.29'da, SmolVLA canlıda 0.93'te —
+farklı rejimler. Kesin cevap için SmolVLA'yı yarım veriyle eğitip karşılaştırmak
+gerek (~2 x 100 dk).
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in
