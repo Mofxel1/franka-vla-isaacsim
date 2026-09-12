@@ -24,6 +24,15 @@ Mekanizma doğrulandı: adım 0'da EE pozu eğitimden sadece **5.3 mm** sapıyor
 **Ama kapalı döngü hâlâ 0/20.** Kalan tek engel artık net:
 **algı 36 mm, kavrama eşiği 20 mm.** ~1.8 kat.
 
+En iyi model — ve bu şaşırtıcı biçimde en basit olanı:
+
+| model | kamera | çevrimdışı (taze) | canlı adım 0 |
+|---|---|---|---|
+| **`train_geo3`** | 2 | 41.4 mm | **36.4 mm** |
+| `train_rest` | 2 (REST'siz) | 41.4 mm | 48.1 mm |
+| `train_3kam` @4000 | 3 | 33.6 mm | 58.3 mm |
+| `train_3kam` @8000 | 3 | 37.4 mm | 60.4 mm |
+
 ## Kanıtın özeti
 
 ```
@@ -127,8 +136,9 @@ yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
    Üçü de 0/20. 3 kameranın sorunu körlük değil, −32 mm sabit kayma
    (x eğimi 1.009 ile kusursuz). `rest` x'i neredeyse mükemmel kalibre ediyor
    (+1.6 mm) ama y'si zayıf.
-2. **3kam'ı daha uzun eğit** *(koşuyor, 2026-09-12 16:23 başladı)* — 3 kamerada
-   kümülatif 8000 adım. `results/chain_3kam_uzun.sh`
+2. ~~3kam'ı daha uzun eğit~~ — **YAPILDI, AŞIRI ÖĞRENME** (2026-09-12).
+   Kayıp 0.032 → 0.022 ama çevrimdışı 33.6 → 37.4 mm, canlı 58.3 → 60.4 mm.
+   Model az eğitilmiş değilmiş. Dal kapandı.
 3. **Bölüm içi bozulma** — adım 160'ta 150 mm. Ama bu ölçüm devrilen küplerle
    kirli; önce küpü devirmeyen bölümlerle temiz bir eğri çıkarılmalı.
 4. **Gerçek DAgger** — hâlâ denenmedi, altyapı yok.
@@ -219,6 +229,12 @@ rastgele pozuna** bakıyor; model durumu sıfırlanmış olduğu için öğrenil
 - Kit kendi numpy 1.26'sını yüklüyor → ortamlar arası veri `bridge_protocol.py`
   ile **ham bayt** olarak taşınır, pickle çalışmaz
 - `/data` bölümünde ~6.6 GB boş — checkpoint biriktirmeye dikkat
+- **TERMAL KISITLAMA (2026-09-12'de ölçüldü).** Saatlerce süren GPU işinden
+  sonra RTX 3060 84 °C'ye çıkıp `SW Thermal Slowdown` devreye giriyor:
+  saat 2100 → **900 MHz**, eğitim ~%40 yavaşlıyor (1.06 → 1.48 s/adım).
+  Fişte olmak yetmiyor, bu ısı kaynaklı. Uzun iş tahminlerini buna göre yap;
+  havalandırma iyileştirilirse hız geri geliyor.
+  Kontrol: `nvidia-smi -q -d PERFORMANCE | grep -A8 "Clocks Event Reasons"`
 - Her zaman `python -u`, yoksa çıktı tamponlanır ve iş donmuş görünür
 - `pgrep -f <desen>` / `pkill -f` **kendi kabuğunu da eşleştirir** — PID'leri bir
   komutta listele, ayrı komutta literal PID ile öldür

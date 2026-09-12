@@ -970,6 +970,34 @@ kareler yardımcı etiketi aşağı çekebilir diye düşünüldü. Ölçüldü:
 penceresindeki (12-162) küp x ortalaması, başlangıç x'inden sadece **+0.5 mm**
 farklı. Kaymayı açıklamıyor.
 
+#### 3kam UZATMA — AŞIRI ÖĞRENME, dal kapandı
+
+`train_3kam`'a 4000 adım daha (3 kamerada kümülatif 8000). Gerekçe: kayıp
+0.032'de hâlâ düşüyordu, model üçüncü kamerayı kullanmayı tam öğrenmemiş olabilir.
+
+| | eğitim kaybı | çevrimdışı (taze) | x eğim | x kor | canlı adım 0 |
+|---|---|---|---|---|---|
+| 3kam @4000 | 0.032 | **33.6 mm** | **0.747** | **0.794** | **58.3 mm** |
+| 3kam @8000 | **0.022** | 37.4 mm | 0.684 | 0.783 | 60.4 mm |
+
+**Kayıp düştü, görev metriği yükseldi** — aşırı öğrenmenin klasik imzası. Model
+az eğitilmiş değilmiş. Hem çevrimdışı hem canlı kötüleşti, 0/20.
+
+Bu, projenin temel dersinin bir örneği daha: **eğitim kaybı görev metriği
+değil.** Aynı tuzağa bugün üç kez çarpıldı — açık döngü metrikleri, modeli kendi
+verisinde ölçmek, ve şimdi eğitim kaybı.
+
+#### Günün sonu tablosu (hepsi düzeltilmiş ısınmayla)
+
+| model | kamera | çevrimdışı (taze) | canlı adım 0 | x kayma |
+|---|---|---|---|---|
+| **`train_geo3`** | 2 | 41.4 mm | **36.4 mm** | −11.1 mm |
+| `train_rest` | 2 (REST'siz) | 41.4 mm | 48.1 mm | **+1.6 mm** |
+| `train_3kam` @4000 | 3 | **33.6 mm** | 58.3 mm | −32.2 mm |
+| `train_3kam` @8000 | 3 | 37.4 mm | 60.4 mm | −27.0 mm |
+
+Hepsi 0/20. **En iyi canlı model `train_geo3`** — en basit olanı.
+
 #### Bu düzeltmenin ÇÖZMEDİĞİ
 
 Kapalı döngü hâlâ **0/20**. İki sorun duruyor:

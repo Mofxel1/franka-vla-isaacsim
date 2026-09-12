@@ -1,0 +1,11 @@
+===== 3KAM UZATMA (3 kamerada kumulatif 8000) =====
+--- cevrimdisi, TAZE veri (s3_val404) ---
+n=30 bolum, kare 2, REST_SKIP=12 | NESNE-MERKEZLI
+  medyan hata :   37.4 mm
+  ortalama    :   51.1 mm   (min 4 / max 128)
+  x: egim +0.684  kesme +0.143  kor +0.783  sapma -17mm
+  y: egim +0.797  kesme +0.007  kor +0.971  sapma +8mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   44.0 mm | ortalama   54.2 mm
+    x: egim +0.673  kor +0.782
+    y: egim +0.780  kor +0.970
