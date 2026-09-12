@@ -15,8 +15,18 @@ Bu belge "nereye gidiyoruz"u tutar. Günlük durum [DURUM.md](DURUM.md)'de,
 
 **Amaç:** boru hattını kurmak ve VLA'nın nasıl çalıştığını/bozulduğunu öğrenmek.
 
-Durum: algı çözüldü (15.3 mm, eğim 0.91/0.98). Kalan iş, bilineni kararlı
-biçimde harekete çevirmek. Kapalı döngü henüz 0/N.
+Durum (2026-09-12): **algı çözülmedi.** Taze veride (hiçbir modelin görmediği
+`s3_val404`) en iyi model 33.6 mm; kavrama eşiği 20 mm. Kapalı döngü 0/20.
+
+> DÜZELTME: burada uzun süre "algı çözüldü (15.3 mm)" yazıyordu. O sayı modelin
+> **kendi eğitim verisindeki** ölçümüydü, yani ezber içeriyordu. Aynı modeller
+> taze veride 33-41 mm veriyor. Bkz. SONUCLAR.md — "modeli kendi verisinde
+> ölçme" dersi.
+
+İki ayrı açık sorun var ve karıştırılmamalı:
+1. **Algı eşiğin altına inmiyor** (33.6 vs 20 mm gerekli)
+2. **Canlı/çevrimdışı uçurumu** — aynı model depolanmış karelerde 34-41 mm,
+   canlı render'da 60-80 mm
 
 **Bitti sayılma ölçütü:** kapalı döngüde tutarlı kaldırma (≥5/10).
 
@@ -30,7 +40,7 @@ Bu fazda öğrenilenler kalıcı sermaye:
 
 ## Faz 2 — Çok nesne + dil
 
-**Neden:** şu an 305 bölümün hepsinde aynı talimat var
+**Neden:** şu an toplanan her bölümde aynı talimat var
 (*"pick up the cube and lift it"*). Model dili tamamen yok sayabilir, hiçbir şey
 kaybetmez. **VLA'nın V ve A'sı çalışıyor, L çalışmıyor.**
 
