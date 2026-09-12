@@ -939,6 +939,37 @@ nota dönüştü.
 
 Render-only ısınma her iki tuzaktan da kaçıyor: hiçbir komut verilmiyor.
 
+#### Düzeltilmiş ısınmayla TÜM modeller yeniden ölçüldü
+
+Isınma düzeltmesinden önceki her kapalı döngü sayısı fırlatılmış kolla alındı ve
+**geçersiz**. Yeniden ölçüm (hepsi render-only ısınma, n=20, adım 0):
+
+| model | kamera | adım 0 medyan | x eğim | x kor | y eğim | y kor | x kayma | kayma çıkınca |
+|---|---|---|---|---|---|---|---|---|
+| `train_geo3` | 2 | **36.4 mm** | 0.932 | 0.840 | 0.919 | 0.976 | −11.1 mm | **31.2 mm** |
+| `train_rest` | 2 (REST'siz) | 48.1 mm | **1.023** | **0.860** | 0.748 | 0.952 | **+1.6 mm** | 40.8 mm |
+| `train_3kam` | 3 | 58.3 mm | 1.009 | 0.817 | 0.848 | 0.912 | −32.2 mm | 37.9 mm |
+
+Üçü de **0/20**.
+
+Okunacaklar:
+
+- **Tek bir model hükmetmiyor.** geo3 medyanda, `rest` x kalibrasyonunda
+  (kayma +1.6 mm ≈ sıfır) ve x eğim/korelasyonunda en iyi.
+- **3 kamera hâlâ daha kötü ama sebebi körlük DEĞİL:** x eğimi 1.009, kor 0.817
+  — geo3 kadar iyi. Fark neredeyse tamamen −32 mm'lik **sabit kayma**. Kaymayı
+  çıkarınca 37.9 vs 31.2, uçurum kapanıyor.
+- **REST dalı geçersiz gerekçeyle kapanmıştı.** 2026-09-08'de rest vs geo3
+  60.3 vs 59.9 mm ölçülüp "REST'i çıkarmak canlıya etki etmiyor" denmişti;
+  o iki ölçüm de bozuk ısınmayla alınmıştı. Düzeltilmiş ölçümde ikisi
+  belirgin biçimde farklı (48.1 vs 36.4) ve `rest` x kaymasını sıfırlıyor.
+
+**ELENEN hipotez — yardımcı hedefin geç karelerden kayması.** −32 mm'lik sabit
+kayma için: küp kavranıp kaldırılınca kolla birlikte robota doğru gidiyor, geç
+kareler yardımcı etiketi aşağı çekebilir diye düşünüldü. Ölçüldü: eğitim
+penceresindeki (12-162) küp x ortalaması, başlangıç x'inden sadece **+0.5 mm**
+farklı. Kaymayı açıklamıyor.
+
 #### Bu düzeltmenin ÇÖZMEDİĞİ
 
 Kapalı döngü hâlâ **0/20**. İki sorun duruyor:

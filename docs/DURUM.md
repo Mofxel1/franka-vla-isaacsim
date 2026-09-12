@@ -116,12 +116,19 @@ Artık tek bir net hedef var: **algıyı 36 mm'den 20 mm'nin altına indirmek.**
 Canlı/çevrimdışı uçurumu kapandığı için çevrimdışı her kazanç doğrudan canlıya
 yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
 
-1. **TÜM modelleri yeni ısınmayla yeniden ölç.** Eski kapalı döngü sayılarının
-   hepsi (0/20'ler dahil) fırlatılmış kolla alındı, **geçersiz**. Özellikle
-   `train_3kam` (çevrimdışı en iyi, 33.6 mm) yeniden denenmeli — üç kameranın
-   canlıda kötü çıkması bu hatanın eseri olabilir. *(~15 dk/model)*
-2. **3kam'ı daha uzun eğit** — kayıp 0.032'de hâlâ düşüyordu, model üçüncü
-   kamerayı kullanmayı tam öğrenmemiş olabilir. *(~75 dk)*
+1. ~~TÜM modelleri yeni ısınmayla yeniden ölç~~ — **YAPILDI** (2026-09-12):
+
+   | model | adım 0 | x kayma | kayma çıkınca |
+   |---|---|---|---|
+   | `train_geo3` | **36.4 mm** | −11.1 mm | **31.2 mm** |
+   | `train_rest` | 48.1 mm | **+1.6 mm** | 40.8 mm |
+   | `train_3kam` | 58.3 mm | −32.2 mm | 37.9 mm |
+
+   Üçü de 0/20. 3 kameranın sorunu körlük değil, −32 mm sabit kayma
+   (x eğimi 1.009 ile kusursuz). `rest` x'i neredeyse mükemmel kalibre ediyor
+   (+1.6 mm) ama y'si zayıf.
+2. **3kam'ı daha uzun eğit** *(koşuyor, 2026-09-12 16:23 başladı)* — 3 kamerada
+   kümülatif 8000 adım. `results/chain_3kam_uzun.sh`
 3. **Bölüm içi bozulma** — adım 160'ta 150 mm. Ama bu ölçüm devrilen küplerle
    kirli; önce küpü devirmeyen bölümlerle temiz bir eğri çıkarılmalı.
 4. **Gerçek DAgger** — hâlâ denenmedi, altyapı yok.
