@@ -150,6 +150,24 @@ yansımalı — bu, aylardır ilk kez doğru olan bir varsayım.
    tam veriyle karşılaştır (~2 x 100 dk). Sonda eğrisinde medyan doyuyor ama
    eğim/korelasyon hâlâ tırmanıyor.
 
+### FİKİR (Orhan, 2026-09-12) — insan motor kontrolüyle karşılaştır
+
+İnsan bir objeye uzanırken her adımda planlamaz: **balistik faz** (hızlı, açık
+döngü) + **düzeltme fazı** (son birkaç cm, görsel geri beslemeyle, yavaş).
+Aksiyon parçalama zaten bu yapıda (50 adımlık plan, 25 adım uygula). Ama üç
+yerde ayrışıyoruz ve üçünün de ucuz testi var:
+
+1. **Yeniden planlama sıklığı sabit.** İnsan hedefe yaklaşırken sıklaştırır.
+   Bizde 25 adımda bir. Kavrama anı iki planlama arasına denk geliyorsa son
+   25 adım kör uçuş. *Test: kavrama anının chunk içindeki konumunu ölç.*
+2. **Bilek kamerası kullanılıyor mu bilmiyoruz.** İnsanın düzeltme fazındaki
+   geri beslemesi "elim objeye göre nerede" — karşılığı bilek kamerası. Tüm
+   ölçümler ön kamerayla yapıldı. *Test: bilek kamerasını kapat, ne kadar
+   kötüleşiyor? Hiç kötüleşmiyorsa o kanal ölü demektir.*
+3. **Uzman hiç "ıskaladım, tekrar uzanayım" demiyor.** İnsan ıskalayınca durur
+   ve yeniden yaklaşır. Bizim kol masaya dalıyor (hedef z 0.028'e iniyor).
+   Tutucunun 19/20 bölümde hiç kapanmaması da bunun parçası.
+
 ### AÇIK SORU — en yüksek öncelik
 
 **DAgger toplamasında politika %9.6 başarılı (20/208), eval'de %0 (0/20).**
