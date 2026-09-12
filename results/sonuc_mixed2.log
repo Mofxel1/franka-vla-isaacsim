@@ -1,0 +1,34 @@
+===== KARMA UZATMA -- TEMIZ KARE (FRAME=2) ile olcum =====
+--- kumulatif 10000 adim ---
+checkpoint: /home/orhan/franka_runs/train_mixed2/checkpoints/004000/pretrained_model
+n=45 bolum, kare 2
+  medyan hata :   25.8 mm
+  ortalama    :   98.3 mm   (min 3 / max 760)
+  x: egim +0.065  kesme +0.411  kor +0.018  sapma -62mm
+  y: egim +0.732  kesme -0.013  kor +0.849  sapma -11mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   22.5 mm | ortalama   21.6 mm
+    x: egim +0.814  kor +0.971
+    y: egim +0.941  kor +0.989
+--- kumulatif 14000 adim ---
+checkpoint: /home/orhan/franka_runs/train_mixed2/checkpoints/008000/pretrained_model
+n=45 bolum, kare 2
+  medyan hata :   18.0 mm
+  ortalama    :   92.6 mm   (min 6 / max 757)
+  x: egim +0.137  kesme +0.369  kor +0.038  sapma -68mm
+  y: egim +0.769  kesme -0.018  kor +0.858  sapma -17mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   15.3 mm | ortalama   17.3 mm
+    x: egim +0.908  kor +0.981
+    y: egim +0.985  kor +0.992
+--- kumulatif 18000 adim ---
+checkpoint: /home/orhan/franka_runs/train_mixed2/checkpoints/012000/pretrained_model
+n=45 bolum, kare 2
+  medyan hata :   18.9 mm
+  ortalama    :   92.1 mm   (min 2 / max 753)
+  x: egim +0.149  kesme +0.362  kor +0.042  sapma -68mm
+  y: egim +0.769  kesme -0.021  kor +0.857  sapma -19mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   14.6 mm | ortalama   17.5 mm
+    x: egim +0.919  kor +0.980
+    y: egim +0.991  kor +0.992

@@ -1,0 +1,23 @@
+===== DENEY 1: yardimci gorev UZATILDI (aux_repeat=1) =====
+--- kumulatif 6000 adim ---
+checkpoint: /home/orhan/franka_runs/train_aux_long/checkpoints/002000/pretrained_model
+n=40 bolum
+  medyan hata :   92.6 mm
+  ortalama    :  114.3 mm   (min 11 / max 411)
+  x: egim +0.104  kesme +0.461  kor +0.106  sapma +11mm
+  y: egim +0.401  kesme +0.000  kor +0.554  sapma -9mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   92.2 mm | ortalama  100.5 mm
+    x: egim +0.312  kor +0.630
+    y: egim +0.376  kor +0.618
+--- kumulatif 8000 adim ---
+checkpoint: /home/orhan/franka_runs/train_aux_long/checkpoints/004000/pretrained_model
+n=40 bolum
+  medyan hata :   83.5 mm
+  ortalama    :  100.4 mm   (min 8 / max 314)
+  x: egim +0.321  kesme +0.341  kor +0.614  sapma +0mm
+  y: egim +0.439  kesme +0.006  kor +0.617  sapma -2mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   81.6 mm | ortalama  101.4 mm
+    x: egim +0.352  kor +0.691
+    y: egim +0.383  kor +0.585

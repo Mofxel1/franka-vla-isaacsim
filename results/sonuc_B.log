@@ -1,0 +1,20 @@
+=========== B: yardimci gorev (kup konumu aksiyonda), 4000 adim ===========
+checkpoint: /data/franka_vla/train_aux/checkpoints/004000/pretrained_model
+n=40 bolum
+  medyan hata :  112.2 mm
+  ortalama    :  130.3 mm   (min 13 / max 464)
+  x: egim +0.041  kesme +0.490  kor +0.038  sapma +8mm
+  y: egim +0.281  kesme -0.011  kor +0.449  sapma -22mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   93.9 mm | ortalama  113.5 mm
+    x: egim +0.246  kor +0.548
+    y: egim +0.275  kor +0.497
+
+--- karsilastirma ---
+                              medyan   x egim  y egim  x kor  y kor
+sabit-orta tabani              136 mm   0.00    0.00     -      -
+train_zs@10000 (eski)          131 mm   0.084   0.073   0.270  0.296
+A: kirpilmis veri @6000        138 mm   0.009   0.196   0.016  0.337
+B: yardimci gorev @4000        112 mm   0.041   0.281   0.038  0.449
+B: DOGRUDAN kup tahmini         94 mm   0.246   0.275   0.548  0.497
+kavrama esigi                   20 mm   ~1.0    ~1.0

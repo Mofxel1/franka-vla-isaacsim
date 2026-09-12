@@ -1,0 +1,30 @@
+   veri seti kare2 | parlaklik  142.7 | renk   3157 | kenar  44.22
+       canli adim2 | parlaklik  129.7 | renk   3353 | kenar  50.84
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Reducing the number of VLM layers to 16 ...
+Loading weights from local directory
+
+checkpoint: /home/orhan/franka_runs/train_objc2/checkpoints/006000/pretrained_model
+veri seti kare: 2  | NESNE-MERKEZLI
+
+--- VERI SETI goruntusu (egitim dagitimi) (n=45) ---
+  hareket plani : medyan   17.5 mm | ortalama   95.5 mm
+    x: egim +0.095  kor +0.025
+    y: egim +0.821  kor +0.909
+  dogrudan okuma: medyan   15.1 mm | ortalama   17.5 mm
+    x: egim +0.939  kor +0.983
+    y: egim +0.992  kor +0.991
+
+--- CANLI eval goruntusu (kapali dongu dagitimi) (n=45) ---
+  hareket plani : medyan   70.7 mm | ortalama  176.5 mm
+    x: egim +0.267  kor +0.041
+    y: egim +0.722  kor +0.815
+  dogrudan okuma: medyan   57.1 mm | ortalama   68.2 mm
+    x: egim +0.252  kor +0.288
+    y: egim +0.768  kor +0.874
+
+  referans: sabit-orta 136mm | CNN 12mm | kavrama esigi 20mm
+
+  Ikisi benzerse: sorun goruntude degil, egitime devam mantikli.
+  Canli belirgin kotuyse: dagitim uyumsuzlugu ONCE kapatilmali.

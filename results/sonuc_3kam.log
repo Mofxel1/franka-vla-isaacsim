@@ -1,0 +1,15 @@
+bolum 564 kare 50760
+kameralar: ['observation.images.front', 'observation.images.wrist', 'observation.images.side']
+aksiyon std[:3] [0.0147 0.0368 0.1113]
+yardimci std    [0.0576 0.1425]
+DOGRULAMA: GECTI
+===== UC KAMERA (on + yan + bilek) =====
+n=45 bolum, kare 2, REST_SKIP=12 | NESNE-MERKEZLI
+  medyan hata :   32.9 mm
+  ortalama    :   40.5 mm   (min 5 / max 141)
+  x: egim +0.910  kesme +0.033  kor +0.913  sapma -13mm
+  y: egim +0.866  kesme +0.001  kor +0.946  sapma +2mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   34.6 mm | ortalama   40.3 mm
+    x: egim +0.903  kor +0.917
+    y: egim +0.871  kor +0.947

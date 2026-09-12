@@ -1,0 +1,190 @@
+"""
+SmolVLA politikasini Isaac Sim'de KAPALI DONGUDE calistirir (gercek test).
+
+Ayri bir surecte calisan policy_server.py'a (lerobot ortami) her adimda
+gozlem gonderir, aksiyon alir, robotu o aksiyonla surer. Kucuk uzman degil,
+EGITILMIS MODEL robotu yonetiyor. Boylece "model gercekten kupu kaldirabiliyor
+mu" sorusu cevaplanir -- acik-donguu (tek kare) tahmin dogrulugu degil.
+
+NOT: collect_demos.py'nin kanitlanmis desenini izler -- TEK surekli dongu,
+TEK torch.inference_mode() bloku, elle env.reset() YOK. Isaac Lab'in
+yonetici-tabanli ortamlari bolum bitince env.step() icinde KENDILIGINDEN
+sifirlaniyor. Elle reset cagirmak "inference tensor" hatasina yol aciyordu.
+
+Onceden calistir (ayri terminal):
+  conda activate lerobot
+  python policy_server.py --ckpt /path/to/checkpoints/004000/pretrained_model
+
+Sonra:
+  conda activate isaaclab
+  python eval_policy_isaacsim.py --headless --num_episodes 10 \
+      --kit_args="--/rtx/verifyDriverVersion/enabled=false"
+"""
+import argparse, os, socket, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from isaaclab.app import AppLauncher
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--num_episodes", type=int, default=10)
+parser.add_argument("--res", type=int, default=224)
+parser.add_argument("--env_spacing", type=float, default=8.0)
+parser.add_argument("--host", type=str, default="127.0.0.1")
+parser.add_argument("--port", type=int, default=8765)
+parser.add_argument("--task_prompt", type=str, default="pick up the cube and lift it")
+parser.add_argument("--max_total_steps", type=int, default=400,
+                    help="guvenlik ust siniri: bolum basina beklenen adim x bolum sayisi civari")
+parser.add_argument("--save_gif", action="store_true", default=True)
+parser.add_argument("--out_gif", type=str, default=None)
+AppLauncher.add_app_launcher_args(parser)
+args_cli = parser.parse_args()
+args_cli.enable_cameras = True
+
+app_launcher = AppLauncher(args_cli)
+simulation_app = app_launcher.app
+
+import numpy as np, torch, gymnasium as gym
+import isaaclab.sim as sim_utils
+from isaaclab.sensors import TiledCameraCfg
+from isaaclab.assets import RigidObjectData
+import isaaclab_tasks  # noqa: F401
+from isaaclab_tasks.utils import parse_env_cfg
+from bridge_protocol import send_msg, recv_msg
+from isaac_shutdown import safe_close
+
+TASK = "Isaac-Lift-Cube-Franka-IK-Abs-v0"
+LIFT_SUCCESS_HEIGHT = 0.10
+
+
+def pinhole(focal):
+    return sim_utils.PinholeCameraCfg(
+        focal_length=focal, focus_distance=400.0,
+        horizontal_aperture=20.955, clipping_range=(0.01, 20.0))
+
+
+def to_uint8(t):
+    a = t.detach().cpu().numpy()
+    if a.dtype != np.uint8:
+        a = (a * 255).clip(0, 255).astype(np.uint8)
+    return a[..., :3]
+
+
+class PolicyClient:
+    def __init__(self, host, port):
+        self.sock = socket.create_connection((host, port), timeout=30)
+
+    def act(self, front, wrist, state, task, reset):
+        send_msg(self.sock, {"front": front, "wrist": wrist, "state": state,
+                              "task": task, "reset": reset})
+        resp = recv_msg(self.sock)
+        return resp["action"]
+
+    def close(self):
+        # Sunucuyu KAPATMIYORUZ; sadece baglantiyi biraktik. Boylece ayni
+        # sunucuya arka arkaya test kosulabilir (model bir kez yuklenir).
+        self.sock.close()
+
+
+def main():
+    cfg = parse_env_cfg(TASK, device=args_cli.device, num_envs=1)
+    cfg.commands.object_pose.debug_vis = False
+    cfg.scene.env_spacing = args_cli.env_spacing
+    cfg.scene.front_cam = TiledCameraCfg(
+        prim_path="{ENV_REGEX_NS}/front_cam",
+        offset=TiledCameraCfg.OffsetCfg(pos=(0, 0, 0), rot=(1, 0, 0, 0), convention="world"),
+        data_types=["rgb"], spawn=pinhole(18.0), width=args_cli.res, height=args_cli.res)
+    cfg.scene.wrist_cam = TiledCameraCfg(
+        prim_path="{ENV_REGEX_NS}/Robot/panda_hand/wrist_cam",
+        offset=TiledCameraCfg.OffsetCfg(
+            pos=(0.07, 0.0, -0.03), rot=(0.7071, 0.0, 0.0, 0.7071), convention="ros"),
+        data_types=["rgb"], spawn=pinhole(8.0), width=args_cli.res, height=args_cli.res)
+
+    env = gym.make(TASK, cfg=cfg)
+    env.reset()  # SADECE BURADA, bir kez
+    dev = env.unwrapped.device
+    origins = env.unwrapped.scene.env_origins
+    front_cam = env.unwrapped.scene["front_cam"]
+    wrist_cam = env.unwrapped.scene["wrist_cam"]
+
+    def aim_front_cam():
+        # Isaac Lab bolum sonunda kamerayi da spawn pozuna geri aliyor,
+        # her yeni bolumde yeniden nisanlamak sart.
+        eyes = origins + torch.tensor([[1.5, 0.7, 0.85]], device=dev)
+        targets = origins + torch.tensor([[0.30, 0.0, 0.20]], device=dev)
+        front_cam.set_world_poses_from_view(eyes, targets)
+
+    client = PolicyClient(args_cli.host, args_cli.port)
+    print(f"[TEST] politika sunucusuna baglanildi: {args_cli.host}:{args_cli.port}", flush=True)
+
+    results = []
+    gif_frames = []
+    peak_z, final_z = 0.0, 0.0
+    first_of_episode = True
+    step_count = 0
+
+    with torch.inference_mode():
+        aim_front_cam()
+        # ISINMA: nisanlama sonrasi ilk render henuz olusmadi, bir adim atmadan
+        # kamera okunursa eski kare gelir.
+        env.step(torch.zeros(env.action_space.shape, device=dev))
+
+        while len(results) < args_cli.num_episodes and simulation_app.is_running():
+            front = to_uint8(front_cam.data.output["rgb"])[0]
+            wrist = to_uint8(wrist_cam.data.output["rgb"])[0]
+
+            robot = env.unwrapped.scene["robot"].data
+            ee = env.unwrapped.scene["ee_frame"]
+            ee_pos = (ee.data.target_pos_w[..., 0, :] - origins)[0].cpu().numpy()
+            ee_quat = ee.data.target_quat_w[..., 0, :][0].cpu().numpy()
+            state = np.concatenate(
+                [robot.joint_pos[0].cpu().numpy(), ee_pos, ee_quat]).astype(np.float32)
+
+            action = client.act(front, wrist, state, args_cli.task_prompt, first_of_episode)
+            first_of_episode = False
+
+            if len(results) == 0 and args_cli.save_gif:
+                gif_frames.append(front)
+
+            act_t = torch.from_numpy(np.ascontiguousarray(action)).float().unsqueeze(0).to(dev)
+            obs, rew, term, trunc, info = env.step(act_t)
+            step_count += 1
+
+            obj: RigidObjectData = env.unwrapped.scene["object"].data
+            z = float((obj.root_pos_w - origins)[0, 2])
+            peak_z = max(peak_z, z)
+            final_z = z
+
+            if bool(term[0]) or bool(trunc[0]):
+                success = peak_z > LIFT_SUCCESS_HEIGHT and final_z > LIFT_SUCCESS_HEIGHT
+                results.append({"peak_z": peak_z, "final_z": final_z, "success": success})
+                print(f"[TEST] bolum {len(results)}/{args_cli.num_episodes} | tepe_z={peak_z:.3f}m "
+                      f"son_z={final_z:.3f}m | {'BASARILI' if success else 'basarisiz'}", flush=True)
+                peak_z, final_z = 0.0, 0.0
+                first_of_episode = True
+                # Isaac Lab bu ortami step() icinde KENDILIGINDEN sifirladi;
+                # kamerayi yeniden nisanla, bir sonraki okuma dogru olsun.
+                aim_front_cam()
+
+            if step_count > args_cli.max_total_steps * args_cli.num_episodes:
+                print("[TEST] guvenlik siniri asildi, duruluyor", flush=True)
+                break
+
+    client.close()
+
+    n_ok = sum(r["success"] for r in results)
+    print("\n" + "=" * 60, flush=True)
+    print(f"[TEST] SONUC: {n_ok}/{len(results)} basarili ({100*n_ok/max(len(results),1):.0f}%)", flush=True)
+    print("=" * 60, flush=True)
+
+    if gif_frames:
+        out = args_cli.out_gif or os.path.expanduser("~/isaac_captures/policy_rollout.gif")
+        from PIL import Image
+        imgs = [Image.fromarray(f) for f in gif_frames[::2]]
+        imgs[0].save(out, save_all=True, append_images=imgs[1:], duration=40, loop=0)
+        print(f"[TEST] gif kaydedildi: {out}", flush=True)
+
+    env.close()
+
+
+main()
+safe_close(simulation_app)

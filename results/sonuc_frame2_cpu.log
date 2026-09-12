@@ -1,0 +1,18 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Reducing the number of VLM layers to 16 ...
+Loading weights from local directory
+
+checkpoint: /home/orhan/franka_runs/train_mixed/checkpoints/006000/pretrained_model
+n=20 bolum, kare 2
+  medyan hata :   23.7 mm
+  ortalama    :   97.4 mm   (min 3 / max 769)
+  x: egim -1.128  kesme +0.981  kor -0.289  sapma -68mm
+  y: egim +0.826  kesme +0.017  kor +0.914  sapma +17mm
+
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   24.4 mm | ortalama   25.4 mm
+    x: egim +1.000  kor +0.970
+    y: egim +1.002  kor +0.981
+
+  referans: sabit-orta 136mm | CNN 12mm | kavrama esigi 20mm

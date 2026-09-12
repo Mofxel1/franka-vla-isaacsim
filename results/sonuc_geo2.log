@@ -1,0 +1,23 @@
+bolum 546 kare 49140
+yardimci ort [ 0.5026 -0.0148] std [0.0557 0.1358]
+===== GUNCEL GEOMETRI + only_success =====
+--- 3000 adim ---
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :  653.5 mm
+  ortalama    :  550.0 mm   (min 6 / max 882)
+  x: egim +0.276  kesme -0.164  kor +0.053  sapma -530mm
+  y: egim +0.203  kesme +0.047  kor +0.303  sapma +85mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   38.3 mm | ortalama   46.7 mm
+    x: egim +0.730  kor +0.808
+    y: egim +0.799  kor +0.924
+--- 6000 adim ---
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :  667.0 mm
+  ortalama    :  580.0 mm   (min 8 / max 867)
+  x: egim +0.493  kesme -0.298  kor +0.099  sapma -555mm
+  y: egim +0.166  kesme +0.076  kor +0.214  sapma +115mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   35.1 mm | ortalama   43.2 mm
+    x: egim +0.782  kor +0.853
+    y: egim +0.825  kor +0.928

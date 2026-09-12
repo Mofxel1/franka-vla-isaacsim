@@ -1,0 +1,122 @@
+Traceback (most recent call last):
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/dataset_metadata.py", line 139, in __init__
+    self._load_metadata()
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/dataset_metadata.py", line 215, in _load_metadata
+    self.info = load_info(self.root)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/io_utils.py", line 133, in load_info
+    raw = load_json(local_dir / INFO_PATH)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/utils/io_utils.py", line 35, in load_json
+    with open(fpath, encoding="utf-8") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/orhan/franka_runs/lerobot/franka_lift_karisim/meta/info.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 798, in hf_raise_for_status
+    response.raise_for_status()
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'https://huggingface.co/api/datasets/franka_lift_karisim/refs'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/lerobot_dataset.py", line 229, in __init__
+    self.meta = LeRobotDatasetMetadata(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/dataset_metadata.py", line 143, in __init__
+    self.revision = get_safe_version(self.repo_id, self.revision)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/utils.py", line 388, in get_safe_version
+    hub_versions = get_repo_versions(repo_id) if token is None else get_repo_versions(repo_id, token=token)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/utils.py", line 351, in get_repo_versions
+    repo_refs = api.list_repo_refs(repo_id, repo_type="dataset")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 4234, in list_repo_refs
+    hf_raise_for_status(response)
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 885, in hf_raise_for_status
+    raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6a9eb9ee-35ec8df0537bcbef1298d27f;4b765666-542b-40d0-bb51-c1b0d936386b)
+
+Repository Not Found for url: https://huggingface.co/api/datasets/franka_lift_karisim/refs.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+Traceback (most recent call last):
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/dataset_metadata.py", line 139, in __init__
+    self._load_metadata()
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/dataset_metadata.py", line 215, in _load_metadata
+    self.info = load_info(self.root)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/io_utils.py", line 133, in load_info
+    raw = load_json(local_dir / INFO_PATH)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/utils/io_utils.py", line 35, in load_json
+    with open(fpath, encoding="utf-8") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/orhan/franka_runs/lerobot/franka_lift_karisim/meta/info.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 798, in hf_raise_for_status
+    response.raise_for_status()
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'https://huggingface.co/api/datasets/franka_lift_karisim/refs'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/lerobot_dataset.py", line 229, in __init__
+    self.meta = LeRobotDatasetMetadata(
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/dataset_metadata.py", line 143, in __init__
+    self.revision = get_safe_version(self.repo_id, self.revision)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/utils.py", line 388, in get_safe_version
+    hub_versions = get_repo_versions(repo_id) if token is None else get_repo_versions(repo_id, token=token)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/lerobot/datasets/utils.py", line 351, in get_repo_versions
+    repo_refs = api.list_repo_refs(repo_id, repo_type="dataset")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 4234, in list_repo_refs
+    hf_raise_for_status(response)
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 885, in hf_raise_for_status
+    raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6a9faa45-753b38053f8e76486bcdaa47;0056585c-7fff-467e-929a-72c166f2176e)
+
+Repository Not Found for url: https://huggingface.co/api/datasets/franka_lift_karisim/refs.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+bolum 1095 kare 98550
+aksiyon std[:3] [0.0842 0.0612 0.1124]  (beklenen ~[0.08,0.06,0.11])
+yardimci std    [0.0557 0.1404]  (beklenen ~[0.06,0.14])
+DOGRULAMA: GECTI
+===== KARISIM (temiz + gurultulu) =====
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :  674.5 mm
+  ortalama    :  600.0 mm   (min 4 / max 839)
+  x: egim +0.265  kesme -0.205  kor +0.059  sapma -577mm
+  y: egim +0.303  kesme +0.084  kor +0.373  sapma +117mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   37.6 mm | ortalama   48.0 mm
+    x: egim +0.725  kor +0.786
+    y: egim +0.946  kor +0.948

@@ -1,0 +1,33 @@
+===== DENEY 2: yardimci gorev AGIRLIGI %50 (aux_repeat=4) =====
+(B ile ayni baslangic: train_early@2000, ayni adim sayisi)
+--- 2000 adim ---
+checkpoint: /home/orhan/franka_runs/train_aux4/checkpoints/002000/pretrained_model
+n=40 bolum
+  medyan hata :  107.5 mm
+  ortalama    :  122.2 mm   (min 16 / max 366)
+  x: egim +0.037  kesme +0.505  kor +0.041  sapma +21mm
+  y: egim +0.343  kesme -0.013  kor +0.538  sapma -22mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   94.8 mm | ortalama  110.6 mm
+    x: egim +0.220  kor +0.563
+    y: egim +0.283  kor +0.503
+--- 4000 adim ---
+checkpoint: /home/orhan/franka_runs/train_aux4/checkpoints/004000/pretrained_model
+n=40 bolum
+  medyan hata :  101.8 mm
+  ortalama    :  126.7 mm   (min 13 / max 481)
+  x: egim -0.064  kesme +0.546  kor -0.055  sapma +11mm
+  y: egim +0.315  kesme -0.005  kor +0.538  sapma -15mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   93.7 mm | ortalama  109.2 mm
+    x: egim +0.203  kor +0.485
+    y: egim +0.322  kor +0.566
+checkpoint: ~/franka_runs/train_aux4/checkpoints/004000/pretrained_model
+n=40 bolum
+  medyan hata :  110.5 mm | ortalama 122.7 mm (min 9 / max 340)
+  x: egim +0.056  kor +0.067  sapma  +8mm
+  y: egim +0.300  kor +0.512  sapma -15mm
+  YARDIMCI GOREV dogrudan tahmin: medyan 103.2 mm
+    x: egim +0.248  kor +0.568
+    y: egim +0.304  kor +0.517
+(zincirdeki ilk olcum takildi, elle tekrar calistirildi)

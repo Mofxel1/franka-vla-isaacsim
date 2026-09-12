@@ -1,0 +1,23 @@
+===== B UZATMA: kumulatif 12000 ve 16000 =====
+--- kumulatif 12000 adim ---
+checkpoint: /home/orhan/franka_runs/train_aux_long2/checkpoints/004000/pretrained_model
+n=40 bolum
+  medyan hata :   71.1 mm
+  ortalama    :   93.8 mm   (min 14 / max 268)
+  x: egim +0.486  kesme +0.248  kor +0.751  sapma -11mm
+  y: egim +0.481  kesme +0.042  kor +0.670  sapma +35mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   60.9 mm | ortalama   92.4 mm
+    x: egim +0.553  kor +0.830
+    y: egim +0.493  kor +0.665
+--- kumulatif 16000 adim ---
+checkpoint: /home/orhan/franka_runs/train_aux_long2/checkpoints/008000/pretrained_model
+n=40 bolum
+  medyan hata :   68.5 mm
+  ortalama    :   80.6 mm   (min 10 / max 276)
+  x: egim +0.503  kesme +0.248  kor +0.722  sapma -1mm
+  y: egim +0.559  kesme +0.002  kor +0.785  sapma -4mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   62.4 mm | ortalama   75.3 mm
+    x: egim +0.577  kor +0.834
+    y: egim +0.556  kor +0.795

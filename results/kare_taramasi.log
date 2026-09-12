@@ -1,0 +1,30 @@
+=== kare '2' ===
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   13.5 mm | ortalama   15.4 mm
+    x: egim +0.948  kor +0.991
+    y: egim +0.996  kor +0.994
+=== kare '20' ===
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan    9.9 mm | ortalama   10.8 mm
+    x: egim +0.994  kor +0.996
+    y: egim +0.993  kor +0.997
+=== kare '40' ===
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan    6.2 mm | ortalama    7.0 mm
+    x: egim +0.979  kor +0.995
+    y: egim +1.000  kor +0.999
+=== kare '60' ===
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan    8.2 mm | ortalama    9.5 mm
+    x: egim +0.977  kor +0.996
+    y: egim +0.979  kor +0.998
+=== kare '80' ===
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   45.2 mm | ortalama   51.1 mm
+    x: egim +0.733  kor +0.931
+    y: egim +0.751  kor +0.936
+=== kare '100' ===
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan  110.9 mm | ortalama  113.5 mm
+    x: egim +0.450  kor +0.598
+    y: egim +0.420  kor +0.559

@@ -1,0 +1,23 @@
+===== TEMIZ KARE (skip_first=2) + NESNE-MERKEZLI =====
+--- 3000 adim ---
+checkpoint: /home/orhan/franka_runs/train_objc2/checkpoints/003000/pretrained_model
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :   19.7 mm
+  ortalama    :   96.7 mm   (min 3 / max 763)
+  x: egim +0.125  kesme +0.365  kor +0.033  sapma -78mm
+  y: egim +0.816  kesme -0.008  kor +0.910  sapma -6mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   17.0 mm | ortalama   19.3 mm
+    x: egim +0.943  kor +0.981
+    y: egim +0.975  kor +0.990
+--- 6000 adim ---
+checkpoint: /home/orhan/franka_runs/train_objc2/checkpoints/006000/pretrained_model
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :   18.8 mm
+  ortalama    :   93.9 mm   (min 1 / max 784)
+  x: egim +0.089  kesme +0.383  kor +0.024  sapma -78mm
+  y: egim +0.824  kesme -0.011  kor +0.913  sapma -10mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   15.3 mm | ortalama   17.4 mm
+    x: egim +0.939  kor +0.983
+    y: egim +0.988  kor +0.991

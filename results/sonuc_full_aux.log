@@ -1,0 +1,23 @@
+===== TAM BOLUM + YARDIMCI GOREV (algiyi ogrenmis modelden devam) =====
+--- 3000 adim ---
+checkpoint: /home/orhan/franka_runs/train_full_aux/checkpoints/003000/pretrained_model
+n=40 bolum
+  medyan hata :  124.9 mm
+  ortalama    :  128.3 mm   (min 13 / max 263)
+  x: egim +0.121  kesme +0.408  kor +0.313  sapma -33mm
+  y: egim +0.079  kesme -0.003  kor +0.284  sapma -16mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan  160.9 mm | ortalama  188.3 mm
+    x: egim -0.162  kor -0.183
+    y: egim -0.026  kor -0.027
+--- 6000 adim ---
+checkpoint: /home/orhan/franka_runs/train_full_aux/checkpoints/006000/pretrained_model
+n=40 bolum
+  medyan hata :  124.9 mm
+  ortalama    :  128.1 mm   (min 7 / max 265)
+  x: egim +0.137  kesme +0.399  kor +0.348  sapma -34mm
+  y: egim +0.083  kesme -0.003  kor +0.294  sapma -16mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan  159.9 mm | ortalama  188.6 mm
+    x: egim -0.165  kor -0.181
+    y: egim -0.028  kor -0.029

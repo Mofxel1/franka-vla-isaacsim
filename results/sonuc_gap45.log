@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Reducing the number of VLM layers to 16 ...
+Loading weights from local directory
+
+checkpoint: /home/orhan/franka_runs/train_mixed/checkpoints/006000/pretrained_model
+
+--- VERI SETI goruntusu (egitim dagitimi) (n=45) ---
+  hareket plani : medyan   97.5 mm | ortalama  102.6 mm
+    x: egim +0.204  kor +0.423
+    y: egim +0.347  kor +0.635
+  dogrudan okuma: medyan   93.5 mm | ortalama   97.3 mm
+    x: egim +0.404  kor +0.563
+    y: egim +0.464  kor +0.645
+
+--- CANLI eval goruntusu (kapali dongu dagitimi) (n=45) ---
+  hareket plani : medyan  193.3 mm | ortalama  194.7 mm
+    x: egim +0.194  kor +0.177
+    y: egim +0.959  kor +0.871
+  dogrudan okuma: medyan   60.9 mm | ortalama   68.2 mm
+    x: egim +0.331  kor +0.431
+    y: egim +0.978  kor +0.917
+
+  referans: sabit-orta 136mm | CNN 12mm | kavrama esigi 20mm
+
+  Ikisi benzerse: sorun goruntude degil, egitime devam mantikli.
+  Canli belirgin kotuyse: dagitim uyumsuzlugu ONCE kapatilmali.

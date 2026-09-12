@@ -1,0 +1,22 @@
+===== REST KARELERI CIKARILDI (skip_first=12) =====
+veri: 546 bolum 49140 kare | aksiyon std[:3] [0.0117 0.0293 0.1053]
+--- REST_SKIP=0 ---
+n=45 bolum, kare 2, REST_SKIP=0 | NESNE-MERKEZLI
+  medyan hata :  149.4 mm
+  ortalama    :  142.1 mm   (min 6 / max 290)
+  x: egim +0.648  kesme +0.076  kor +0.505  sapma -102mm
+  y: egim +0.309  kesme +0.015  kor +0.581  sapma +47mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   37.5 mm | ortalama   48.6 mm
+    x: egim +0.742  kor +0.859
+    y: egim +0.739  kor +0.933
+--- REST_SKIP=12 ---
+n=45 bolum, kare 2, REST_SKIP=12 | NESNE-MERKEZLI
+  medyan hata :   36.0 mm
+  ortalama    :   47.3 mm   (min 4 / max 168)
+  x: egim +0.739  kesme +0.111  kor +0.849  sapma -21mm
+  y: egim +0.741  kesme -0.027  kor +0.933  sapma -14mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   39.0 mm | ortalama   48.6 mm
+    x: egim +0.733  kor +0.850
+    y: egim +0.741  kor +0.932

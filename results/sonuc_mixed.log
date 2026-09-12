@@ -1,0 +1,23 @@
+===== KARMA VERI SETI (150 kare + ilk 60'in 2 kopyasi, yardimci gorev) =====
+--- 3000 adim ---
+checkpoint: /home/orhan/franka_runs/train_mixed/checkpoints/003000/pretrained_model
+n=40 bolum
+  medyan hata :  110.3 mm
+  ortalama    :  119.9 mm   (min 7 / max 283)
+  x: egim +0.137  kesme +0.409  kor +0.342  sapma -24mm
+  y: egim +0.187  kesme -0.013  kor +0.491  sapma -25mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan  138.0 mm | ortalama  133.5 mm
+    x: egim +0.255  kor +0.372
+    y: egim +0.237  kor +0.331
+--- 6000 adim ---
+checkpoint: /home/orhan/franka_runs/train_mixed/checkpoints/006000/pretrained_model
+n=40 bolum
+  medyan hata :   90.0 mm
+  ortalama    :  100.6 mm   (min 8 / max 249)
+  x: egim +0.283  kesme +0.344  kor +0.549  sapma -16mm
+  y: egim +0.386  kesme -0.008  kor +0.714  sapma -17mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   94.8 mm | ortalama  107.6 mm
+    x: egim +0.357  kor +0.565
+    y: egim +0.396  kor +0.596

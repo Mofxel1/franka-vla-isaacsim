@@ -1,0 +1,107 @@
+[11:48] A egitimi bitti
+[11:50] A olculdu
+[11:50] B veri seti hazir
+[13:03] B egitimi bitti
+[13:05] B olculdu -- HEPSI BITTI
+[14:12] Deney1 basladi: B uzatma (aux_repeat=1, +4000 adim)
+[15:29] Deney1 egitimi bitti
+[15:32] Deney1 olculdu
+[15:32] aux4 veri seti hazir
+[15:32] Deney2 basladi: yardimci gorev agirligi %20 -> %50
+[16:46] Deney2 egitimi bitti
+[16:49] Deney2 olculdu -- HEPSI BITTI
+[11:23] B uzatma bitti (kumulatif 16000)
+[11:26] kumulatif 12000+16000 olculdu
+[11:26] politika sunucusu hazir, kapali dongu basliyor
+[11:29] kapali dongu bitti -- HAZIR
+[12:17] tam bolum + yardimci gorev veri seti hazir
+[13:41] tam bolum egitimi bitti
+[13:44] tam bolum modeli olculdu
+[13:47] kapali dongu bitti -- TAM BOLUM SONUCU HAZIR
+[15:26] karma veri seti hazir
+[16:50] karma egitim bitti
+[16:53] karma model olculdu
+[16:56] KARMA SONUC HAZIR (olcum + kapali dongu)
+[10:00] canli gozlem toplama basladi
+[10:04] canli gozlemler kaydedildi
+[10:06] UCURUM OLCULDU
+[10:20] 45 canli gozlem kaydedildi
+[10:25] UCURUM n=45 K=16 ile OLCULDU
+[13:25] karma uzatma bitti (kumulatif 18000)
+[13:31] lokalizasyon olculdu (temiz kare)
+[13:35] kapali dongu bitti: tek (n_samples=1)
+[13:42] kapali dongu bitti: ort8 (n_samples=8)
+[13:42] A/B SONUCU HAZIR
+[14:56] nesne-merkezli veri seti hazir
+[16:22] nesne-merkezli egitim bitti
+[16:26] nesne-merkezli model olculdu
+[16:33] NESNE-MERKEZLI SONUC HAZIR
+[10:04] canli gozlemler kaydedildi (objc)
+[10:09] UCURUM TEMIZ KAREYLE OLCULDU
+[10:33] num_envs=8 canli gozlemler kaydedildi
+[10:38] NUM_ENVS=8 UCURUM OLCULDU
+[11:00] num_envs=8 + warmup=8 gozlemler kaydedildi
+[11:05] WARMUP=8 UCURUM OLCULDU
+[12:21] parti 77 toplandi: 2661992071 bayt
+[12:27] parti 78 toplandi: 2665660717 bayt
+[12:27] birlestirildi
+[12:27] TOPLAMA TAMAM ve dogrulandi
+[13:15] objc2 (skip_first=2) veri seti hazir
+[15:07] objc2 egitimi bitti
+[15:10] objc2 olculdu
+[15:20] OBJC2 SONUC HAZIR
+[10:19] adim-2 canli gozlemler kaydedildi
+[10:24] ADIM-2 UCURUM OLCULDU
+[10:38] parti 101 toplandi
+[10:43] parti 102 toplandi
+[10:43] birlestirildi
+[11:09] cevrildi
+[12:35] egitim bitti
+[12:39] olculdu
+[12:49] GEO SONUC HAZIR
+[13:15] geo2 cevrildi (only_success)
+[14:44] geo2 egitimi bitti
+[14:47] geo2 olculdu
+[14:57] GEO2 SONUC HAZIR
+[17:11] geo3 egitimi bitti (kumulatif 12000)
+[17:13] GEO3 OLCULDU
+[17:25] GEO3 KAPALI DONGU HAZIR
+[09:46] algi olcumu bitti: geo3algi
+[09:46] ALGI OLCUMU HAZIR
+[12:16] DART parti 301 toplandi
+[12:21] DART parti 302 toplandi
+[12:21] birlestirildi
+[12:44] cevrildi
+[14:09] DART egitimi bitti
+[14:10] olculdu
+[14:21] DART SONUC HAZIR
+[14:40] dart2 cevrildi
+[16:04] dart2 egitimi bitti
+[16:06] dart2 olculdu
+[16:16] DART2 SONUC HAZIR
+[16:19] temiz+gurultulu birlestirildi
+[16:19] cevrildi
+[16:19] ISTATISTIK DOGRULAMASI BASARISIZ -- durduruldu
+[09:25] temiz+gurultulu birlestirildi
+[09:25] cevrildi
+[09:25] ISTATISTIK DOGRULAMASI BASARISIZ -- durduruldu
+[10:19] cevrildi
+[10:19] istatistik dogrulamasi gecti
+[11:15] karisim egitimi bitti
+[11:17] KARISIM OLCULDU
+[12:28] REST CEVIRME PATLADI
+[13:27] rest egitimi bitti
+[13:30] REST OLCULDU
+[14:25] algi olcumu bitti: restalgi
+[14:25] REST ALGI OLCUMU HAZIR
+[14:38] algi olcumu bitti: geo3kayma
+[14:38] KAYMA OLCUMU HAZIR
+[14:46] 3kam parti 401 toplandi: 2594350984 bayt
+[14:51] 3kam parti 402 toplandi: 2654438081 bayt
+[14:57] 3kam parti 403 toplandi: 2676045707 bayt
+[14:57] 3 KAMERA TOPLAMA TAMAM
+[15:33] 3kam cevrildi
+[15:33] 3kam kapisi gecti
+[16:48] 3kam egitimi bitti (batch=32 adim=4000)
+[16:50] 3KAM OLCULDU
+[17:20] 3KAM KAPALI DONGU HAZIR

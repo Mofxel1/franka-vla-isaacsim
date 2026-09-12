@@ -1,0 +1,21 @@
+===== KAPALI DONGU A/B: tek ornek vs 8 ornek ortalamasi =====
+--- tek ---
+[IZ]   adim 20 (n=15): hedef<->kup med   706mm  ort   734mm   |  ee<->kup med   657mm
+[IZ]   adim 40 (n=15): hedef<->kup med   744mm  ort  1976mm   |  ee<->kup med   989mm
+[IZ]   adim 60 (n=15): hedef<->kup med   626mm  ort  2927mm   |  ee<->kup med   653mm
+[IZ]   modelin HEDEFI  <-> kup : ort 3608mm  med 3608mm  min 20mm  max 7196mm
+[IZ]   kolun GERCEK yeri <-> kup: ort 3617mm  med 3617mm  min 22mm  max 7213mm
+[IZ]   (kup 4cm; kavrama icin ~<20mm gerekir)
+[TEST] SONUC: 0/15 basarili (0%)
+kaldirma yuksekligi (tepe_z) dagilimi:
+0.887 0.329 0.217 0.147 0.138 
+--- ort8 ---
+[IZ]   adim 20 (n=15): hedef<->kup med   740mm  ort   789mm   |  ee<->kup med   835mm
+[IZ]   adim 40 (n=15): hedef<->kup med   682mm  ort   900mm   |  ee<->kup med   874mm
+[IZ]   adim 60 (n=15): hedef<->kup med   741mm  ort   997mm   |  ee<->kup med   943mm
+[IZ]   modelin HEDEFI  <-> kup : ort 69mm  med 69mm  min 69mm  max 69mm
+[IZ]   kolun GERCEK yeri <-> kup: ort 61mm  med 61mm  min 61mm  max 61mm
+[IZ]   (kup 4cm; kavrama icin ~<20mm gerekir)
+[TEST] SONUC: 0/15 basarili (0%)
+kaldirma yuksekligi (tepe_z) dagilimi:
+0.336 0.104 0.092 0.085 0.082 

@@ -1,0 +1,30 @@
+# --- VERI ve MODEL CIKTILARI: asla git'e girmez ---
+# Bunlar /data bolumunde duran symlink'ler; baska makinede kirik olur.
+/data
+/lerobot
+/runs
+*.hdf5
+*.safetensors
+*.npz
+
+# --- Buyuk medya: yeniden uretilebilir ---
+*.gif
+*.mp4
+
+# --- Gurultulu loglar (ilerleme cubugu spam'i) ---
+# Olculen SONUCLAR docs/SONUCLAR.md'de ve results/sonuc_*.log'da duruyor.
+results/train_*.log
+results/convert_*.log
+results/collect_*.log
+results/server_*.log
+results/merge_*.log
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# --- Editor ---
+.vscode/
+.idea/
+*.swp

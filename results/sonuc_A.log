@@ -1,0 +1,13 @@
+=========== A: kirpilmis veri, toplam 6000 adim ===========
+checkpoint: /data/franka_vla/train_early2/checkpoints/002000/pretrained_model
+n=40 bolum
+  medyan hata :  131.4 mm
+  ortalama    :  144.0 mm   (min 14 / max 363)
+  x: egim +0.096  kesme +0.452  kor +0.120  sapma -2mm
+  y: egim +0.117  kesme -0.027  kor +0.216  sapma -40mm
+checkpoint: /data/franka_vla/train_early2/checkpoints/004000/pretrained_model
+n=40 bolum
+  medyan hata :  137.7 mm
+  ortalama    :  135.5 mm   (min 16 / max 316)
+  x: egim +0.009  kesme +0.502  kor +0.016  sapma +4mm
+  y: egim +0.196  kesme -0.011  kor +0.337  sapma -23mm

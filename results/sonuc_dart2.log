@@ -1,0 +1,14 @@
+bolum 549 kare 49410
+aksiyon std[:3] [0.0856 0.0632 0.1125]
+yardimci std    [0.0556 0.144 ]
+aksiyon maks[:3] [0.231 0.47  0.496]
+===== DART2 (gurultulu + sinir filtresi) =====
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :  679.1 mm
+  ortalama    :  599.0 mm   (min 7 / max 877)
+  x: egim +1.374  kesme -0.760  kor +0.298  sapma -569mm
+  y: egim -0.091  kesme +0.085  kor -0.164  sapma +72mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   32.8 mm | ortalama   40.9 mm
+    x: egim +0.729  kor +0.837
+    y: egim +1.004  kor +0.968

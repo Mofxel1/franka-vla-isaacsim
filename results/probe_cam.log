@@ -1,0 +1,233 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/orhan/Projects/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[Warning] [simulation_app.simulation_app] Modules: ['omni.kit_app'] were loaded before SimulationApp was started and might not be loaded correctly.
+[Warning] [simulation_app.simulation_app] Please check to make sure no extra omniverse or pxr modules are imported before the call to SimulationApp(...)
+Loading user config located at: '/home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/omni/data/Kit/Isaac-Sim/4.5/user.config.json'
+[Info] [carb] Logging to file: /home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/omni/logs/Kit/Isaac-Sim/4.5/kit_20260904_102934.log
+2026-09-04 07:29:34 [0ms] [Warning] [omni.kit.app.plugin] No crash reporter present, dumps uploading isn't available.
+2026-09-04 07:29:34 [3ms] [Warning] [omni.ext.plugin] [ext: rendering_modes] Extensions config 'extension.toml' doesn't exist '/home/orhan/Projects/IsaacLab/apps/rendering_modes' or '/home/orhan/Projects/IsaacLab/apps/rendering_modes/config'
+2026-09-04 07:29:34 [148ms] [Warning] [omni.datastore] OmniHub is inaccessible
+2026-09-04 07:29:35 [1,479ms] [Warning] [gpu.foundation.plugin] Skipping unsupported non-NVIDIA GPU: Intel(R) Xe Graphics (TGL GT2)
+2026-09-04 07:29:35 [1,479ms] [Warning] [gpu.foundation.plugin] Skipping unsupported non-NVIDIA GPU: Intel(R) Xe Graphics (TGL GT2)
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 535.53.01     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 3060 Laptop.. | Yes: 0 |     | 6144    MB | 10de      | 0          |
+|     |                                  |        |     |            | 2520      | 5aecfddd.. |
+|     |                                  |        |     |            | 1         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | Intel(R) Xe Graphics (TGL GT2)   |        |     | 17793   MB | 8086      | 0          |
+|     |                                  |        |     |            | 9a49      | 8680499a.. |
+|     |                                  |        |     |            | 0         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-40-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: 11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz
+| Cores: 4 | Logical Cores: 8
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 23724 | Free Memory: 18145
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-09-04 07:29:36 [1,682ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-09-04 07:29:36 [1,682ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 315.40 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.88 
+
+   CPU     0 
+     0   1.72 
+2026-09-04 07:29:36 [2,604ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-09-04 07:29:38 [3,915ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-09-04 07:29:38 [4,328ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/ambientOcclusion/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/directLighting/sampledLighting/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/indirectDiffuse/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/raytracing/cached/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/reflections/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/sceneDb/ambientLightIntensity'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/translucency/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/verifyDriverVersion/enabled'
+2026-09-04 07:29:40 [6,032ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/viewTile/limit'
+2026-09-04 07:29:40 [6,123ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit buffer size 8274665856
+2026-09-04 07:29:40 [6,123ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : valid false, within: false
+2026-09-04 07:29:40 [6,123ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : decrement: 167690, decrement size: 8191919488
+2026-09-04 07:29:40 [6,123ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : New limit 8692359 (slope: 493, intercept: 7537024)
+2026-09-04 07:29:40 [6,123ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit buffer size 4289241344
+2026-09-04 07:29:40 [6,123ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : valid true, within: true
+2026-09-04 07:29:40 [6,219ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/directLighting/sampledLighting/samplesPerPixel'
+2026-09-04 07:29:40 [6,219ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/pathtracing/maxSamplesPerLaunch'
+2026-09-04 07:29:40 [6,220ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults-transient/meshlights/forceDisable'
+2026-09-04 07:29:40 [6,250ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/post/dlss/execMode'
+[INFO]: Parsing configuration from: isaaclab_tasks.manager_based.manipulation.lift.config.franka.ik_abs_env_cfg:FrankaCubeLiftEnvCfg
+2026-09-04 07:29:43 [9,360ms] [Warning] [isaaclab.envs.manager_based_env] Seed not set for the environment. The environment creation may not be deterministic.
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.01
+	Rendering step-size   : 0.02
+	Environment step-size : 0.02
+[INFO]: Time taken for scene creation : 3.166262 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 25.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+2026-09-04 07:29:47 [12,777ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-04 07:29:47 [12,777ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-04 07:29:47 [12,779ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-04 07:29:47 [12,779ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-04 07:29:47 [12,780ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-04 07:29:47 [12,780ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-04 07:29:49 [15,054ms] [Warning] [omni.hydra.scene_delegate.plugin] Calling getBypassRenderSkelMeshProcessing for prim /World/envs/env_0/Object/visuals.proto_visuals_id0 that has not been populated
+[INFO]: Time taken for simulation start : 2.693203 seconds
+[INFO] Command Manager:  <CommandManager> contains 1 active terms.
++------------------------------------------+
+|           Active Command Terms           |
++-------+-------------+--------------------+
+| Index | Name        |        Type        |
++-------+-------------+--------------------+
+|   0   | object_pose | UniformPoseCommand |
++-------+-------------+--------------------+
+
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++--------------------------------------+
+| Active Event Terms in Mode: 'reset'  |
++---------+----------------------------+
+|  Index  | Name                       |
++---------+----------------------------+
+|    0    | reset_all                  |
+|    1    | reset_object_position      |
++---------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++------------------------------------+
+|   Active Action Terms (shape: 8)   |
++-------+----------------+-----------+
+| Index | Name           | Dimension |
++-------+----------------+-----------+
+|   0   | arm_action     |         7 |
+|   1   | gripper_action |         1 |
++-------+----------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (36,)) |
++----------+-------------------------------------+----------+
+|  Index   | Name                                |  Shape   |
++----------+-------------------------------------+----------+
+|    0     | joint_pos                           |   (9,)   |
+|    1     | joint_vel                           |   (9,)   |
+|    2     | object_position                     |   (3,)   |
+|    3     | target_object_position              |   (7,)   |
+|    4     | actions                             |   (8,)   |
++----------+-------------------------------------+----------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 2 active terms.
++------------------------------------+
+|      Active Termination Terms      |
++-------+-----------------+----------+
+| Index | Name            | Time Out |
++-------+-----------------+----------+
+|   0   | time_out        |   True   |
+|   1   | object_dropping |  False   |
++-------+-----------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 6 active terms.
++-----------------------------------------------------+
+|                 Active Reward Terms                 |
++-------+-----------------------------------+---------+
+| Index | Name                              |  Weight |
++-------+-----------------------------------+---------+
+|   0   | reaching_object                   |     1.0 |
+|   1   | lifting_object                    |    15.0 |
+|   2   | object_goal_tracking              |    16.0 |
+|   3   | object_goal_tracking_fine_grained |     5.0 |
+|   4   | action_rate                       | -0.0001 |
+|   5   | joint_vel                         | -0.0001 |
++-------+-----------------------------------+---------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 2 active terms.
++--------------------------+
+| Active Curriculum Terms  |
++---------+----------------+
+|  Index  | Name           |
++---------+----------------+
+|    0    | action_rate    |
+|    1    | joint_vel      |
++---------+----------------+
+
+[INFO]: Completed setting up the environment...
+[DR] lokal isik: 8 ortam icin olusturuldu
+[DR] masa: instance=False baglanan_mesh=0
+[DR] masa mesh baglama: MESH BULUNAMADI (gorsel dogrulama ayrica yapilmali)
+[TOPLA] 40 bolum hedefi | 8 paralel ortam | 224px | 50 Hz
+[TOPLA] bolum 1/40 (248 adim, tepe_z=0.482m, son_z=0.482m, BASARILI)
+[TOPLA] bolum 2/40 (248 adim, tepe_z=0.347m, son_z=0.347m, BASARILI)
+[TOPLA] bolum 3/40 (248 adim, tepe_z=0.278m, son_z=0.278m, BASARILI)
+[TOPLA] bolum 4/40 (248 adim, tepe_z=0.271m, son_z=0.271m, BASARILI)
+[TOPLA] bolum 5/40 (248 adim, tepe_z=0.463m, son_z=0.463m, BASARILI)
+[TOPLA] bolum 6/40 (248 adim, tepe_z=0.413m, son_z=0.413m, BASARILI)
+[TOPLA] bolum 7/40 (248 adim, tepe_z=0.404m, son_z=0.404m, BASARILI)
+[TOPLA] bolum 8/40 (248 adim, tepe_z=0.248m, son_z=0.248m, BASARILI)
+[TOPLA] bolum 9/40 (250 adim, tepe_z=0.091m, son_z=0.079m, basarisiz)
+[TOPLA] bolum 10/40 (250 adim, tepe_z=0.338m, son_z=0.338m, BASARILI)
+[TOPLA] bolum 11/40 (250 adim, tepe_z=0.286m, son_z=0.286m, BASARILI)
+[TOPLA] bolum 12/40 (250 adim, tepe_z=0.359m, son_z=0.359m, BASARILI)
+[TOPLA] bolum 13/40 (250 adim, tepe_z=0.079m, son_z=0.079m, basarisiz)
+[TOPLA] bolum 14/40 (250 adim, tepe_z=0.454m, son_z=0.454m, BASARILI)
+[TOPLA] bolum 15/40 (250 adim, tepe_z=0.481m, son_z=0.481m, BASARILI)
+[TOPLA] bolum 16/40 (250 adim, tepe_z=0.367m, son_z=0.367m, BASARILI)
+[TOPLA] bolum 17/40 (250 adim, tepe_z=1.675m, son_z=0.079m, basarisiz)
+[TOPLA] bolum 18/40 (250 adim, tepe_z=0.434m, son_z=0.434m, BASARILI)
+[TOPLA] bolum 19/40 (250 adim, tepe_z=0.489m, son_z=0.489m, BASARILI)
+[TOPLA] bolum 20/40 (250 adim, tepe_z=0.379m, son_z=0.379m, BASARILI)
+[TOPLA] bolum 21/40 (250 adim, tepe_z=0.079m, son_z=0.079m, basarisiz)
+[TOPLA] bolum 22/40 (250 adim, tepe_z=0.305m, son_z=0.305m, BASARILI)
+[TOPLA] bolum 23/40 (250 adim, tepe_z=0.381m, son_z=0.381m, BASARILI)
+[TOPLA] bolum 24/40 (250 adim, tepe_z=0.358m, son_z=0.358m, BASARILI)
+[TOPLA] bolum 25/40 (250 adim, tepe_z=0.112m, son_z=0.079m, basarisiz)
+[TOPLA] bolum 26/40 (250 adim, tepe_z=0.448m, son_z=0.448m, BASARILI)
+[TOPLA] bolum 27/40 (250 adim, tepe_z=0.433m, son_z=0.433m, BASARILI)
+[TOPLA] bolum 28/40 (250 adim, tepe_z=0.262m, son_z=0.262m, BASARILI)
+[TOPLA] bolum 29/40 (250 adim, tepe_z=0.437m, son_z=0.437m, BASARILI)
+[TOPLA] bolum 30/40 (250 adim, tepe_z=0.440m, son_z=0.440m, BASARILI)
+[TOPLA] bolum 31/40 (250 adim, tepe_z=0.389m, son_z=0.389m, BASARILI)
+[TOPLA] bolum 32/40 (250 adim, tepe_z=0.495m, son_z=0.495m, BASARILI)
+[TOPLA] bolum 33/40 (250 adim, tepe_z=0.079m, son_z=0.079m, basarisiz)
+[TOPLA] bolum 34/40 (250 adim, tepe_z=0.417m, son_z=0.417m, BASARILI)
+[TOPLA] bolum 35/40 (250 adim, tepe_z=0.340m, son_z=0.340m, BASARILI)
+[TOPLA] bolum 36/40 (250 adim, tepe_z=0.452m, son_z=0.452m, BASARILI)
+[TOPLA] bolum 37/40 (250 adim, tepe_z=0.477m, son_z=0.477m, BASARILI)
+[TOPLA] bolum 38/40 (250 adim, tepe_z=0.319m, son_z=0.319m, BASARILI)
+[TOPLA] bolum 39/40 (250 adim, tepe_z=0.261m, son_z=0.261m, BASARILI)
+[TOPLA] bolum 40/40 (250 adim, tepe_z=0.297m, son_z=0.297m, BASARILI)
+
+============================================================
+[TOPLA] YAZILDI: /home/orhan/franka_runs/data/probe_cam.hdf5
+[TOPLA] 40 bolum | 9984 kare | basari 34/40
+[TOPLA] dosya 1025.1 MB | sure 44.7s | 223.5 kare/s
+[TOPLA] VRAM TEPE: 3766 MiB / 6144 MiB (num_envs=8)
+[TOPLA] DR raporu: {'masa_baglama': False, 'notlar': ['lokal isik: 8 ortam icin olusturuldu', 'masa: instance=False baglanan_mesh=0', 'masa mesh baglama: MESH BULUNAMADI (gorsel dogrulama ayrica yapilmali)']}
+============================================================
+/home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/isaacsim/exts/isaacsim.simulation_app/isaacsim/simulation_app/simulation_app.py:576: RuntimeWarning: coroutine '_Orchestrator.stop.<locals>.on_stop' was never awaited
+  pass
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+[SHUTDOWN] close() 30.0s icinde donmedi -> zorla cikis

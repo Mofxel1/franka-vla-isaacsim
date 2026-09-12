@@ -1,0 +1,23 @@
+===== GUNCEL KAMERA GEOMETRISIYLE TOPLANAN VERI =====
+--- 3000 adim ---
+checkpoint: /home/orhan/franka_runs/train_geo/checkpoints/003000/pretrained_model
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :  106.4 mm
+  ortalama    :  176.3 mm   (min 11 / max 1626)
+  x: egim +1.319  kesme -0.167  kor +0.217  sapma -5mm
+  y: egim +0.940  kesme +0.004  kor +0.893  sapma +5mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan  101.1 mm | ortalama  113.5 mm
+    x: egim +1.085  kor +0.457
+    y: egim +0.988  kor +0.952
+--- 6000 adim ---
+checkpoint: /home/orhan/franka_runs/train_geo/checkpoints/006000/pretrained_model
+n=45 bolum, kare 2 | NESNE-MERKEZLI
+  medyan hata :  137.3 mm
+  ortalama    :  201.2 mm   (min 13 / max 1402)
+  x: egim +2.042  kesme -0.454  kor +0.356  sapma +73mm
+  y: egim +0.841  kesme -0.021  kor +0.805  sapma -20mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan  134.5 mm | ortalama  142.2 mm
+    x: egim +1.482  kor +0.581
+    y: egim +1.046  kor +0.959
