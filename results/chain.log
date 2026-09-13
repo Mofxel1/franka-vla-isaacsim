@@ -154,3 +154,8 @@
 [17:00] 200 EVAL: p200_fixdag -> [TEST] SONUC: 2/200 basarili (1%)
 [17:00] 200 EVAL TAMAMLANDI
 [17:04] VIDEO HAZIR: [TEST] SONUC: 9/32 basarili (28%)
+[17:25] YENIDEN: y_geo3 -> [TEST] SONUC: 24/200 basarili (12%)
+[17:33] YENIDEN: y_rest -> [TEST] SONUC: 22/200 basarili (11%)
+[17:43] YENIDEN: y_3kam -> [TEST] SONUC: 35/200 basarili (18%)
+[17:51] YENIDEN: y_dart2 -> [TEST] SONUC: 62/200 basarili (31%)
+[17:51] YENIDEN OLCUM TAMAMLANDI

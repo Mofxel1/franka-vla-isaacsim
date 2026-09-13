@@ -1355,6 +1355,65 @@ beş gün arayla iki kez.
 
 ---
 
+### 2026-09-13 (akşam) — SIRALAMA BAŞTAN AŞAĞI DEĞİŞTİ
+
+Düzeltilmiş paralel eval ile **200'er bölüm**, her model kendi eğitim rejiminde:
+
+| model | rejim | başarı | çevrimdışı algı |
+|---|---|---|---|
+| **`train_fixcam`** | sabit kamera | **76/200 (%38)** | 31.6 mm |
+| `train_dart2` | randomize + DART | 62/200 (%31) | 49.4 mm |
+| `train_3kam` | randomize, 3 kamera | 35/200 (%18) | 33.6 mm |
+| `train_geo3` | randomize, 2 kamera | 24/200 (%12) | 41.4 mm |
+| `train_rest` | randomize, REST'siz | 22/200 (%11) | 41.4 mm |
+| `train_fixdag` | sabit + DAgger | 2/200 (%1) | **26.3 mm** |
+
+#### YANLIŞ ELENEN İKİ DAL
+
+- **DART ikinci en iyi model (%31).** "Eğriyi düzleştirdi ama tabanı iki katına
+  çıkardı, net sonuç kötü, 0/20" diye elenmişti.
+- **Üç kamera gerçekten işe yarıyor (%18 vs geo3'ün %12'si).** "İşe yaramadı"
+  diye elenmişti.
+
+Her iki eleme de bozuk eval ile yapılmıştı.
+
+#### EN ÖNEMLİ BULGU: `localize_test.py` GÖREV BAŞARISINI ÖNGÖRMÜYOR
+
+```
+cevrimdisi lokalizasyon  <->  kapali dongu basarisi
+   korelasyon: +0.310      (iyi bir vekil -1'e yakin olurdu)
+```
+
+En çarpıcı çift:
+
+| | çevrimdışı | başarı |
+|---|---|---|
+| `train_fixdag` | **26.3 mm (EN İYİ)** | **%1 (EN KÖTÜ)** |
+| `train_dart2` | **49.4 mm (EN KÖTÜ)** | **%31 (2.)** |
+
+`localize_test.py` bu projede "ASIL METRİK" diye adlandırılmış ve haftalarca
+bütün kararlar ona dayandırılmıştı. **Öngörü gücü yok.**
+
+Bu, projenin ilk dersinin aynısı, bir kat yukarıda: açık döngü metrikleri
+(uzmanla MAE) yanıltıyordu, yerine bir vekil kondu, o vekil de yanıltıyor.
+Ölçüm noktası bölüm başındaki tek bir plan; görev ise 250 adımlık kapalı bir
+döngü. Aradaki her şey — sapmadan toparlanma, tutucu zamanlaması, kolun
+küpü devirmemesi — bu vekilde hiç görünmüyor. DART'ın kazandırdığı tam da bu
+görünmeyen kısımdı.
+
+#### BUNDAN SONRA: doğrudan başarı oranı ölç
+
+Paralel eval sayesinde 200 bölüm **~8 dakika**. Vekil metriğe gerek yok.
+`localize_test.py` tanı aracı olarak kalır (modelin ne gördüğünü okumak için),
+ama **karar metriği kapalı döngü başarı oranıdır**.
+
+#### Denenmemiş: kazananları birleştir
+
+Üç bağımsız kazanç var ve hiçbiri birlikte denenmedi:
+**sabit kamera (%38) + DART (%31) + üç kamera (%18)**.
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in

@@ -6,24 +6,27 @@ Son güncelleme: 2026-09-12 (akşam)
 
 ## Tek cümlelik özet
 
-**2026-09-13: PROJENİN İLK KAVRAMALARI. Ve `0/20`'lerin tamamı ölçüm hatasıymış.**
+**2026-09-13: kapalı döngü ÇALIŞIYOR. En iyi model %38.**
 
-`eval_policy_isaacsim.py` küpü `env.step()`'ten SONRA okuyordu; Isaac Lab bölüm
-bitince ortamı step() içinde sıfırladığı için `final_z` hep taze küpün
-yüksekliğini (0.055) veriyordu. Eşik 0.10 → **`success` yapısal olarak
-imkânsızdı.** Küp okuması step öncesine alındı.
+Üç ölçüm hatası düzeltildi (ısınma kolu fırlatıyordu; `final_z` sıfırlanmış
+küpten okunuyordu; eval 0. ortamın aksiyonunu 8 ortama yayınlıyordu). Eval
+artık 8 ortamı bağımsız ölçüyor ve 200 bölüm **8 dakika** sürüyor.
 
-| model | kamera | başarı | ALGI a0 | çevrimdışı |
-|---|---|---|---|---|
-| **`train_fixcam`** | sabit | **2/20 (%10)** | 41.0 mm | 31.6 mm |
-| `train_fixdag` | sabit + DAgger | 1/20 (%5) | 40.0 mm | **26.3 mm** |
-| `train_geo3` | randomize | 0/20 | 48.5 mm | 41.4 mm |
+| model | rejim | başarı | çevrimdışı |
+|---|---|---|---|
+| **`train_fixcam`** | sabit kamera | **%38** | 31.6 mm |
+| `train_dart2` | randomize + DART | %31 | 49.4 mm |
+| `train_3kam` | randomize, 3 kamera | %18 | 33.6 mm |
+| `train_geo3` | randomize, 2 kamera | %12 | 41.4 mm |
+| `train_rest` | randomize, REST'siz | %11 | 41.4 mm |
+| `train_fixdag` | sabit + DAgger | %1 | **26.3 mm** |
 
-`geo3`'ün sıfırı gerçekmiş; ölçüm hatası sabit-kameralı modellerin **gerçek**
-başarılarını gizliyormuş.
+**`localize_test.py` görev başarısını ÖNGÖRMÜYOR** (korelasyon +0.310, işaret
+bile yanlış). En iyi çevrimdışı model canlıda en kötüsü. Artık karar metriği
+doğrudan **başarı oranı**; localize_test sadece tanı aracı.
 
-**Sıradaki iş:** n=20 çok küçük (2/20 ile 1/20 ayrışmaz). Güvenilir bir sayı
-için 60-100 bölümlük eval gerek.
+**Sıradaki iş:** kazananları birleştir — sabit kamera + DART + üç kamera.
+Üçü de bağımsız kazanç sağlıyor, hiçbiri birlikte denenmedi.
 
 ## Kanıtın özeti
 
