@@ -1414,6 +1414,71 @@ ama **karar metriği kapalı döngü başarı oranıdır**.
 
 ---
 
+### 2026-09-13 (gece) — İKİ ANOMALİ TEŞHİS EDİLDİ
+
+#### 1. İLK DALGA: küp masaya değil YERE düşüyor
+
+Her koşuda ilk 8 bölüm 0/8, sonrakiler 2-5/8. Sebebi ham veride görünüyor:
+
+```
+bolum            z[0]     z[5]    z[20]   z[son]
+episode_000000  0.0452   0.0210   0.0210  0.3541   <- ILK DALGA
+...
+episode_000008  0.0550   0.0790   0.0790  0.0790   <- sonraki dalgalar
+```
+
+İlk dalgada küp **0.0210**'da duruyor, sonrakilerde **0.0790**'da — 5.8 cm fark.
+Masanın çarpışma gövdesi `env.reset()` sonrası ilk bölümde henüz hazır değil,
+küp masanın içinden geçip yere düşüyor.
+
+**Tam olarak 0-7 numaralı bölümler**, her toplama dosyasında (8/104, 8/104).
+Deterministik ve izole.
+
+Uzman bunu umursamıyor (küpün yerini simülatörden biliyor, yerden de alıyor)
+ama politika küpü o yükseklikte hiç görmedi.
+
+**Etkisi iki yönlü:**
+- **Ölçümde:** her eval'in ilk 8 bölümü sistematik olarak kayıp (%38 → %39.6).
+- **Eğitimde:** bu 8 bölüm veri setinde ve küp asla oluşmayan bir yükseklikte.
+
+**Düzeltme:** eval'de ilk dalga sayılmaz (`--skip_first_episodes`, varsayılan 8);
+çevirmede ilk 8 bölüm atlanır.
+
+#### 2. DAgger NEDEN FELAKET: uzmanın fazı hiç ilerlemiyor
+
+`train_fixdag` %1 — en iyi çevrimdışı (26.3 mm), en kötü canlı.
+
+```
+                  kapali kare orani   tutucuyu HIC kapatmayan bolum
+UZMAN  verisi          %41.1                 14/104
+DAgger verisi           %3.4                 96/104
+```
+
+**DAgger bölümlerinin 96/104'ünde uzman tutucuyu bir kez bile kapatmıyor.**
+
+Uzman bir **durum makinesi** ve fazları içsel (`REST → APPROACH_ABOVE →
+APPROACH → GRASP → LIFT`). Politika kavrama pozuna varamadığı için makine
+`APPROACH`'ta takılıyor ve "kapat" komutunu hiç üretmiyor.
+
+Birleşik veri setinde "kapat" sinyali %41'den ~%22'ye seyreliyor **ve** DAgger
+yarısı modele *"böyle durumlarda tutucuyu AÇIK tut"* diye öğretiyor — o
+durumlar tam olarak modelin eval'de karşılaştığı durumlar.
+
+Yan gösterge: uzmanın komutu kolun ne kadar uzağında —
+uzman verisinde medyan 42.0 mm, DAgger verisinde 84.4 mm (iki katı).
+
+**Bu, betik-uzmanlı DAgger'ın YAPISAL kusuru.** DAgger'ın vaadi "uzman buradan
+ne yapardı" demesi; fazlı bir uzmanda "buradan" sorusunun cevabı içsel faza
+bağlı ve o faz ilerlemiyor. DART'ın neden çalışıp (%31) DAgger'ın neden
+çöktüğü (%1) de buradan: DART uzmanın KENDI yörüngesini bozuyor, faz normal
+ilerliyor ve "kapat" örnekleri veride kalıyor.
+
+**Düzeltme:** FAZSIZ (stateless) uzman — fazı içsel tutmak yerine her adımda
+geometriden yeniden hesapla. (Not: `vla_franka` reposunun config'inde
+`phase_agnostic` diye bir seçenek var; aynı problem.)
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in
