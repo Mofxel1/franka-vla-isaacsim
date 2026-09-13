@@ -1,0 +1,301 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/orhan/Projects/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[Warning] [simulation_app.simulation_app] Modules: ['omni.kit_app'] were loaded before SimulationApp was started and might not be loaded correctly.
+[Warning] [simulation_app.simulation_app] Please check to make sure no extra omniverse or pxr modules are imported before the call to SimulationApp(...)
+Loading user config located at: '/home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/omni/data/Kit/Isaac-Sim/4.5/user.config.json'
+[Info] [carb] Logging to file: /home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/omni/logs/Kit/Isaac-Sim/4.5/kit_20260913_162440.log
+2026-09-13 13:24:40 [0ms] [Warning] [omni.kit.app.plugin] No crash reporter present, dumps uploading isn't available.
+2026-09-13 13:24:40 [4ms] [Warning] [omni.ext.plugin] [ext: rendering_modes] Extensions config 'extension.toml' doesn't exist '/home/orhan/Projects/IsaacLab/apps/rendering_modes' or '/home/orhan/Projects/IsaacLab/apps/rendering_modes/config'
+2026-09-13 13:24:40 [161ms] [Warning] [omni.datastore] OmniHub is inaccessible
+2026-09-13 13:24:40 [365ms] [Warning] [gpu.foundation.plugin] Skipping unsupported non-NVIDIA GPU: Intel(R) Xe Graphics (TGL GT2)
+2026-09-13 13:24:40 [365ms] [Warning] [gpu.foundation.plugin] Skipping unsupported non-NVIDIA GPU: Intel(R) Xe Graphics (TGL GT2)
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 535.53.01     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 3060 Laptop.. | Yes: 0 |     | 6144    MB | 10de      | 0          |
+|     |                                  |        |     |            | 2520      | 5aecfddd.. |
+|     |                                  |        |     |            | 1         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | Intel(R) Xe Graphics (TGL GT2)   |        |     | 17793   MB | 8086      | 0          |
+|     |                                  |        |     |            | 9a49      | 8680499a.. |
+|     |                                  |        |     |            | 0         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-40-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: 11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz
+| Cores: 4 | Logical Cores: 8
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 23724 | Free Memory: 15294
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-09-13 13:24:41 [612ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-09-13 13:24:41 [612ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 315.08 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.93 
+
+   CPU     0 
+     0   1.74 
+2026-09-13 13:24:42 [1,677ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-09-13 13:24:43 [3,316ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-09-13 13:24:44 [3,845ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/ambientOcclusion/enabled'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/directLighting/sampledLighting/enabled'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/indirectDiffuse/enabled'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/raytracing/cached/enabled'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/reflections/enabled'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/sceneDb/ambientLightIntensity'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/translucency/enabled'
+2026-09-13 13:24:46 [6,056ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/verifyDriverVersion/enabled'
+2026-09-13 13:24:46 [6,057ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/viewTile/limit'
+2026-09-13 13:24:46 [6,166ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit buffer size 8274665856
+2026-09-13 13:24:46 [6,166ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : valid false, within: false
+2026-09-13 13:24:46 [6,166ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : decrement: 167690, decrement size: 8191919488
+2026-09-13 13:24:46 [6,166ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : New limit 8692359 (slope: 493, intercept: 7537024)
+2026-09-13 13:24:46 [6,166ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit buffer size 4289241344
+2026-09-13 13:24:46 [6,166ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : valid true, within: true
+2026-09-13 13:24:46 [6,291ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/directLighting/sampledLighting/samplesPerPixel'
+2026-09-13 13:24:46 [6,292ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/pathtracing/maxSamplesPerLaunch'
+2026-09-13 13:24:46 [6,292ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults-transient/meshlights/forceDisable'
+2026-09-13 13:24:46 [6,336ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/post/dlss/execMode'
+[INFO]: Parsing configuration from: isaaclab_tasks.manager_based.manipulation.lift.config.franka.ik_abs_env_cfg:FrankaCubeLiftEnvCfg
+2026-09-13 13:24:51 [10,956ms] [Warning] [isaaclab.envs.manager_based_env] Seed not set for the environment. The environment creation may not be deterministic.
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.01
+	Rendering step-size   : 0.02
+	Environment step-size : 0.02
+[INFO]: Time taken for scene creation : 3.313405 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 25.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+2026-09-13 13:24:55 [14,606ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-13 13:24:55 [14,606ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-13 13:24:55 [14,609ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-13 13:24:55 [14,610ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-13 13:24:55 [14,611ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-13 13:24:55 [14,611ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-13 13:24:58 [17,851ms] [Warning] [omni.hydra.scene_delegate.plugin] Calling getBypassRenderSkelMeshProcessing for prim /World/envs/env_0/Object/visuals.proto_visuals_id0 that has not been populated
+[INFO]: Time taken for simulation start : 3.787134 seconds
+[INFO] Command Manager:  <CommandManager> contains 1 active terms.
++------------------------------------------+
+|           Active Command Terms           |
++-------+-------------+--------------------+
+| Index | Name        |        Type        |
++-------+-------------+--------------------+
+|   0   | object_pose | UniformPoseCommand |
++-------+-------------+--------------------+
+
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++--------------------------------------+
+| Active Event Terms in Mode: 'reset'  |
++---------+----------------------------+
+|  Index  | Name                       |
++---------+----------------------------+
+|    0    | reset_all                  |
+|    1    | reset_object_position      |
++---------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++------------------------------------+
+|   Active Action Terms (shape: 8)   |
++-------+----------------+-----------+
+| Index | Name           | Dimension |
++-------+----------------+-----------+
+|   0   | arm_action     |         7 |
+|   1   | gripper_action |         1 |
++-------+----------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (36,)) |
++----------+-------------------------------------+----------+
+|  Index   | Name                                |  Shape   |
++----------+-------------------------------------+----------+
+|    0     | joint_pos                           |   (9,)   |
+|    1     | joint_vel                           |   (9,)   |
+|    2     | object_position                     |   (3,)   |
+|    3     | target_object_position              |   (7,)   |
+|    4     | actions                             |   (8,)   |
++----------+-------------------------------------+----------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 2 active terms.
++------------------------------------+
+|      Active Termination Terms      |
++-------+-----------------+----------+
+| Index | Name            | Time Out |
++-------+-----------------+----------+
+|   0   | time_out        |   True   |
+|   1   | object_dropping |  False   |
++-------+-----------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 6 active terms.
++-----------------------------------------------------+
+|                 Active Reward Terms                 |
++-------+-----------------------------------+---------+
+| Index | Name                              |  Weight |
++-------+-----------------------------------+---------+
+|   0   | reaching_object                   |     1.0 |
+|   1   | lifting_object                    |    15.0 |
+|   2   | object_goal_tracking              |    16.0 |
+|   3   | object_goal_tracking_fine_grained |     5.0 |
+|   4   | action_rate                       | -0.0001 |
+|   5   | joint_vel                         | -0.0001 |
++-------+-----------------------------------+---------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 2 active terms.
++--------------------------+
+| Active Curriculum Terms  |
++---------+----------------+
+|  Index  | Name           |
++---------+----------------+
+|    0    | action_rate    |
+|    1    | joint_vel      |
++---------+----------------+
+
+[INFO]: Completed setting up the environment...
+[TEST] politika sunucusuna baglanildi: 127.0.0.1:8765
+[DR] lokal isik: 8 ortam icin olusturuldu
+[DR] masa: instance=False baglanan_mesh=0
+[DR] masa mesh baglama: MESH BULUNAMADI (gorsel dogrulama ayrica yapilmali)
+/home/orhan/Projects/franka_vla_data/scripts/eval_policy_isaacsim.py:286: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:206.)
+  act_t = torch.from_numpy(np.ascontiguousarray(action)).float().unsqueeze(0).to(dev)
+[TEST] bolum 1/12 | adim=250 | tepe_z=0.176m son_z=0.021m | basarisiz
+[HAM] bolum 1: adim | hedef(xyz) | ee(xyz) | kup(xy) | tutucu
+[HAM]  0 | (+0.476,+0.032,+0.365) | (+0.463,+0.000,+0.385) | (+0.430,+0.039) | +0.96
+[HAM]  1 | (+0.482,+0.025,+0.367) | (+0.456,+0.001,+0.380) | (+0.430,+0.039) | +0.99
+[HAM]  2 | (+0.476,+0.022,+0.370) | (+0.451,+0.003,+0.384) | (+0.430,+0.039) | +1.00
+[HAM]  3 | (+0.483,+0.027,+0.367) | (+0.446,+0.005,+0.389) | (+0.430,+0.039) | +1.00
+[HAM]  4 | (+0.480,+0.026,+0.365) | (+0.443,+0.008,+0.395) | (+0.430,+0.039) | +0.98
+[HAM]  5 | (+0.477,+0.030,+0.366) | (+0.439,+0.010,+0.399) | (+0.430,+0.039) | +0.99
+[HAM]  6 | (+0.475,+0.029,+0.360) | (+0.436,+0.012,+0.402) | (+0.430,+0.039) | +0.94
+[HAM]  7 | (+0.476,+0.028,+0.360) | (+0.432,+0.014,+0.403) | (+0.430,+0.039) | +0.99
+[HAM]  8 | (+0.469,+0.058,+0.175) | (+0.429,+0.016,+0.402) | (+0.430,+0.039) | +0.99
+[HAM]  9 | (+0.471,+0.060,+0.177) | (+0.426,+0.019,+0.394) | (+0.430,+0.039) | +0.97
+[HAM] 10 | (+0.472,+0.059,+0.176) | (+0.421,+0.023,+0.376) | (+0.430,+0.039) | +0.96
+[HAM] 11 | (+0.471,+0.058,+0.177) | (+0.417,+0.027,+0.357) | (+0.430,+0.039) | +0.98
+[HAM] 12 | (+0.471,+0.054,+0.177) | (+0.413,+0.030,+0.338) | (+0.430,+0.039) | +0.98
+[HAM] 13 | (+0.469,+0.054,+0.177) | (+0.411,+0.033,+0.321) | (+0.430,+0.039) | +0.98
+[HAM] 14 | (+0.469,+0.056,+0.177) | (+0.409,+0.035,+0.306) | (+0.430,+0.039) | +0.97
+[HAM] 15 | (+0.467,+0.062,+0.178) | (+0.408,+0.038,+0.292) | (+0.430,+0.039) | +0.99
+[HAM] 16 | (+0.468,+0.063,+0.177) | (+0.408,+0.040,+0.280) | (+0.430,+0.039) | +0.99
+[HAM] 17 | (+0.468,+0.062,+0.176) | (+0.408,+0.042,+0.269) | (+0.430,+0.039) | +0.98
+[HAM] 18 | (+0.467,+0.064,+0.177) | (+0.409,+0.044,+0.260) | (+0.430,+0.039) | +0.97
+[HAM] 19 | (+0.468,+0.064,+0.177) | (+0.410,+0.046,+0.251) | (+0.430,+0.039) | +0.97
+[HAM] 20 | (+0.468,+0.061,+0.176) | (+0.412,+0.048,+0.243) | (+0.430,+0.039) | +0.98
+[HAM] 21 | (+0.467,+0.061,+0.176) | (+0.413,+0.050,+0.236) | (+0.430,+0.039) | +0.99
+[HAM] 22 | (+0.467,+0.062,+0.176) | (+0.415,+0.051,+0.230) | (+0.430,+0.039) | +0.97
+[HAM] 23 | (+0.467,+0.061,+0.176) | (+0.417,+0.052,+0.224) | (+0.430,+0.039) | +1.02
+[HAM] 24 | (+0.467,+0.063,+0.177) | (+0.419,+0.053,+0.219) | (+0.430,+0.039) | +0.98
+[HAM] 25 | (+0.447,+0.016,+0.130) | (+0.422,+0.054,+0.215) | (+0.430,+0.039) | +0.98
+[HAM] 26 | (+0.448,+0.017,+0.130) | (+0.424,+0.053,+0.210) | (+0.430,+0.039) | +0.99
+[HAM] 27 | (+0.447,+0.015,+0.129) | (+0.425,+0.051,+0.203) | (+0.430,+0.039) | +1.00
+[HAM] 28 | (+0.443,+0.009,+0.127) | (+0.425,+0.048,+0.196) | (+0.430,+0.039) | +0.98
+[HAM] 29 | (+0.442,+0.008,+0.124) | (+0.425,+0.045,+0.189) | (+0.430,+0.039) | +0.98
+[HAM] 30 | (+0.441,+0.008,+0.125) | (+0.425,+0.041,+0.183) | (+0.430,+0.039) | +0.98
+[HAM] 35 | (+0.439,+0.011,+0.110) | (+0.427,+0.027,+0.157) | (+0.430,+0.039) | +1.00
+[HAM] 40 | (+0.441,+0.010,+0.108) | (+0.429,+0.019,+0.139) | (+0.430,+0.039) | +1.00
+[HAM] 45 | (+0.441,+0.012,+0.107) | (+0.432,+0.014,+0.127) | (+0.430,+0.039) | +1.00
+[HAM] 50 | (+0.429,+0.041,+0.127) | (+0.435,+0.013,+0.120) | (+0.430,+0.039) | +0.98
+[HAM] 55 | (+0.429,+0.048,+0.062) | (+0.432,+0.022,+0.111) | (+0.430,+0.039) | +1.01
+[HAM] 60 | (+0.428,+0.043,+0.053) | (+0.431,+0.033,+0.094) | (+0.430,+0.039) | +1.01
+[HAM] 65 | (+0.427,+0.045,+0.045) | (+0.428,+0.038,+0.077) | (+0.430,+0.039) | +1.01
+[HAM] 70 | (+0.427,+0.044,+0.042) | (+0.427,+0.041,+0.064) | (+0.430,+0.039) | +1.01
+[HAM] 75 | (+0.407,+0.045,+0.036) | (+0.426,+0.041,+0.057) | (+0.430,+0.039) | +0.97
+[HAM] 80 | (+0.420,+0.045,+0.030) | (+0.422,+0.043,+0.050) | (+0.430,+0.039) | +0.98
+[HAM] 85 | (+0.422,+0.043,+0.025) | (+0.421,+0.044,+0.042) | (+0.430,+0.039) | +0.97
+[HAM] 90 | (+0.421,+0.040,+0.026) | (+0.421,+0.044,+0.036) | (+0.430,+0.039) | +0.98
+[HAM] 95 | (+0.424,+0.043,+0.021) | (+0.422,+0.043,+0.032) | (+0.430,+0.039) | +1.00
+[HAM] 100 | (+0.412,+0.013,+0.037) | (+0.422,+0.041,+0.029) | (+0.430,+0.041) | +0.96
+[HAM] 105 | (+0.416,+0.018,+0.025) | (+0.420,+0.032,+0.031) | (+0.431,+0.039) | +0.97
+[HAM] 110 | (+0.415,+0.025,+0.027) | (+0.419,+0.026,+0.030) | (+0.431,+0.039) | -0.98
+[HAM] 115 | (+0.413,+0.029,+0.032) | (+0.417,+0.026,+0.030) | (+0.431,+0.027) | -0.99
+[HAM] 120 | (+0.413,+0.032,+0.031) | (+0.415,+0.027,+0.032) | (+0.428,+0.029) | -1.00
+[HAM] 125 | (+0.421,+0.059,+0.038) | (+0.414,+0.030,+0.034) | (+0.428,+0.031) | +0.96
+[HAM] 130 | (+0.465,+0.037,+0.166) | (+0.414,+0.042,+0.038) | (+0.428,+0.044) | -0.90
+[HAM] 135 | (+0.428,+0.060,+0.066) | (+0.421,+0.050,+0.057) | (+0.435,+0.052) | -0.95
+[HAM] 140 | (+0.428,+0.054,+0.067) | (+0.424,+0.054,+0.064) | (+0.438,+0.055) | -0.97
+[HAM] 145 | (+0.526,-0.028,+0.274) | (+0.430,+0.046,+0.098) | (+0.444,+0.048) | -0.96
+[HAM] 150 | (+0.430,-0.018,+0.182) | (+0.472,+0.015,+0.169) | (+0.486,+0.017) | +0.99
+[HAM] 155 | (+0.438,-0.012,+0.181) | (+0.464,-0.011,+0.186) | (+0.511,-0.026) | -0.95
+[IZ] bolum 1 kapanis adim=72 kup=(0.430,0.039) hedef=(0.427,0.038) ee=(0.426,0.041) hedef_hata=4mm ee_hata=5mm
+[TEST] bolum 2/12 | adim=250 | tepe_z=0.121m son_z=0.079m | basarisiz
+[IZ] bolum 2: tutucu hic kapanmadi
+[TEST] bolum 3/12 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 3: tutucu hic kapanmadi
+[TEST] bolum 4/12 | adim=250 | tepe_z=0.090m son_z=0.079m | basarisiz
+[IZ] bolum 4: tutucu hic kapanmadi
+[TEST] bolum 5/12 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 5: tutucu hic kapanmadi
+[TEST] bolum 6/12 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 6: tutucu hic kapanmadi
+[TEST] bolum 7/12 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 7: tutucu hic kapanmadi
+[TEST] bolum 8/12 | adim=250 | tepe_z=0.081m son_z=0.079m | basarisiz
+[IZ] bolum 8: tutucu hic kapanmadi
+[TEST] bolum 9/12 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 9: tutucu hic kapanmadi
+[TEST] bolum 10/12 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 10 kapanis adim=25 kup=(0.506,-0.141) hedef=(0.393,-0.069) ee=(0.011,0.538) hedef_hata=134mm ee_hata=840mm
+[TEST] bolum 11/12 | adim=250 | tepe_z=0.095m son_z=0.079m | basarisiz
+[IZ] bolum 11: tutucu hic kapanmadi
+[TEST] bolum 12/12 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 12: tutucu hic kapanmadi
+
+============================================================
+
+[ALGI] modelin KENDI kup tahmininin hatasi (canli, adim adim):
+[ALGI]   adim   0 (n=12): medyan   30.2mm  ort   28.0mm  |  kayma x  +0.1 y  +6.0 mm
+[ALGI]   adim  20 (n=12): medyan   37.0mm  ort  238.8mm  |  kayma x -23.9 y  -9.7 mm
+[ALGI]   adim  40 (n=12): medyan   49.2mm  ort  295.7mm  |  kayma x  +3.1 y  -3.4 mm
+[ALGI]   adim  60 (n=12): medyan   45.9mm  ort  289.2mm  |  kayma x -13.5 y  -8.4 mm
+[ALGI]   adim  80 (n=12): medyan   52.8mm  ort  297.4mm  |  kayma x  -5.4 y  -9.2 mm
+[ALGI]   adim 100 (n=12): medyan   44.0mm  ort  288.0mm  |  kayma x -12.1 y  +1.3 mm
+[ALGI]   adim 120 (n=12): medyan   43.5mm  ort  285.0mm  |  kayma x  -7.5 y  +2.0 mm
+[ALGI]   adim 140 (n=12): medyan   60.7mm  ort  279.1mm  |  kayma x -13.4 y  +2.3 mm
+[ALGI]   adim 160 (n=12): medyan   73.7mm  ort  300.0mm  |  kayma x -14.9 y  -2.0 mm
+
+[ALGI-EGIM] canli algi kalitesi (cevrimdisi 'egim' testinin canli esi):
+[ALGI-EGIM] adim   0: x: egim +0.680 kor +0.904  y: egim +1.070 kor +0.996  | kayma cikinca medyan  31.5mm
+[ALGI-EGIM] adim  20: x: egim -0.072 kor -0.521  y: egim +0.982 kor +0.967  | kayma cikinca medyan  49.1mm
+[ALGI-EGIM] adim  40: x: egim +0.007 kor +0.090  y: egim +0.678 kor +0.788  | kayma cikinca medyan  49.1mm
+[ALGI-EGIM] adim  60: x: egim +0.032 kor +0.445  y: egim +0.677 kor +0.820  | kayma cikinca medyan  52.8mm
+
+[IZ] ERKEN adimlarda XY hatasi (kol henuz sapmadan):
+[IZ]   adim 20 (n=12): hedef<->kup med    37mm  ort   239mm   |  ee<->kup med   750mm
+[IZ]   adim 40 (n=12): hedef<->kup med    49mm  ort   296mm   |  ee<->kup med   951mm
+[IZ]   adim 60 (n=12): hedef<->kup med    46mm  ort   289mm   |  ee<->kup med  1019mm
+
+[IZ] tutucu kapanis aninda XY hatasi (2 bolum):
+[IZ]   modelin HEDEFI  <-> kup : ort 69mm  med 69mm  min 4mm  max 134mm
+[IZ]   kolun GERCEK yeri <-> kup: ort 422mm  med 422mm  min 5mm  max 840mm
+[IZ]   (kup 4cm; kavrama icin ~<20mm gerekir)
+
+[TEST] SONUC: 0/12 basarili (0%)
+============================================================
+[TEST] gif kaydedildi: /home/orhan/isaac_captures/policy_rollout.gif
+/home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/isaacsim/exts/isaacsim.simulation_app/isaacsim/simulation_app/simulation_app.py:576: RuntimeWarning: coroutine '_Orchestrator.stop.<locals>.on_stop' was never awaited
+  pass
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+[SHUTDOWN] close() 30.0s icinde donmedi -> zorla cikis

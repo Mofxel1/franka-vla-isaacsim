@@ -27,6 +27,12 @@ from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--num_episodes", type=int, default=10)
+parser.add_argument("--legacy_broadcast", action="store_true",
+                    help="ESKI davranis: 0. ortamin aksiyonunu 8 ortama yayinla "
+                         "ve sadece 0. ortami olc. Yeni varsayilan her ortamin "
+                         "kendi gozleminden kendi aksiyonunu almasi -- toplama "
+                         "tarafi zaten oyle calisiyordu ve ayni model orada %24, "
+                         "eski eval'de %2 cikiyordu. Sadece A/B icin.")
 parser.add_argument("--res", type=int, default=224)
 parser.add_argument("--env_spacing", type=float, default=8.0)
 parser.add_argument("--legacy_warmup", action="store_true",
@@ -231,125 +237,146 @@ def main():
     pred_err = {}
     obs_dump = []
 
+    # ------------------------------------------------------------------
+    # PARALEL OLCUM: 8 ortamin HEPSI kendi gozleminden kendi aksiyonunu alir.
+    #
+    # 2026-09-13: eski surum 0. ortamin aksiyonunu 8 ortama YAYINLIYOR ve
+    # sadece 0. ortami olcuyordu. Toplama tarafi ise her ortama kendi
+    # aksiyonunu veriyordu. Ayni model toplamada %24, eval'de %2 basarili
+    # cikiyordu; ortam config'i, bolum uzunlugu (250), basari olcutu ve
+    # cikarim yolu esitlendikten sonra geriye kalan TEK yapisal fark buydu.
+    #
+    # Yan fayda: bolum basina duvar saati 8 kata iner -- 200 bolumluk
+    # guvenilir bir olcum 15 dakikada alinabilir.
+    # Eski davranis --legacy_broadcast ile korundu (A/B icin).
+    # ------------------------------------------------------------------
+    NE = env.unwrapped.num_envs
+    solo = args_cli.legacy_broadcast          # True: eski, yayin yapan davranis
+    n_track = 1 if solo else NE               # kac ortam OLCULUYOR
+
+    peak_z = np.zeros(n_track)
+    final_z = np.zeros(n_track)
+    ep_traces = [[] for _ in range(n_track)]
+    reset_flags = np.ones(NE, dtype=bool)
+
+    def flush_episode(i):
+        """i. ortamin biten bolumunu kaydet ve izini temizle."""
+        tr = ep_traces[i]
+        success = peak_z[i] > LIFT_SUCCESS_HEIGHT and final_z[i] > LIFT_SUCCESS_HEIGHT
+        results.append({"peak_z": float(peak_z[i]), "final_z": float(final_z[i]),
+                        "success": bool(success)})
+        print(f"[TEST] bolum {len(results)}/{args_cli.num_episodes} | ortam {i} | "
+              f"adim={len(tr)} | tepe_z={peak_z[i]:.3f}m son_z={final_z[i]:.3f}m | "
+              f"{'BASARILI' if success else 'basarisiz'}", flush=True)
+        if len(results) == 1 and tr:
+            print("[HAM] bolum 1: adim | hedef(xyz) | ee(xyz) | kup(xy) | tutucu", flush=True)
+            for k in list(range(0, min(30, len(tr)))) + list(range(30, min(160, len(tr)), 5)):
+                _, tg, ep_, cb, g = tr[k]
+                print(f"[HAM] {k:>2} | ({tg[0]:+.3f},{tg[1]:+.3f},{tg[2]:+.3f}) | "
+                      f"({ep_[0]:+.3f},{ep_[1]:+.3f},{ep_[2]:+.3f}) | "
+                      f"({cb[0]:+.3f},{cb[1]:+.3f}) | {g:+.2f}", flush=True)
+        # ERKEN adimlar: kol henuz sapmamisken model dogru yeri mi hedefliyor?
+        for k in (20, 40, 60):
+            if k < len(tr):
+                _, tgt, eep, cub, _ = tr[k]
+                early.setdefault(k, []).append(
+                    (float(np.linalg.norm(tgt[:2] - cub[:2])),
+                     float(np.linalg.norm(eep[:2] - cub[:2]))))
+        close_i = next((k for k, (_, _, _, _, g) in enumerate(tr) if g < 0), None)
+        if close_i is not None:
+            _, tgt, eep, cub, _ = tr[close_i]
+            trace_summary.append({"ep": len(results), "adim": close_i,
+                                  "hedef": tgt, "ee": eep, "kup": cub,
+                                  "hedef_hata": float(np.linalg.norm(tgt[:2] - cub[:2])),
+                                  "ee_hata": float(np.linalg.norm(eep[:2] - cub[:2]))})
+            print(f"[IZ] bolum {len(results)} kapanis adim={close_i} "
+                  f"kup=({cub[0]:.3f},{cub[1]:.3f}) hedef=({tgt[0]:.3f},{tgt[1]:.3f}) "
+                  f"ee=({eep[0]:.3f},{eep[1]:.3f}) "
+                  f"hedef_hata={np.linalg.norm(tgt[:2]-cub[:2])*1000:.0f}mm "
+                  f"ee_hata={np.linalg.norm(eep[:2]-cub[:2])*1000:.0f}mm", flush=True)
+        else:
+            print(f"[IZ] bolum {len(results)}: tutucu hic kapanmadi", flush=True)
+        ep_traces[i] = []
+        peak_z[i] = final_z[i] = 0.0
+
     with torch.inference_mode():
         aim_front_cam()
-        # ISINMA: nisanlama sonrasi ilk render henuz olusmadi, bir adim atmadan
-        # kamera okunursa eski kare gelir.
+        # ISINMA: nisanlama sonrasi ilk render henuz olusmadi (fizik adimi ATILMAZ).
         warmup(args_cli.warmup_steps)
 
         while len(results) < args_cli.num_episodes and simulation_app.is_running():
-            front = to_uint8(front_cam.data.output["rgb"])[0]
-            wrist = to_uint8(wrist_cam.data.output["rgb"])[0]
-            side = to_uint8(side_cam.data.output["rgb"])[0] if side_cam is not None else None
+            front_all = to_uint8(front_cam.data.output["rgb"])
+            wrist_all = to_uint8(wrist_cam.data.output["rgb"])
+            side_all = to_uint8(side_cam.data.output["rgb"]) if side_cam is not None else None
 
-            # KUPU env.step()'ten ONCE oku.
-            # 2026-09-13 BULUNAN HATA: kup env.step()'ten SONRA okunuyordu.
-            # Isaac Lab yonetici-tabanli ortami bolum bitince step() ICINDE
-            # kendiliginden sifirliyor -> o okuma YENI bolumun taze kupunu
-            # veriyordu (hep z=0.055). final_z bu yuzden hicbir zaman 0.10
-            # esigini gecemiyordu ve `success` YAPISAL OLARAK imkansizdi.
-            # Projedeki butun 0/20 sonuclari bunun eseri. Toplama tarafi dogru
-            # olcuyordu (tampona step'ten ONCE yaziyor) -- ayni model orada
-            # %22 basarili cikiyordu.
+            # KUPU env.step()'ten ONCE oku. Isaac Lab bolum bitince ortami
+            # step() ICINDE sifirliyor; sonra okunursa YENI bolumun taze kupu
+            # gelir ve final_z hep 0.055 cikar -> success imkansiz olur.
             obj: RigidObjectData = env.unwrapped.scene["object"].data
-            cube = (obj.root_pos_w - origins)[0].cpu().numpy()
-            z = float(cube[2])
-            peak_z = max(peak_z, z)
-            final_z = z
+            cube_all = (obj.root_pos_w - origins).cpu().numpy()          # (NE,3)
 
             robot = env.unwrapped.scene["robot"].data
             ee = env.unwrapped.scene["ee_frame"]
-            ee_pos = (ee.data.target_pos_w[..., 0, :] - origins)[0].cpu().numpy()
-            ee_quat = ee.data.target_quat_w[..., 0, :][0].cpu().numpy()
-            state = np.concatenate(
-                [robot.joint_pos[0].cpu().numpy(), ee_pos, ee_quat]).astype(np.float32)
+            ee_pos_all = (ee.data.target_pos_w[..., 0, :] - origins).cpu().numpy()
+            ee_quat_all = ee.data.target_quat_w[..., 0, :].cpu().numpy()
+            state_all = np.concatenate(
+                [robot.joint_pos.cpu().numpy(), ee_pos_all, ee_quat_all],
+                axis=1).astype(np.float32)                                # (NE,16)
 
-            if len(ep_trace) == args_cli.dump_step and args_cli.dump_obs:
-                _d = {"front": front.copy(), "wrist": wrist.copy(),
-                      "state": state.copy(),
-                      "cube": cube.copy()}
-                # YAN kamera da dokulmeli: 3 kameralı modelin canli x korelasyonu
-                # 0.794 -> 0.285 cokuyor ve bunun sebebi yan kameranin CANLI
-                # goruntusunun EGITIM goruntusunden farkli olmasi olabilir
-                # (on kamerada ayni uyusmazlik 2026-09-04'te bulunmustu).
-                # Karsilastirabilmek icin once kaydetmek gerek.
-                if side is not None:
-                    _d["side"] = side.copy()
+            for i in range(n_track):
+                peak_z[i] = max(peak_z[i], float(cube_all[i, 2]))
+                final_z[i] = float(cube_all[i, 2])
+
+            if len(ep_traces[0]) == args_cli.dump_step and args_cli.dump_obs:
+                _d = {"front": front_all[0].copy(), "wrist": wrist_all[0].copy(),
+                      "state": state_all[0].copy(), "cube": cube_all[0].copy()}
+                if side_all is not None:
+                    _d["side"] = side_all[0].copy()
                 obs_dump.append(_d)
-            action = client.act(front, wrist, state, args_cli.task_prompt,
-                                first_of_episode, side=side)
-            first_of_episode = False
+
+            if solo:
+                action = client.act(front_all[0], wrist_all[0], state_all[0],
+                                    args_cli.task_prompt, bool(reset_flags[0]),
+                                    side=None if side_all is None else side_all[0])
+                act_np = np.tile(np.asarray(action, dtype=np.float32), (NE, 1))
+                pred_all = (None if client.last_cube_pred is None
+                            else np.asarray(client.last_cube_pred)[None, :])
+            else:
+                action = client.act(front_all, wrist_all, state_all,
+                                    args_cli.task_prompt, reset_flags.copy(),
+                                    side=side_all)
+                act_np = np.asarray(action, dtype=np.float32)             # (NE,8)
+                pred_all = (None if client.last_cube_pred is None
+                            else np.asarray(client.last_cube_pred))       # (NE,2)
+            reset_flags[:] = False
 
             if len(results) == 0 and args_cli.save_gif:
-                gif_frames.append(front)
+                gif_frames.append(front_all[0])
 
-            act_t = torch.from_numpy(np.ascontiguousarray(action)).float().unsqueeze(0).to(dev)
-            if args_cli.num_envs > 1:
-                act_t = act_t.expand(args_cli.num_envs, -1).contiguous()
-            obs, rew, term, trunc, info = env.step(act_t)
+            for i in range(n_track):
+                k = len(ep_traces[i])
+                ep_traces[i].append((k, act_np[i, :3].copy(), ee_pos_all[i].copy(),
+                                     cube_all[i].copy(), float(act_np[i, 7])))
+                if pred_all is not None:
+                    _p = np.asarray(pred_all[i], dtype=float)
+                    pred_err.setdefault(k, []).append(_p - cube_all[i, :2])
+                    pred_pairs.setdefault(k, []).append((_p.copy(), cube_all[i, :2].copy()))
+
+            obs, rew, term, trunc, info = env.step(
+                torch.from_numpy(np.ascontiguousarray(act_np)).float().to(dev))
             step_count += 1
 
-            ep_trace.append((len(ep_trace), action[:3].copy(), ee_pos.copy(),
-                             cube.copy(), float(action[7])))
-            if client.last_cube_pred is not None:
-                # ALGI vs EYLEM: modelin kup tahmini gercek kupten ne kadar sapiyor.
-                # ISARETLI vektor saklanir (sadece norm degil): canli hata tabani
-                # 2026-09-08'de iki farkli modelde de ~60 mm'ye civilenmis cikti,
-                # bu SABIT BIR KAYMA'ya isaret ediyor -- isareti kaybedersek
-                # kaymayi sacilmadan ayiramayiz.
-                _p = np.asarray(client.last_cube_pred, dtype=float)
-                pred_err.setdefault(len(ep_trace) - 1, []).append(_p - cube[:2])
-                pred_pairs.setdefault(len(ep_trace) - 1, []).append(
-                    (_p.copy(), cube[:2].copy()))
-            if bool(term[0]) or bool(trunc[0]):
-                success = peak_z > LIFT_SUCCESS_HEIGHT and final_z > LIFT_SUCCESS_HEIGHT
-                results.append({"peak_z": peak_z, "final_z": final_z, "success": success})
-                print(f"[TEST] bolum {len(results)}/{args_cli.num_episodes} | tepe_z={peak_z:.3f}m "
-                      f"son_z={final_z:.3f}m | {'BASARILI' if success else 'basarisiz'}", flush=True)
-                if len(results) == 1:
-                    print("[HAM] bolum 1: adim | hedef(xyz) | ee(xyz) | kup(xy) | tutucu", flush=True)
-                    for k in list(range(0, min(30, len(ep_trace)))) + \
-                             list(range(30, min(160, len(ep_trace)), 5)):
-                        _, tg, ep_, cb, g = ep_trace[k]
-                        print(f"[HAM] {k:>2} | ({tg[0]:+.3f},{tg[1]:+.3f},{tg[2]:+.3f}) | "
-                              f"({ep_[0]:+.3f},{ep_[1]:+.3f},{ep_[2]:+.3f}) | "
-                              f"({cb[0]:+.3f},{cb[1]:+.3f}) | {g:+.2f}", flush=True)
-                # ERKEN adimlar: kol henuz sapmamisken model dogru yeri mi hedefliyor?
-                # Bu, ALGI hatasini HATA BIRIKMESINDEN ayirir.
-                for k in (20, 40, 60):
-                    if k < len(ep_trace):
-                        _, tgt, eep, cub, _ = ep_trace[k]
-                        early.setdefault(k, []).append(
-                            (float(np.linalg.norm(tgt[:2] - cub[:2])),
-                             float(np.linalg.norm(eep[:2] - cub[:2]))))
-                # Tutucunun ILK kapandigi an: model kupu nerede saniyor?
-                close_i = next((k for k, (_, _, _, _, g) in enumerate(ep_trace) if g < 0), None)
-                if close_i is not None:
-                    _, tgt, eep, cub, _ = ep_trace[close_i]
-                    trace_summary.append({
-                        "ep": len(results), "adim": close_i,
-                        "hedef": tgt, "ee": eep, "kup": cub,
-                        "hedef_hata": float(np.linalg.norm(tgt[:2] - cub[:2])),
-                        "ee_hata": float(np.linalg.norm(eep[:2] - cub[:2]))})
-                    print(f"[IZ] bolum {len(results)} kapanis adim={close_i} "
-                          f"kup=({cub[0]:.3f},{cub[1]:.3f}) "
-                          f"hedef=({tgt[0]:.3f},{tgt[1]:.3f}) "
-                          f"ee=({eep[0]:.3f},{eep[1]:.3f}) "
-                          f"hedef_hata={np.linalg.norm(tgt[:2]-cub[:2])*1000:.0f}mm "
-                          f"ee_hata={np.linalg.norm(eep[:2]-cub[:2])*1000:.0f}mm", flush=True)
-                else:
-                    print(f"[IZ] bolum {len(results)}: tutucu hic kapanmadi", flush=True)
-                ep_trace = []
-                peak_z, final_z = 0.0, 0.0
-                first_of_episode = True
-                # Isaac Lab bu ortami step() icinde KENDILIGINDEN sifirladi;
-                # kamerayi yeniden nisanla, bir sonraki okuma dogru olsun.
+            done = (term | trunc).cpu().numpy()
+            if done[:n_track].any():
+                for i in np.flatnonzero(done[:n_track]):
+                    flush_episode(int(i))
+                    if len(results) >= args_cli.num_episodes:
+                        break
+                reset_flags[done] = True
+                # Isaac Lab bu ortamlari step() icinde KENDILIGINDEN sifirladi;
+                # kamerayi yeniden nisanla ve render'i tazele.
                 aim_front_cam()
-                # ISINMA: nisanlama sonrasi render henuz olusmadi. Bu adim
-                # olmadan yeni bolumun ILK gozlemi onceki bolumun son karesi
-                # olur -- ve n_action_steps kadar adim o bayat kareden uretilir.
                 warmup(args_cli.warmup_steps)
-                step_count += args_cli.warmup_steps
 
             if step_count > args_cli.max_total_steps * args_cli.num_episodes:
                 print("[TEST] guvenlik siniri asildi, duruluyor", flush=True)

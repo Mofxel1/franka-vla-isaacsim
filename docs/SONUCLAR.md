@@ -1292,6 +1292,55 @@ ve orada aynı model %22 başarılı çıkıyordu. İki uç arasındaki bu çeli
 - n=20 çok küçük: 2/20 ile 1/20 istatistiksel olarak ayrışmaz. Güvenilir sayı
   için daha çok bölüm gerek.
 
+#### Düzeltmeden sonra: gerçek başarı oranı ~%4-5, %10 değil
+
+n=20 çok küçüktü. 60'ar bölümle tekrar:
+
+| model | n=20 | n=60 | birleşik |
+|---|---|---|---|
+| `train_fixcam` | 2/20 (%10) | 1/60 (%2) | **3/80 (%3.8)** |
+| `train_fixdag` | 1/20 (%5) | 3/60 (%5) | **4/80 (%5.0)** |
+
+2/20'lik %10 küçük örneklem şansıymış. İki model ayrışmıyor (3/80 vs 4/80).
+
+#### ÇÖZÜLMEMİŞ: toplama %24, eval %4
+
+Aynı model (`train_fixcam`), aynı simülatör:
+
+```
+                 tepe_z>0.10    son_z>0.10
+toplama (208)       45%           24%      <- kaldiriyor ve TUTUYOR
+eval (60)           30%            2%      <- kaldiriyor ama DUSURUYOR
+```
+
+Tutucu kapanma oranı ikisinde de benzer (~%25) — model her ikisinde de
+kavramaya teşebbüs ediyor, ama toplamada tutuyor.
+
+**Eşitlenip elenen farklar:** ortam config'i (aynı `parse_env_cfg`, aynı TASK,
+aynı `env_spacing`, aynı kameralar), bölüm uzunluğu (ikisi de **250 kare**,
+ölçüldü), başarı ölçütü (ikisi de `peak>0.10 AND final>0.10`, aynı sabit),
+çıkarım yolu (`select_action` da 25'lik kuyruk tutuyor, `predict_action_chunk`
++ sunucu kuyruğuna denk), kamera rejimi (ikisi de `--fix_cam`).
+
+**ELENDİ: aksiyon yayını.** Eval 0. ortamın aksiyonunu 8 ortama yayınlıyor ve
+sadece 0. ortamı ölçüyordu; toplama her ortama kendi aksiyonunu veriyor. Eval
+paralel ölçüme çevrildi (aşağıda) → 1/16 (%6). Hâlâ %24 değil.
+
+#### PARALEL ÖLÇÜM (yeni varsayılan)
+
+`eval_policy_isaacsim.py` artık 8 ortamın **hepsini** bağımsız ölçüyor: her
+ortam kendi gözleminden kendi aksiyonunu alır (toplu çıkarım), her ortamın
+bölümü ayrı kaydedilir. Eski davranış `--legacy_broadcast` ile korundu.
+
+- Yapısal asimetri kalktı (toplama tarafı zaten böyle çalışıyordu).
+- **Duvar saati ~8 kat düştü:** 16 bölüm 2 dakika (eskiden 20 bölüm 6 dakika).
+  200 bölümlük güvenilir bir ölçüm artık ~25 dakika.
+- Doğrulama: ilk dalgada 8 bölümün de `son_z=0.021` çıkması, toplama
+  verisindeki ilk dalganın **birebir aynı imzası**. Eskiden eval'de bu değer
+  her bölümde 0.055'ti (sıfırlanmış küp).
+
+---
+
 #### Bu ailede SEKİZİNCİ hata
 
 Boru hattının iki ucunda farklı varsayım. Ve en pahalısı: haftalarca

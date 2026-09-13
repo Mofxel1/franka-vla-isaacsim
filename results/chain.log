@@ -144,3 +144,9 @@
 [15:12] DOGRU OLCUM: d_fixcam -> [TEST] SONUC: 2/20 basarili (10%)
 [15:18] DOGRU OLCUM: d_geo3 -> [TEST] SONUC: 0/20 basarili (0%)
 [15:18] DOGRU OLCUM TAMAMLANDI
+[16:01] BUYUK EVAL: b60_fixcam -> [TEST] SONUC: 1/60 basarili (2%)
+[16:15] BUYUK EVAL: b60_fixdag -> [TEST] SONUC: 3/60 basarili (5%)
+[16:15] BUYUK EVAL TAMAMLANDI
+[16:28] UZUNLUK TESTI: uzunluk -> [TEST] SONUC: 0/12 basarili (0%)
+[16:28] UZUNLUK TESTI TAMAMLANDI
+[16:43] PARALEL TEST: [TEST] SONUC: 1/16 basarili (6%)
