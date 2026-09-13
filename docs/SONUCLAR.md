@@ -1249,6 +1249,63 @@ kullanılır. LeRobot topluluğunda 50-100 bölümle çalışan ince ayarlar var
 
 ---
 
+### 2026-09-13 — İLK BAŞARI. `success` YAPISAL OLARAK İMKÂNSIZMIŞ
+
+**Bütün proje boyunca gördüğümüz `0/20` bir ölçüm hatasıydı.**
+
+`eval_policy_isaacsim.py` döngü sırası:
+
+```
+275  env.step(act)               <- Isaac Lab bolum bitince env 0'i BURADA sifirlar
+278  obj = scene["object"].data
+292  z = obj.root_pos_w[0,2]     <- sifirlamadan SONRA okunuyor
+294  final_z = z                 <- YENI bolumun taze kupu: hep 0.055
+296  if term[0]: success = peak_z > 0.10 AND final_z > 0.10
+```
+
+Bölüm biter bitmez `env.step()` ortamı sıfırlayıp küpü masaya geri koyuyor;
+`final_z` o taze küpün yüksekliğini (0.055) okuyor. Eşik 0.10. **Koşul hiçbir
+zaman sağlanamıyordu.** Kanıt: her eval çıktısında `son_z` birebir 0.055 —
+tepe_z 1.459 m olan bölümlerde bile.
+
+Dosyanın kendi açıklaması (satır 11) bu otomatik sıfırlamayı **biliyor** ve
+kamera için elle hallediyor (`aim_front_cam` + ısınma); küp ölçümü için hesaba
+katmamış. Toplama tarafı doğruydu — tampona `env.step()`'ten **önce** yazıyor,
+ve orada aynı model %22 başarılı çıkıyordu. İki uç arasındaki bu çelişki
+2026-09-12 gecesinde fark edilmiş ama sebebi bir gün sonra bulundu.
+
+**Düzeltme:** küp okuması `env.step()` ÖNCESİNE alındı (satır 254). Artık
+`final_z` bölümün son gözlemlenebilir küp yüksekliği.
+
+#### DÜZELTİLMİŞ SONUÇLAR — projenin ilk kavramaları
+
+| model | kamera | başarı | tutucu kapanmadı | ALGI a0 |
+|---|---|---|---|---|
+| **`train_fixcam`** | sabit | **2/20 (%10)** | 15/20 | 41.0 mm |
+| `train_fixdag` | sabit + DAgger | 1/20 (%5) | 18/20 | 40.0 mm |
+| `train_geo3` | randomize | 0/20 (%0) | 18/20 | 48.5 mm |
+
+- **İlk çalışan kavramalar.** Örnek: `tepe_z=0.419m son_z=0.419m BASARILI`.
+- `geo3`'ün 0/20'si **gerçekmiş** — sadece ölçüm hatası değil. Randomize kamera
+  modeli gerçekten beceremiyor.
+- Ölçüm hatası **sabit kameralı modellerin gerçek başarılarını** gizliyormuş.
+- n=20 çok küçük: 2/20 ile 1/20 istatistiksel olarak ayrışmaz. Güvenilir sayı
+  için daha çok bölüm gerek.
+
+#### Bu ailede SEKİZİNCİ hata
+
+Boru hattının iki ucunda farklı varsayım. Ve en pahalısı: haftalarca
+"model çalışmıyor" diye hipotez eledik, oysa ölçüt hiçbir zaman
+sağlanamıyordu. Önceki yedisi ölçümü *bozuyordu*; bu, başarıyı **imkânsız**
+kılıyordu.
+
+**Ders:** bir metrik hiç değişmiyorsa (her bölümde `son_z` = 0.055), metriğin
+kendisinden şüphelen. Sabit bir sayı bir şeyi ölçmüyor demektir — bu projede
+2026-09-08'de dört modelin de ~650 mm vermesiyle aynı imza, aynı hata ailesi,
+beş gün arayla iki kez.
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in

@@ -88,6 +88,17 @@ parser.add_argument("--only_success", action="store_true",
                          "normalizasyonu bozuyor. Olculdu: filtresiz sette yardimci "
                          "std 5.09 m (olmasi gereken 0.055), model de olcegi 90 kat "
                          "sismis bir esleme ogrendi (x egimi 2.27 yerine ~1.0).")
+parser.add_argument("--cube_box", type=float, nargs=4, default=None,
+                    metavar=("X0", "X1", "Y0", "Y1"),
+                    help="Kup bu XY kutusundan CIKTIGI kareden itibaren bolumu KES "
+                         "(bolumu atma -- erken kareler degerli). DAgger verisinde "
+                         "politika kupe carpip firlatiyor; sonraki kareler 'masadaki "
+                         "kupu bul' gorevini ogretmiyor ve normalizasyonu sisiriyor "
+                         "(yardimci std 0.0556 -> 0.0764). OLCULDU (2026-09-13): "
+                         "basarili UZMAN bolumlerinde kupun XY gezintisi medyan "
+                         "175 mm, yani 'kimildadi mi' esigi YANLIS olurdu -- uzman "
+                         "kupu tasiyor. Dogru olcut calisma alani siniri. "
+                         "Onerilen: 0.15 0.85 -0.50 0.50 (dogma araligi + 25cm pay).")
 parser.add_argument("--max_abs", type=float, default=1.5,
                     help="Bir bolumde |aksiyon[:3]| veya |kup| bu sinirin (metre) "
                          "ustune cikarsa bolumu ATLA. --only_success YETMIYOR: "
@@ -205,6 +216,7 @@ def main():
     t0 = time.time()
     total_frames = 0
     n_skipped_abs = 0
+    n_skipped_box = n_truncated = 0
     for k, (_f, name) in enumerate(pairs):
         ep = _f["data"][name]
         if args.only_success and not bool(ep.attrs.get("success", False)):
@@ -217,6 +229,21 @@ def main():
             if _a > args.max_abs or _c > args.max_abs:
                 n_skipped_abs += 1
                 continue
+        if args.cube_box:
+            _o = ep["observation.state.object_pos"][:, :2]
+            x0, x1, y0, y1 = args.cube_box
+            _in = (_o[:, 0] >= x0) & (_o[:, 0] <= x1) & (_o[:, 1] >= y0) & (_o[:, 1] <= y1)
+            if not _in[0]:
+                n_skipped_box += 1
+                continue                      # daha ilk kareden disarida: bolumu at
+            _bad = np.flatnonzero(~_in)
+            if len(_bad):
+                _cut = int(_bad[0])
+                if _cut - S0 < 20:
+                    n_skipped_box += 1
+                    continue                  # kesince geriye anlamli veri kalmiyor
+                n_truncated += 1
+                n = min(n, _cut)
         if args.max_frames:
             n = min(n, args.max_frames + S0)
         front = ep["observation.images.front"][:]
@@ -303,6 +330,9 @@ def main():
           f"({src_mb/max(out_mb,1):.1f}x kucuk)")
     if args.max_abs > 0:
         print(f"[CEVIR] sinir disi ({args.max_abs} m) atlanan bolum: {n_skipped_abs}")
+    if args.cube_box:
+        print(f"[CEVIR] kup kutusu {args.cube_box}: {n_truncated} bolum KESILDI, "
+              f"{n_skipped_box} bolum atlandi")
     print(f"[CEVIR] sure: {time.time()-t0:.0f}s")
     print("=" * 60)
 

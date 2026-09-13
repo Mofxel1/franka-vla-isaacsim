@@ -6,28 +6,24 @@ Son güncelleme: 2026-09-12 (akşam)
 
 ## Tek cümlelik özet
 
-**2026-09-13: en büyük engel kendi tasarım kararımız çıktı — kamera
-randomizasyonu.** Kamera her bölümde ±25 cm / ±20° oynuyor, yani "küp şu
-pikselde → küp dünyada şurada" eşlemesi her bölümde değişiyor. Model hem
-kamerayı çıkarmayı hem küpü bulmayı 208 bölümle öğrenmek zorunda kalıyordu.
+**2026-09-13: PROJENİN İLK KAVRAMALARI. Ve `0/20`'lerin tamamı ölçüm hatasıymış.**
 
-Sadece kamerayı sabitleyip aynı sondayı koşunca (`--fix_cam`, ışık/masa
-randomize kaldı):
+`eval_policy_isaacsim.py` küpü `env.step()`'ten SONRA okuyordu; Isaac Lab bölüm
+bitince ortamı step() içinde sıfırladığı için `final_z` hep taze küpün
+yüksekliğini (0.055) veriyordu. Eşik 0.10 → **`success` yapısal olarak
+imkânsızdı.** Küp okuması step öncesine alındı.
 
-```
-                     bolum   SigLIP x kor   CNN x kor
-randomize kamera      164       0.358         0.295
-randomize kamera       60       0.352         0.317
-SABIT kamera           85       0.718         0.807   <- DAHA AZ veriyle
-```
+| model | kamera | başarı | ALGI a0 | çevrimdışı |
+|---|---|---|---|---|
+| **`train_fixcam`** | sabit | **2/20 (%10)** | 41.0 mm | 31.6 mm |
+| `train_fixdag` | sabit + DAgger | 1/20 (%5) | 40.0 mm | **26.3 mm** |
+| `train_geo3` | randomize | 0/20 | 48.5 mm | 41.4 mm |
 
-x korelasyonu iki katına çıkıyor — ve x zaten haftalardır zayıf eksenimizdi.
+`geo3`'ün sıfırı gerçekmiş; ölçüm hatası sabit-kameralı modellerin **gerçek**
+başarılarını gizliyormuş.
 
-**2026-09-12'de çözülen:** canlı/çevrimdışı uçurumu. Eval'in ısınma adımı
-`env.step(zeros)` ile kolu fırlatıyordu (IK-Abs'ta geçersiz hedef). Isınma
-artık `sim.render()`. Canlı 59.9 → **36.4 mm**, çevrimdışından (41.4) daha iyi.
-
-**Kapalı döngü hâlâ 0/20.** Sabit-kamera modeli eğitiliyor (2026-09-13 10:53).
+**Sıradaki iş:** n=20 çok küçük (2/20 ile 1/20 ayrışmaz). Güvenilir bir sayı
+için 60-100 bölümlük eval gerek.
 
 ## Kanıtın özeti
 

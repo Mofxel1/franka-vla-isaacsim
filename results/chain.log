@@ -127,3 +127,20 @@
 [10:27] sabit-kamera parti 702 toplandi: 2709834446 bayt
 [10:27] SABIT KAMERA TOPLAMA TAMAM
 [10:28] SABIT KAMERA SONDASI OLCULDU
+[10:59] fixcam cevrildi
+[10:59] fixcam kapisi gecti -- EGITIME HAZIR
+[11:57] fixcam egitimi bitti
+[11:59] fixcam cevrimdisi olculdu
+[12:05] FIXCAM KAPALI DONGU HAZIR
+[12:29] fixdag parti 801 toplandi: 2725279025 bayt
+[12:35] fixdag parti 802 toplandi: 2808135389 bayt
+[12:35] FIXDAG TOPLAMA TAMAM
+[13:33] fixdag cevrildi
+[13:33] fixdag kapisi gecti
+[14:28] fixdag egitimi bitti
+[14:30] fixdag cevrimdisi olculdu
+[14:35] FIXDAG KAPALI DONGU HAZIR
+[15:06] DOGRU OLCUM: d_fixdag -> [TEST] SONUC: 1/20 basarili (5%)
+[15:12] DOGRU OLCUM: d_fixcam -> [TEST] SONUC: 2/20 basarili (10%)
+[15:18] DOGRU OLCUM: d_geo3 -> [TEST] SONUC: 0/20 basarili (0%)
+[15:18] DOGRU OLCUM TAMAMLANDI

@@ -12,3 +12,19 @@ cihaz cuda | veri fixcam_s701.hdf5 | kamera front | cozunurluk 224px (ham)
                                  y: egim +1.063 kor +0.962
   taban 124.9 mm | DONUK SigLIP 51.6 mm | sifirdan CNN 45.7 mm
   -> Belirsiz; fark kucuk.
+bolum 543 kare 48870
+kameralar: ['observation.images.front', 'observation.images.wrist']
+aksiyon std[:3] [0.0141 0.034  0.1109]  (REST'siz beklenen ~[0.012,0.030,0.105])
+yardimci std    [0.0571 0.1422]
+DOGRULAMA: GECTI
+===== SABIT KAMERA MODELI =====
+--- cevrimdisi, kendi dagilimindan TAZE veri (fixcam_s702) ---
+n=45 bolum, kare 2, REST_SKIP=12 | NESNE-MERKEZLI
+  medyan hata :   31.6 mm
+  ortalama    :   43.0 mm   (min 4 / max 135)
+  x: egim +0.659  kesme +0.155  kor +0.736  sapma -16mm
+  y: egim +0.880  kesme -0.009  kor +0.966  sapma -6mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   31.4 mm | ortalama   43.0 mm
+    x: egim +0.646  kor +0.741
+    y: egim +0.879  kor +0.966

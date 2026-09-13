@@ -1,0 +1,14 @@
+bolum 1197 kare 107730
+aksiyon std[:3] [0.0109 0.0257 0.0824]
+yardimci std    [0.0582 0.142 ]  (fixcam referansi [0.0571 0.1422])
+DOGRULAMA: GECTI
+===== SABIT KAMERA + DAgger =====
+n=45 bolum, kare 2, REST_SKIP=12 | NESNE-MERKEZLI
+  medyan hata :   26.3 mm
+  ortalama    :   32.6 mm   (min 2 / max 136)
+  x: egim +0.800  kesme +0.091  kor +0.840  sapma -9mm
+  y: egim +0.949  kesme -0.002  kor +0.979  sapma -1mm
+  YARDIMCI GOREV -- modelin kup icin DOGRUDAN tahmini:
+    medyan   24.8 mm | ortalama   33.3 mm
+    x: egim +0.788  kor +0.832
+    y: egim +0.943  kor +0.977

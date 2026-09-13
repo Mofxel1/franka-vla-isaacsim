@@ -242,6 +242,21 @@ def main():
             wrist = to_uint8(wrist_cam.data.output["rgb"])[0]
             side = to_uint8(side_cam.data.output["rgb"])[0] if side_cam is not None else None
 
+            # KUPU env.step()'ten ONCE oku.
+            # 2026-09-13 BULUNAN HATA: kup env.step()'ten SONRA okunuyordu.
+            # Isaac Lab yonetici-tabanli ortami bolum bitince step() ICINDE
+            # kendiliginden sifirliyor -> o okuma YENI bolumun taze kupunu
+            # veriyordu (hep z=0.055). final_z bu yuzden hicbir zaman 0.10
+            # esigini gecemiyordu ve `success` YAPISAL OLARAK imkansizdi.
+            # Projedeki butun 0/20 sonuclari bunun eseri. Toplama tarafi dogru
+            # olcuyordu (tampona step'ten ONCE yaziyor) -- ayni model orada
+            # %22 basarili cikiyordu.
+            obj: RigidObjectData = env.unwrapped.scene["object"].data
+            cube = (obj.root_pos_w - origins)[0].cpu().numpy()
+            z = float(cube[2])
+            peak_z = max(peak_z, z)
+            final_z = z
+
             robot = env.unwrapped.scene["robot"].data
             ee = env.unwrapped.scene["ee_frame"]
             ee_pos = (ee.data.target_pos_w[..., 0, :] - origins)[0].cpu().numpy()
@@ -252,8 +267,7 @@ def main():
             if len(ep_trace) == args_cli.dump_step and args_cli.dump_obs:
                 _d = {"front": front.copy(), "wrist": wrist.copy(),
                       "state": state.copy(),
-                      "cube": (env.unwrapped.scene["object"].data.root_pos_w
-                               - origins)[0].cpu().numpy().copy()}
+                      "cube": cube.copy()}
                 # YAN kamera da dokulmeli: 3 kameralı modelin canli x korelasyonu
                 # 0.794 -> 0.285 cokuyor ve bunun sebebi yan kameranin CANLI
                 # goruntusunun EGITIM goruntusunden farkli olmasi olabilir
@@ -275,8 +289,6 @@ def main():
             obs, rew, term, trunc, info = env.step(act_t)
             step_count += 1
 
-            obj: RigidObjectData = env.unwrapped.scene["object"].data
-            cube = (obj.root_pos_w - origins)[0].cpu().numpy()
             ep_trace.append((len(ep_trace), action[:3].copy(), ee_pos.copy(),
                              cube.copy(), float(action[7])))
             if client.last_cube_pred is not None:
@@ -289,10 +301,6 @@ def main():
                 pred_err.setdefault(len(ep_trace) - 1, []).append(_p - cube[:2])
                 pred_pairs.setdefault(len(ep_trace) - 1, []).append(
                     (_p.copy(), cube[:2].copy()))
-            z = float((obj.root_pos_w - origins)[0, 2])
-            peak_z = max(peak_z, z)
-            final_z = z
-
             if bool(term[0]) or bool(trunc[0]):
                 success = peak_z > LIFT_SUCCESS_HEIGHT and final_z > LIFT_SUCCESS_HEIGHT
                 results.append({"peak_z": peak_z, "final_z": final_z, "success": success})
