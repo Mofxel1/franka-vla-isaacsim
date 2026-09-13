@@ -1194,6 +1194,61 @@ Bu çelişki çözülürse kapalı döngü sonucu tamamen değişebilir.
 
 ---
 
+### 2026-09-13 — KAMERA RANDOMIZASYONU: kendi koydugumuz engel
+
+**Soru:** şirketler VLA'yı çalıştırabiliyor, biz neden alamıyoruz?
+
+Kamera randomizasyon aralıklarına bakınca:
+
+```python
+r  = 1.655 m ± 0.25       # kamera mesafesi
+th = base ± 0.35 rad      # ±20 derece
+z  = 0.85 + (−0.20, +0.25)
+hedef noktasi ± 0.06 m
+```
+
+**Kamera her bölümde farklı bir yerde.** Sabit kamerada "küp şu pikselde → küp
+dünyada şurada" tek bir sabit fonksiyondur ve birkaç yüz örnekle öğrenilir.
+Bizde her bölümde değişiyor: model önce görüntüden kamera pozunu çıkarmak,
+sonra projeksiyonu tersine çevirmek zorunda. 208 bölümle bu çok zor.
+
+#### Ölçüm — SADECE kamerayı sabitle (ışık/masa randomize kalır)
+
+`collect_demos.py --fix_cam` ve `eval_policy_isaacsim.py --fix_cam` eklendi
+(tek değişken ilkesi; `--no_dr` üçünü birden kapatıp sonucu yorumlanamaz kılardı).
+
+Aynı donuk-özellik sondası, aynı bölüm-bazlı ayrım:
+
+| veri | bölüm | SigLIP medyan | **SigLIP x kor** | CNN medyan | **CNN x kor** |
+|---|---|---|---|---|---|
+| randomize kamera | 164 | 61.2 mm | 0.358 | 82.0 mm | 0.295 |
+| randomize kamera | 60 | 85.5 mm | 0.352 | 102.1 mm | 0.317 |
+| **sabit kamera** | 85 | **51.6 mm** | **0.718** | **45.7 mm** | **0.807** |
+
+- **x korelasyonu iki katına çıkıyor.** İki randomize koşu farklı bölüm
+  sayılarıyla neredeyse aynı değeri verdi (0.358 / 0.352) → gürültü değil,
+  verinin kararlı özelliği.
+- Sabit kamera **daha AZ veriyle** (85 vs 164) daha iyi sonuç verdi.
+- y'de de iyileşme var ama ılımlı (0.80-0.87 → 0.92-0.96). Mekanizmayla uyumlu:
+  kamerayı oynatmak en çok **derinliği** bozar — ve derinlik zaten haftalardır
+  bizim zayıf eksenimizdi.
+
+#### Nereden geldi — kendi düzeltmemizin yan etkisi
+
+2026-09-04'te "eğitim randomize, eval sabit" uyuşmazlığı bulunmuştu. Düzeltme
+olarak **eval'e randomizasyon eklendi**. Ters yön — eğitimden çıkarmak — hiç
+değerlendirilmedi.
+
+Randomizasyon yanlış değil; Faz 3'te Nova 5'e geçerken sim-to-real için
+gerekecek. Ama **Faz 1'i sakatlıyor.** Doğru sıra: önce sabit kamerayla görevi
+çalıştır, sonra randomizasyonu ekle ve bedelini ölç.
+
+Endüstriyle farkımızın özeti: ağır domain randomization milyonlarca örnekle
+kullanılır. LeRobot topluluğunda 50-100 bölümle çalışan ince ayarlar var — ama
+**sabit kamera, sabit sahne** ile. Biz az verinin üstüne çok değişkenlik koyduk.
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in

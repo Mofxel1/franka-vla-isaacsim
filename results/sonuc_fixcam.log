@@ -1,0 +1,14 @@
+===== SABIT KAMERA (isik/masa hala randomize) =====
+cihaz cuda | veri fixcam_s701.hdf5 | kamera front | cozunurluk 224px (ham)
+  kup erken kimildadigi icin atlanan bolum: 19
+  85 bolum x 12 kare | egitim 63 bolum / test 22 bolum  (BOLUM BAZLI ayrim)
+  TABAN (hep ortalamayi tahmin et): medyan 124.9 mm
+=== A) DONUK SigLIP ozellikleri + kucuk kafa ===
+  DONUK SigLIP + kafa          medyan   51.6 mm | ort   59.1 mm | 47s
+                                 x: egim +0.424 kor +0.718
+                                 y: egim +0.842 kor +0.922
+  sifirdan CNN                 medyan   45.7 mm | ort   48.8 mm | 12s
+                                 x: egim +0.716 kor +0.807
+                                 y: egim +1.063 kor +0.962
+  taban 124.9 mm | DONUK SigLIP 51.6 mm | sifirdan CNN 45.7 mm
+  -> Belirsiz; fark kucuk.

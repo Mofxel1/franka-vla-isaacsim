@@ -6,32 +6,28 @@ Son güncelleme: 2026-09-12 (akşam)
 
 ## Tek cümlelik özet
 
-**2026-09-12: canlı/çevrimdışı uçurumu ÇÖZÜLDÜ.** Sebep eval'in ısınma adımıydı:
-`env.step(zeros)` IK-Abs'ta geçersiz bir EE hedefi demek ve kolu fırlatıyordu;
-politika eğitimde hiç görülmemiş bir kol pozundan başlıyordu. Isınma artık fizik
-adımı atmıyor (`sim.render()` + `scene.update(0.0)`).
+**2026-09-13: en büyük engel kendi tasarım kararımız çıktı — kamera
+randomizasyonu.** Kamera her bölümde ±25 cm / ±20° oynuyor, yani "küp şu
+pikselde → küp dünyada şurada" eşlemesi her bölümde değişiyor. Model hem
+kamerayı çıkarmayı hem küpü bulmayı 208 bölümle öğrenmek zorunda kalıyordu.
+
+Sadece kamerayı sabitleyip aynı sondayı koşunca (`--fix_cam`, ışık/masa
+randomize kaldı):
 
 ```
-                adim 0 medyan   x egim   x kor   kayma cikinca
-ESKI isinma        59.9 mm      0.715    0.722      54.6 mm
-YENI isinma        36.4 mm      0.932    0.840      31.2 mm
+                     bolum   SigLIP x kor   CNN x kor
+randomize kamera      164       0.358         0.295
+randomize kamera       60       0.352         0.317
+SABIT kamera           85       0.718         0.807   <- DAHA AZ veriyle
 ```
 
-Canlı 36.4 mm artık **çevrimdışından (41.4 mm) daha iyi** — uçurum kapandı.
-Mekanizma doğrulandı: adım 0'da EE pozu eğitimden sadece **5.3 mm** sapıyor
-(eskiden kol fırlıyordu).
+x korelasyonu iki katına çıkıyor — ve x zaten haftalardır zayıf eksenimizdi.
 
-**Ama kapalı döngü hâlâ 0/20.** Kalan tek engel artık net:
-**algı 36 mm, kavrama eşiği 20 mm.** ~1.8 kat.
+**2026-09-12'de çözülen:** canlı/çevrimdışı uçurumu. Eval'in ısınma adımı
+`env.step(zeros)` ile kolu fırlatıyordu (IK-Abs'ta geçersiz hedef). Isınma
+artık `sim.render()`. Canlı 59.9 → **36.4 mm**, çevrimdışından (41.4) daha iyi.
 
-En iyi model — ve bu şaşırtıcı biçimde en basit olanı:
-
-| model | kamera | çevrimdışı (taze) | canlı adım 0 |
-|---|---|---|---|
-| **`train_geo3`** | 2 | 41.4 mm | **36.4 mm** |
-| `train_rest` | 2 (REST'siz) | 41.4 mm | 48.1 mm |
-| `train_3kam` @4000 | 3 | 33.6 mm | 58.3 mm |
-| `train_3kam` @8000 | 3 | 37.4 mm | 60.4 mm |
+**Kapalı döngü hâlâ 0/20.** Sabit-kamera modeli eğitiliyor (2026-09-13 10:53).
 
 ## Kanıtın özeti
 

@@ -23,7 +23,15 @@ parser.add_argument("--out", type=str, default=None, help="cikti HDF5 yolu")
 parser.add_argument("--task_prompt", type=str, default="pick up the cube and lift it")
 parser.add_argument("--only_success", action="store_true", help="sadece basarili bolumleri yaz")
 parser.add_argument("--max_steps", type=int, default=400, help="bolum basina guvenlik ust siniri")
-parser.add_argument("--no_dr", action="store_true", help="domain randomization KAPAT")
+parser.add_argument("--no_dr", action="store_true", help="domain randomization KAPAT (kamera+isik+masa)")
+parser.add_argument("--fix_cam", action="store_true",
+                    help="SADECE kamerayi sabitle; isik ve masa randomizasyonu "
+                         "acik kalir. Gerekce (2026-09-13): kamera her bolumde "
+                         "r +/-0.25 m, aci +/-0.35 rad, z -0.20/+0.25 oynuyor. "
+                         "Yani 'kup su pikselde -> kup dunyada surada' esleme "
+                         "HER BOLUMDE degisiyor; model once kamerayi cikarmak "
+                         "sonra projeksiyonu tersine cevirmek zorunda. 208 "
+                         "bolumle bu cok zor. Tek degisken olarak sinanmali.")
 parser.add_argument("--seed", type=int, default=0)
 parser.add_argument("--side_cam", action="store_true",
                     help="UCUNCU kamera ekle: yan gorus. On kameranin optik ekseni "
@@ -154,7 +162,7 @@ def main():
     origins = env.unwrapped.scene.env_origins
     front_cam = env.unwrapped.scene["front_cam"]
     dr = DomainRandomizer(seed=args_cli.seed,
-                          jitter_cam=not args_cli.no_dr,
+                          jitter_cam=not (args_cli.no_dr or args_cli.fix_cam),
                           jitter_light=not args_cli.no_dr,
                           jitter_table=not args_cli.no_dr)
     side_cam = env.unwrapped.scene["side_cam"] if args_cli.side_cam else None
@@ -325,6 +333,7 @@ def main():
         f.attrs["num_episodes"] = len(episodes)
         f.attrs["action_space"] = "ee_pose_abs(pos3+quat4)+gripper1"
         f.attrs["domain_randomization"] = not args_cli.no_dr
+        f.attrs["fixed_camera"] = bool(args_cli.fix_cam or args_cli.no_dr)
         f.attrs["seed"] = args_cli.seed
         f.attrs["action_noise"] = args_cli.action_noise
         g = f.create_group("data")

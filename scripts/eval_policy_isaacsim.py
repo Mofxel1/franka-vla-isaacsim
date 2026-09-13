@@ -55,6 +55,10 @@ parser.add_argument("--side_cam", action="store_true",
 parser.add_argument("--no_dr", action="store_true",
                     help="domain randomization KAPAT (eski davranis: sabit kamera, "
                          "varsayilan isik/masa -- egitim dagiliminin DISINDA)")
+parser.add_argument("--fix_cam", action="store_true",
+                    help="SADECE kamerayi sabitle (isik/masa randomize kalir). "
+                         "Veri --fix_cam ile toplandiysa eval de oyle kosmali; "
+                         "aksi halde boru hattinin iki ucu yine uyusmaz.")
 parser.add_argument("--dr_seed", type=int, default=1234,
                     help="eval sahne randomizasyon tohumu; toplamadakinden farkli "
                          "olmali ki ezberlenmis sahneler degil genelleme olculsun")
@@ -163,7 +167,7 @@ def main():
     # Burada randomize etmezsek model egitimde hic gormedigi bir aydinlatmayla
     # karsilasir; olculen sey politikanin becerisi degil dagitim kaymasi olur.
     dr = DomainRandomizer(seed=args_cli.dr_seed,
-                          jitter_cam=not args_cli.no_dr,
+                          jitter_cam=not (args_cli.no_dr or args_cli.fix_cam),
                           jitter_light=not args_cli.no_dr,
                           jitter_table=not args_cli.no_dr)
 
