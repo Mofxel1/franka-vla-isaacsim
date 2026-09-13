@@ -1,7 +1,16 @@
 # Yol haritası
 
 Orhan'ın hedefi: VLA'yı **öğrenmek** ve bununla bir proje geliştirmek.
-Sıralama: Franka (sim) → Dobot Nova 5 (gerçek).
+
+**Sıralama (2026-09-13'te Orhan tarafından güncellendi):**
+
+```
+1. Basari oranini yukselt          <- SU AN BURADA (%38)
+2. Cok komutlu sistem (Faz 2)         VLA'nin "L"si gercek olsun
+3. Sunucu kirala + OpenVLA ile egit   buyuk model, kiralik GPU
+4. Dobot Nova 5, SIMULASYON
+5. Dobot Nova 5, GERCEK ROBOT
+```
 
 (Robot köpek fikri bu haritadan çıkarıldı — lokomosyon/navigasyon ayrı bir
 problem sınıfı, ayrı proje olarak ele alınacak.)
@@ -56,6 +65,30 @@ Bu tek hamle üç şeyi birden zorlar:
 
 **Uyarı:** Faz 1 bitmeden geçilmemeli. İki sorun aynı anda açıkken hangisinin
 neye sebep olduğu ayrılamaz.
+
+---
+
+## Faz 2.5 — Sunucu kirala, OpenVLA ile eğit
+
+**Ne zaman:** Faz 2 (çok komutlu sistem) tatmin edici çalıştıktan sonra.
+
+**Neden anlamlı:** SmolVLA 450M ve yerel 6 GB karta sığsın diye seçildi.
+OpenVLA-7B on beş kat büyük ve Open X-Embodiment üzerinde önceden eğitilmiş —
+gerçek robot verisiyle. Faz 4/5'te gerçek donanıma geçilecekse bu ön eğitim
+doğrudan işe yarar.
+
+**Donanım:** OpenVLA-7B LoRA ince ayarı pratikte A100 40 GB sınıfı ister.
+Tam ince ayar çok daha fazlası. Kiralık saatlik GPU ile yapılabilir.
+
+**Taşınan:** boru hattının TAMAMI. Toplama, LeRobot çevirme, nesne-merkezli
+aksiyon, yardımcı görev, köprü, ölçüm disiplini — hiçbiri modele bağlı değil.
+Değişen sadece eğitim adımı ve çıkarım sunucusundaki model sınıfı.
+
+**DİKKAT — bu projenin en pahalı dersi:** OpenVLA normalize aksiyon üretir ve
+gerçek ölçeğe çevirmek için bir veri setinin istatistiklerine ihtiyaç duyar
+(`unnorm_key`). Başka bir robotun istatistiğini kullanmak sessizce yanlış
+ölçekli komut üretir. Kendi verimizle ince ayar yapılacaksa kendi
+istatistiğimiz kaydedilmeli.
 
 ---
 

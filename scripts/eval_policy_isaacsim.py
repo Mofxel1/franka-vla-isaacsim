@@ -75,6 +75,13 @@ parser.add_argument("--max_total_steps", type=int, default=400,
                     help="guvenlik ust siniri: bolum basina beklenen adim x bolum sayisi civari")
 parser.add_argument("--save_gif", action="store_true", default=True)
 parser.add_argument("--out_gif", type=str, default=None)
+parser.add_argument("--record_waves", type=int, default=0,
+                    help="Ilk N DALGAYI (her dalga = 8 ortam = 8 bolum) 2x4 "
+                         "dosemeli MP4 olarak kaydet. Sayilara bakarak hata "
+                         "modunu goremiyoruz; 8 bolum yan yana izlenince "
+                         "kolun nerede isKaladigi dogrudan gorunuyor.")
+parser.add_argument("--record_dir", type=str,
+                    default=os.path.expanduser("~/isaac_captures"))
 parser.add_argument("--dump_obs", type=str, default=None,
                     help="her bolumun --dump_step'inci gozlemini npz olarak kaydet")
 parser.add_argument("--dump_step", type=int, default=0,
@@ -227,6 +234,8 @@ def main():
 
     results = []
     gif_frames = []
+    wave_frames = []      # dosemeli kayit: her adimda (NE,H,W,3)
+    wave_idx = 0
     peak_z, final_z = 0.0, 0.0
     first_of_episode = True
     step_count = 0
@@ -258,6 +267,21 @@ def main():
     final_z = np.zeros(n_track)
     ep_traces = [[] for _ in range(n_track)]
     reset_flags = np.ones(NE, dtype=bool)
+
+    def _write_wave(frames, idx):
+        """8 ortami 2x4 dosemeli tek videoya yaz (her karo bir bolum)."""
+        import imageio
+        os.makedirs(args_cli.record_dir, exist_ok=True)
+        out = os.path.join(args_cli.record_dir, f"dalga_{idx}.mp4")
+        arr = np.stack(frames)                      # (T, NE, H, W, 3)
+        T, ne, H, W, _ = arr.shape
+        rows, cols = 2, (ne + 1) // 2
+        tiled = np.zeros((T, rows * H, cols * W, 3), dtype=np.uint8)
+        for e in range(ne):
+            r, c = divmod(e, cols)
+            tiled[:, r*H:(r+1)*H, c*W:(c+1)*W] = arr[:, e]
+        imageio.mimsave(out, list(tiled[::2]), fps=25, macro_block_size=1)
+        print(f"[VIDEO] dalga {idx}: {out}  ({T} adim, {ne} bolum yan yana)", flush=True)
 
     def flush_episode(i):
         """i. ortamin biten bolumunu kaydet ve izini temizle."""
@@ -352,6 +376,8 @@ def main():
 
             if len(results) == 0 and args_cli.save_gif:
                 gif_frames.append(front_all[0])
+            if wave_idx < args_cli.record_waves:
+                wave_frames.append(front_all.copy())
 
             for i in range(n_track):
                 k = len(ep_traces[i])
@@ -372,6 +398,10 @@ def main():
                     flush_episode(int(i))
                     if len(results) >= args_cli.num_episodes:
                         break
+                if wave_idx < args_cli.record_waves and wave_frames:
+                    _write_wave(wave_frames, wave_idx)
+                    wave_idx += 1
+                    wave_frames = []
                 reset_flags[done] = True
                 # Isaac Lab bu ortamlari step() icinde KENDILIGINDEN sifirladi;
                 # kamerayi yeniden nisanla ve render'i tazele.

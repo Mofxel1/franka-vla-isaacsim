@@ -1,0 +1,677 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/orhan/Projects/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[Warning] [simulation_app.simulation_app] Modules: ['omni.kit_app'] were loaded before SimulationApp was started and might not be loaded correctly.
+[Warning] [simulation_app.simulation_app] Please check to make sure no extra omniverse or pxr modules are imported before the call to SimulationApp(...)
+Loading user config located at: '/home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/omni/data/Kit/Isaac-Sim/4.5/user.config.json'
+[Info] [carb] Logging to file: /home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/omni/logs/Kit/Isaac-Sim/4.5/kit_20260913_164459.log
+2026-09-13 13:44:59 [0ms] [Warning] [omni.kit.app.plugin] No crash reporter present, dumps uploading isn't available.
+2026-09-13 13:44:59 [6ms] [Warning] [omni.ext.plugin] [ext: rendering_modes] Extensions config 'extension.toml' doesn't exist '/home/orhan/Projects/IsaacLab/apps/rendering_modes' or '/home/orhan/Projects/IsaacLab/apps/rendering_modes/config'
+2026-09-13 13:44:59 [162ms] [Warning] [omni.datastore] OmniHub is inaccessible
+2026-09-13 13:44:59 [386ms] [Warning] [gpu.foundation.plugin] Skipping unsupported non-NVIDIA GPU: Intel(R) Xe Graphics (TGL GT2)
+2026-09-13 13:44:59 [386ms] [Warning] [gpu.foundation.plugin] Skipping unsupported non-NVIDIA GPU: Intel(R) Xe Graphics (TGL GT2)
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 535.53.01     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 3060 Laptop.. | Yes: 0 |     | 6144    MB | 10de      | 0          |
+|     |                                  |        |     |            | 2520      | 5aecfddd.. |
+|     |                                  |        |     |            | 1         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | Intel(R) Xe Graphics (TGL GT2)   |        |     | 17793   MB | 8086      | 0          |
+|     |                                  |        |     |            | 9a49      | 8680499a.. |
+|     |                                  |        |     |            | 0         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-40-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: 11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz
+| Cores: 4 | Logical Cores: 8
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 23724 | Free Memory: 15642
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-09-13 13:44:59 [618ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-09-13 13:44:59 [618ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 315.15 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.96 
+
+   CPU     0 
+     0   3.34 
+2026-09-13 13:45:00 [1,670ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-09-13 13:45:02 [3,190ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-09-13 13:45:02 [3,642ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/ambientOcclusion/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/directLighting/sampledLighting/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/indirectDiffuse/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/raytracing/cached/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/reflections/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/sceneDb/ambientLightIntensity'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/translucency/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/verifyDriverVersion/enabled'
+2026-09-13 13:45:04 [5,817ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/viewTile/limit'
+2026-09-13 13:45:04 [5,929ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit buffer size 8274665856
+2026-09-13 13:45:04 [5,929ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : valid false, within: false
+2026-09-13 13:45:04 [5,929ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : decrement: 167690, decrement size: 8191919488
+2026-09-13 13:45:04 [5,929ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : New limit 8692359 (slope: 493, intercept: 7537024)
+2026-09-13 13:45:04 [5,929ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit buffer size 4289241344
+2026-09-13 13:45:04 [5,929ms] [Warning] [rtx.scenedb.plugin] SceneDbContext : TLAS limit : valid true, within: true
+2026-09-13 13:45:05 [6,042ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/directLighting/sampledLighting/samplesPerPixel'
+2026-09-13 13:45:05 [6,042ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/pathtracing/maxSamplesPerLaunch'
+2026-09-13 13:45:05 [6,042ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults-transient/meshlights/forceDisable'
+2026-09-13 13:45:05 [6,075ms] [Warning] [omni.usd-abi.plugin] No setting was found for '/rtx-defaults/post/dlss/execMode'
+[INFO]: Parsing configuration from: isaaclab_tasks.manager_based.manipulation.lift.config.franka.ik_abs_env_cfg:FrankaCubeLiftEnvCfg
+2026-09-13 13:45:09 [10,181ms] [Warning] [isaaclab.envs.manager_based_env] Seed not set for the environment. The environment creation may not be deterministic.
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.01
+	Rendering step-size   : 0.02
+	Environment step-size : 0.02
+[INFO]: Time taken for scene creation : 7.860046 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 25.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+2026-09-13 13:45:17 [18,317ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-13 13:45:17 [18,317ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-13 13:45:17 [18,321ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-13 13:45:17 [18,321ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-13 13:45:17 [18,322ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'effort_limit'. This parameter will be removed in the future. To set the effort limit, please use 'effort_limit_sim' instead.
+2026-09-13 13:45:17 [18,322ms] [Warning] [isaaclab.actuators.actuator_pd] The <ImplicitActuatorCfg> object has a value for 'velocity_limit'. Previously, although this value was specified, it was not getting used by implicit actuators. Since this parameter affects the simulation behavior, we continue to not use it. This parameter will be removed in the future. To set the velocity limit, please use 'velocity_limit_sim' instead.
+2026-09-13 13:45:24 [25,919ms] [Warning] [omni.hydra.scene_delegate.plugin] Calling getBypassRenderSkelMeshProcessing for prim /World/envs/env_0/Object/visuals.proto_visuals_id0 that has not been populated
+[INFO]: Time taken for simulation start : 8.056070 seconds
+[INFO] Command Manager:  <CommandManager> contains 1 active terms.
++------------------------------------------+
+|           Active Command Terms           |
++-------+-------------+--------------------+
+| Index | Name        |        Type        |
++-------+-------------+--------------------+
+|   0   | object_pose | UniformPoseCommand |
++-------+-------------+--------------------+
+
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++--------------------------------------+
+| Active Event Terms in Mode: 'reset'  |
++---------+----------------------------+
+|  Index  | Name                       |
++---------+----------------------------+
+|    0    | reset_all                  |
+|    1    | reset_object_position      |
++---------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++------------------------------------+
+|   Active Action Terms (shape: 8)   |
++-------+----------------+-----------+
+| Index | Name           | Dimension |
++-------+----------------+-----------+
+|   0   | arm_action     |         7 |
+|   1   | gripper_action |         1 |
++-------+----------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (36,)) |
++----------+-------------------------------------+----------+
+|  Index   | Name                                |  Shape   |
++----------+-------------------------------------+----------+
+|    0     | joint_pos                           |   (9,)   |
+|    1     | joint_vel                           |   (9,)   |
+|    2     | object_position                     |   (3,)   |
+|    3     | target_object_position              |   (7,)   |
+|    4     | actions                             |   (8,)   |
++----------+-------------------------------------+----------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 2 active terms.
++------------------------------------+
+|      Active Termination Terms      |
++-------+-----------------+----------+
+| Index | Name            | Time Out |
++-------+-----------------+----------+
+|   0   | time_out        |   True   |
+|   1   | object_dropping |  False   |
++-------+-----------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 6 active terms.
++-----------------------------------------------------+
+|                 Active Reward Terms                 |
++-------+-----------------------------------+---------+
+| Index | Name                              |  Weight |
++-------+-----------------------------------+---------+
+|   0   | reaching_object                   |     1.0 |
+|   1   | lifting_object                    |    15.0 |
+|   2   | object_goal_tracking              |    16.0 |
+|   3   | object_goal_tracking_fine_grained |     5.0 |
+|   4   | action_rate                       | -0.0001 |
+|   5   | joint_vel                         | -0.0001 |
++-------+-----------------------------------+---------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 2 active terms.
++--------------------------+
+| Active Curriculum Terms  |
++---------+----------------+
+|  Index  | Name           |
++---------+----------------+
+|    0    | action_rate    |
+|    1    | joint_vel      |
++---------+----------------+
+
+[INFO]: Completed setting up the environment...
+[TEST] politika sunucusuna baglanildi: 127.0.0.1:8765
+[DR] lokal isik: 8 ortam icin olusturuldu
+[DR] masa: instance=False baglanan_mesh=0
+[DR] masa mesh baglama: MESH BULUNAMADI (gorsel dogrulama ayrica yapilmali)
+/home/orhan/Projects/franka_vla_data/scripts/eval_policy_isaacsim.py:366: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:206.)
+  torch.from_numpy(np.ascontiguousarray(act_np)).float().to(dev))
+[TEST] bolum 1/200 | ortam 0 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[HAM] bolum 1: adim | hedef(xyz) | ee(xyz) | kup(xy) | tutucu
+[HAM]  0 | (+0.517,+0.063,+0.373) | (+0.463,+0.000,+0.385) | (+0.428,+0.100) | +0.96
+[HAM]  1 | (+0.518,+0.063,+0.369) | (+0.459,+0.002,+0.381) | (+0.428,+0.100) | +0.94
+[HAM]  2 | (+0.517,+0.058,+0.367) | (+0.457,+0.007,+0.385) | (+0.428,+0.100) | +1.00
+[HAM]  3 | (+0.517,+0.058,+0.369) | (+0.455,+0.013,+0.390) | (+0.428,+0.100) | +0.98
+[HAM]  4 | (+0.517,+0.061,+0.366) | (+0.454,+0.018,+0.394) | (+0.428,+0.100) | +1.00
+[HAM]  5 | (+0.517,+0.060,+0.370) | (+0.452,+0.023,+0.398) | (+0.428,+0.100) | +1.00
+[HAM]  6 | (+0.514,+0.061,+0.358) | (+0.451,+0.027,+0.400) | (+0.428,+0.100) | +0.98
+[HAM]  7 | (+0.517,+0.061,+0.363) | (+0.450,+0.031,+0.400) | (+0.428,+0.100) | +1.00
+[HAM]  8 | (+0.517,+0.075,+0.286) | (+0.448,+0.035,+0.399) | (+0.428,+0.100) | +0.97
+[HAM]  9 | (+0.523,+0.118,+0.177) | (+0.446,+0.039,+0.394) | (+0.428,+0.100) | +0.96
+[HAM] 10 | (+0.525,+0.119,+0.178) | (+0.447,+0.044,+0.382) | (+0.428,+0.100) | +0.99
+[HAM] 11 | (+0.525,+0.122,+0.176) | (+0.446,+0.051,+0.365) | (+0.428,+0.100) | +0.98
+[HAM] 12 | (+0.525,+0.125,+0.178) | (+0.445,+0.058,+0.347) | (+0.428,+0.100) | +0.99
+[HAM] 13 | (+0.525,+0.125,+0.177) | (+0.445,+0.065,+0.329) | (+0.428,+0.100) | +0.99
+[HAM] 14 | (+0.526,+0.124,+0.175) | (+0.446,+0.072,+0.313) | (+0.428,+0.100) | +0.98
+[HAM] 15 | (+0.526,+0.124,+0.174) | (+0.447,+0.077,+0.298) | (+0.428,+0.100) | +0.98
+[HAM] 16 | (+0.526,+0.123,+0.175) | (+0.449,+0.082,+0.285) | (+0.428,+0.100) | +0.98
+[HAM] 17 | (+0.527,+0.125,+0.176) | (+0.451,+0.087,+0.273) | (+0.428,+0.100) | +0.98
+[HAM] 18 | (+0.526,+0.123,+0.175) | (+0.453,+0.091,+0.263) | (+0.428,+0.100) | +0.99
+[HAM] 19 | (+0.524,+0.124,+0.174) | (+0.455,+0.094,+0.253) | (+0.428,+0.100) | +0.99
+[HAM] 20 | (+0.524,+0.124,+0.173) | (+0.458,+0.097,+0.245) | (+0.428,+0.100) | +0.99
+[HAM] 21 | (+0.524,+0.125,+0.174) | (+0.461,+0.100,+0.237) | (+0.428,+0.100) | +0.99
+[HAM] 22 | (+0.523,+0.125,+0.173) | (+0.464,+0.103,+0.231) | (+0.428,+0.100) | +0.98
+[HAM] 23 | (+0.524,+0.125,+0.174) | (+0.467,+0.105,+0.225) | (+0.428,+0.100) | +0.99
+[HAM] 24 | (+0.524,+0.125,+0.174) | (+0.470,+0.107,+0.219) | (+0.428,+0.100) | +1.00
+[HAM] 25 | (+0.458,+0.120,+0.102) | (+0.472,+0.109,+0.215) | (+0.428,+0.100) | +0.97
+[HAM] 26 | (+0.460,+0.122,+0.077) | (+0.473,+0.110,+0.208) | (+0.428,+0.100) | +0.97
+[HAM] 27 | (+0.462,+0.125,+0.075) | (+0.472,+0.110,+0.199) | (+0.428,+0.100) | +0.98
+[HAM] 28 | (+0.463,+0.127,+0.086) | (+0.469,+0.111,+0.188) | (+0.428,+0.100) | +0.97
+[HAM] 29 | (+0.463,+0.125,+0.077) | (+0.467,+0.113,+0.178) | (+0.428,+0.100) | +0.98
+[HAM] 30 | (+0.463,+0.127,+0.078) | (+0.464,+0.114,+0.168) | (+0.428,+0.100) | +0.98
+[HAM] 35 | (+0.463,+0.131,+0.079) | (+0.458,+0.120,+0.132) | (+0.428,+0.100) | +0.98
+[HAM] 40 | (+0.463,+0.133,+0.085) | (+0.456,+0.125,+0.111) | (+0.428,+0.100) | +0.99
+[HAM] 45 | (+0.464,+0.135,+0.084) | (+0.457,+0.128,+0.100) | (+0.428,+0.100) | +0.98
+[HAM] 50 | (+0.458,+0.125,+0.069) | (+0.459,+0.131,+0.095) | (+0.428,+0.100) | +0.97
+[HAM] 55 | (+0.451,+0.127,+0.054) | (+0.457,+0.130,+0.083) | (+0.428,+0.100) | -0.99
+[HAM] 60 | (+0.449,+0.128,+0.056) | (+0.453,+0.126,+0.072) | (+0.428,+0.100) | +0.65
+[HAM] 65 | (+0.448,+0.132,+0.045) | (+0.452,+0.126,+0.066) | (+0.428,+0.100) | +0.76
+[HAM] 70 | (+0.450,+0.137,+0.043) | (+0.451,+0.128,+0.059) | (+0.428,+0.100) | +0.84
+[HAM] 75 | (+0.468,+0.127,+0.052) | (+0.451,+0.130,+0.054) | (+0.428,+0.100) | +0.97
+[HAM] 80 | (+0.471,+0.113,+0.061) | (+0.457,+0.127,+0.058) | (+0.430,+0.100) | +0.99
+[HAM] 85 | (+0.470,+0.106,+0.061) | (+0.463,+0.120,+0.062) | (+0.428,+0.100) | +0.98
+[HAM] 90 | (+0.471,+0.105,+0.068) | (+0.466,+0.114,+0.064) | (+0.428,+0.100) | +0.98
+[HAM] 95 | (+0.471,+0.102,+0.066) | (+0.468,+0.110,+0.067) | (+0.428,+0.100) | +0.99
+[HAM] 100 | (+0.472,+0.077,+0.083) | (+0.469,+0.106,+0.069) | (+0.428,+0.100) | -0.98
+[HAM] 105 | (+0.467,+0.075,+0.090) | (+0.468,+0.095,+0.075) | (+0.428,+0.100) | +0.73
+[HAM] 110 | (+0.464,+0.076,+0.094) | (+0.469,+0.086,+0.083) | (+0.428,+0.100) | +0.62
+[HAM] 115 | (+0.465,+0.078,+0.089) | (+0.467,+0.082,+0.087) | (+0.428,+0.100) | -0.92
+[HAM] 120 | (+0.463,+0.077,+0.114) | (+0.465,+0.079,+0.094) | (+0.428,+0.100) | +0.77
+[HAM] 125 | (+0.453,+0.124,+0.069) | (+0.464,+0.078,+0.103) | (+0.428,+0.100) | -1.00
+[HAM] 130 | (+0.457,+0.113,+0.067) | (+0.463,+0.090,+0.093) | (+0.428,+0.100) | -1.00
+[HAM] 135 | (+0.457,+0.109,+0.066) | (+0.459,+0.099,+0.083) | (+0.428,+0.100) | -0.99
+[HAM] 140 | (+0.456,+0.107,+0.071) | (+0.457,+0.103,+0.078) | (+0.428,+0.100) | -0.98
+[HAM] 145 | (+0.456,+0.092,+0.165) | (+0.456,+0.105,+0.077) | (+0.428,+0.100) | -0.08
+[HAM] 150 | (+0.464,+0.121,+0.153) | (+0.445,+0.101,+0.104) | (+0.428,+0.100) | +1.00
+[HAM] 155 | (+0.459,+0.134,+0.105) | (+0.463,+0.112,+0.129) | (+0.428,+0.100) | +0.96
+[IZ] bolum 1 kapanis adim=52 kup=(0.428,0.100) hedef=(0.452,0.124) ee=(0.460,0.131) hedef_hata=34mm ee_hata=45mm
+[TEST] bolum 2/200 | ortam 1 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[IZ] bolum 2 kapanis adim=83 kup=(0.540,0.019) hedef=(0.546,0.013) ee=(0.552,0.019) hedef_hata=9mm ee_hata=12mm
+[TEST] bolum 3/200 | ortam 2 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[IZ] bolum 3 kapanis adim=177 kup=(0.597,0.154) hedef=(0.581,0.131) ee=(0.586,0.123) hedef_hata=27mm ee_hata=32mm
+[TEST] bolum 4/200 | ortam 3 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[IZ] bolum 4 kapanis adim=99 kup=(0.552,0.243) hedef=(0.570,0.205) ee=(0.571,0.205) hedef_hata=42mm ee_hata=42mm
+[TEST] bolum 5/200 | ortam 4 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[IZ] bolum 5 kapanis adim=73 kup=(0.563,0.094) hedef=(0.584,0.127) ee=(0.590,0.126) hedef_hata=40mm ee_hata=42mm
+[TEST] bolum 6/200 | ortam 5 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[IZ] bolum 6 kapanis adim=74 kup=(0.414,0.145) hedef=(0.449,0.164) ee=(0.448,0.165) hedef_hata=40mm ee_hata=40mm
+[TEST] bolum 7/200 | ortam 6 | adim=250 | tepe_z=0.065m son_z=0.021m | basarisiz
+[IZ] bolum 7 kapanis adim=95 kup=(0.465,-0.207) hedef=(0.472,-0.212) ee=(0.474,-0.208) hedef_hata=8mm ee_hata=9mm
+[TEST] bolum 8/200 | ortam 7 | adim=250 | tepe_z=0.055m son_z=0.021m | basarisiz
+[IZ] bolum 8 kapanis adim=95 kup=(0.549,-0.231) hedef=(0.580,-0.194) ee=(0.580,-0.198) hedef_hata=48mm ee_hata=45mm
+[TEST] bolum 9/200 | ortam 0 | adim=250 | tepe_z=0.088m son_z=0.079m | basarisiz
+[IZ] bolum 9: tutucu hic kapanmadi
+[TEST] bolum 10/200 | ortam 1 | adim=250 | tepe_z=0.088m son_z=0.079m | basarisiz
+[IZ] bolum 10 kapanis adim=92 kup=(0.586,0.215) hedef=(0.557,0.211) ee=(0.562,0.214) hedef_hata=29mm ee_hata=24mm
+[TEST] bolum 11/200 | ortam 2 | adim=250 | tepe_z=0.247m son_z=0.079m | basarisiz
+[IZ] bolum 11 kapanis adim=74 kup=(0.459,0.188) hedef=(0.471,0.174) ee=(0.470,0.172) hedef_hata=19mm ee_hata=19mm
+[TEST] bolum 12/200 | ortam 3 | adim=250 | tepe_z=0.283m son_z=0.283m | BASARILI
+[IZ] bolum 12 kapanis adim=90 kup=(0.543,-0.203) hedef=(0.534,-0.188) ee=(0.535,-0.188) hedef_hata=17mm ee_hata=16mm
+[TEST] bolum 13/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 13: tutucu hic kapanmadi
+[TEST] bolum 14/200 | ortam 5 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 14 kapanis adim=104 kup=(0.548,0.069) hedef=(0.502,0.053) ee=(0.517,0.078) hedef_hata=48mm ee_hata=32mm
+[TEST] bolum 15/200 | ortam 6 | adim=250 | tepe_z=0.264m son_z=0.264m | BASARILI
+[IZ] bolum 15 kapanis adim=143 kup=(0.484,-0.079) hedef=(0.467,-0.116) ee=(0.469,-0.113) hedef_hata=41mm ee_hata=38mm
+[TEST] bolum 16/200 | ortam 7 | adim=250 | tepe_z=0.083m son_z=0.080m | basarisiz
+[IZ] bolum 16 kapanis adim=96 kup=(0.558,0.038) hedef=(0.544,0.015) ee=(0.545,0.022) hedef_hata=26mm ee_hata=21mm
+[TEST] bolum 17/200 | ortam 0 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 17: tutucu hic kapanmadi
+[TEST] bolum 18/200 | ortam 1 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 18 kapanis adim=71 kup=(0.485,0.107) hedef=(0.501,0.087) ee=(0.510,0.091) hedef_hata=26mm ee_hata=29mm
+[TEST] bolum 19/200 | ortam 2 | adim=250 | tepe_z=0.387m son_z=0.273m | BASARILI
+[IZ] bolum 19 kapanis adim=71 kup=(0.465,-0.240) hedef=(0.467,-0.225) ee=(0.470,-0.224) hedef_hata=15mm ee_hata=17mm
+[TEST] bolum 20/200 | ortam 3 | adim=250 | tepe_z=0.408m son_z=0.359m | BASARILI
+[IZ] bolum 20 kapanis adim=64 kup=(0.423,0.181) hedef=(0.430,0.186) ee=(0.428,0.184) hedef_hata=9mm ee_hata=6mm
+[TEST] bolum 21/200 | ortam 4 | adim=250 | tepe_z=0.133m son_z=0.133m | BASARILI
+[IZ] bolum 21 kapanis adim=147 kup=(0.536,-0.235) hedef=(0.566,-0.211) ee=(0.568,-0.213) hedef_hata=38mm ee_hata=38mm
+[TEST] bolum 22/200 | ortam 5 | adim=250 | tepe_z=0.103m son_z=0.079m | basarisiz
+[IZ] bolum 22 kapanis adim=97 kup=(0.462,-0.112) hedef=(0.455,-0.092) ee=(0.454,-0.096) hedef_hata=21mm ee_hata=18mm
+[TEST] bolum 23/200 | ortam 6 | adim=250 | tepe_z=0.111m son_z=0.079m | basarisiz
+[IZ] bolum 23 kapanis adim=94 kup=(0.494,-0.238) hedef=(0.492,-0.209) ee=(0.491,-0.226) hedef_hata=29mm ee_hata=12mm
+[TEST] bolum 24/200 | ortam 7 | adim=250 | tepe_z=0.115m son_z=0.079m | basarisiz
+[IZ] bolum 24 kapanis adim=102 kup=(0.473,-0.111) hedef=(0.440,-0.117) ee=(0.450,-0.100) hedef_hata=34mm ee_hata=25mm
+[TEST] bolum 25/200 | ortam 0 | adim=250 | tepe_z=0.552m son_z=0.079m | basarisiz
+[IZ] bolum 25: tutucu hic kapanmadi
+[TEST] bolum 26/200 | ortam 1 | adim=250 | tepe_z=0.432m son_z=0.406m | BASARILI
+[IZ] bolum 26 kapanis adim=93 kup=(0.471,0.094) hedef=(0.478,0.088) ee=(0.477,0.087) hedef_hata=9mm ee_hata=9mm
+[TEST] bolum 27/200 | ortam 2 | adim=250 | tepe_z=0.428m son_z=0.428m | BASARILI
+[IZ] bolum 27 kapanis adim=100 kup=(0.551,0.085) hedef=(0.526,0.105) ee=(0.556,0.089) hedef_hata=33mm ee_hata=6mm
+[TEST] bolum 28/200 | ortam 3 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 28 kapanis adim=89 kup=(0.505,0.147) hedef=(0.548,0.206) ee=(0.550,0.203) hedef_hata=72mm ee_hata=71mm
+[TEST] bolum 29/200 | ortam 4 | adim=250 | tepe_z=0.085m son_z=0.079m | basarisiz
+[IZ] bolum 29 kapanis adim=74 kup=(0.427,0.133) hedef=(0.434,0.162) ee=(0.459,0.154) hedef_hata=30mm ee_hata=38mm
+[TEST] bolum 30/200 | ortam 5 | adim=250 | tepe_z=0.083m son_z=0.079m | basarisiz
+[IZ] bolum 30 kapanis adim=84 kup=(0.543,-0.154) hedef=(0.530,-0.218) ee=(0.538,-0.211) hedef_hata=65mm ee_hata=57mm
+[TEST] bolum 31/200 | ortam 6 | adim=250 | tepe_z=0.323m son_z=0.083m | basarisiz
+[IZ] bolum 31 kapanis adim=98 kup=(0.490,0.064) hedef=(0.465,0.060) ee=(0.466,0.059) hedef_hata=24mm ee_hata=24mm
+[TEST] bolum 32/200 | ortam 7 | adim=250 | tepe_z=0.326m son_z=0.326m | BASARILI
+[IZ] bolum 32 kapanis adim=66 kup=(0.460,-0.094) hedef=(0.484,-0.080) ee=(0.480,-0.085) hedef_hata=27mm ee_hata=21mm
+[TEST] bolum 33/200 | ortam 0 | adim=250 | tepe_z=0.091m son_z=0.079m | basarisiz
+[IZ] bolum 33 kapanis adim=26 kup=(1.165,0.208) hedef=(0.448,0.096) ee=(0.172,-0.567) hedef_hata=725mm ee_hata=1259mm
+[TEST] bolum 34/200 | ortam 1 | adim=250 | tepe_z=0.319m son_z=0.079m | basarisiz
+[IZ] bolum 34 kapanis adim=76 kup=(0.433,-0.221) hedef=(0.449,-0.214) ee=(0.431,-0.211) hedef_hata=17mm ee_hata=10mm
+[TEST] bolum 35/200 | ortam 2 | adim=250 | tepe_z=0.289m son_z=0.274m | BASARILI
+[IZ] bolum 35 kapanis adim=97 kup=(0.587,-0.054) hedef=(0.586,-0.076) ee=(0.584,-0.070) hedef_hata=22mm ee_hata=16mm
+[TEST] bolum 36/200 | ortam 3 | adim=250 | tepe_z=0.294m son_z=0.284m | BASARILI
+[IZ] bolum 36 kapanis adim=83 kup=(0.550,-0.180) hedef=(0.546,-0.181) ee=(0.550,-0.189) hedef_hata=4mm ee_hata=9mm
+[TEST] bolum 37/200 | ortam 4 | adim=250 | tepe_z=0.334m son_z=0.079m | basarisiz
+[IZ] bolum 37 kapanis adim=94 kup=(0.543,0.049) hedef=(0.531,0.024) ee=(0.534,0.033) hedef_hata=28mm ee_hata=18mm
+[TEST] bolum 38/200 | ortam 5 | adim=250 | tepe_z=0.117m son_z=0.079m | basarisiz
+[IZ] bolum 38 kapanis adim=93 kup=(0.515,0.218) hedef=(0.509,0.203) ee=(0.510,0.202) hedef_hata=16mm ee_hata=17mm
+[TEST] bolum 39/200 | ortam 6 | adim=250 | tepe_z=0.377m son_z=0.315m | BASARILI
+[IZ] bolum 39 kapanis adim=75 kup=(0.577,-0.206) hedef=(0.573,-0.216) ee=(0.584,-0.197) hedef_hata=10mm ee_hata=12mm
+[TEST] bolum 40/200 | ortam 7 | adim=250 | tepe_z=0.302m son_z=0.271m | BASARILI
+[IZ] bolum 40 kapanis adim=79 kup=(0.511,-0.188) hedef=(0.496,-0.162) ee=(0.496,-0.179) hedef_hata=31mm ee_hata=18mm
+[TEST] bolum 41/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 41: tutucu hic kapanmadi
+[TEST] bolum 42/200 | ortam 1 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 42 kapanis adim=96 kup=(0.584,-0.069) hedef=(0.560,-0.076) ee=(0.563,-0.077) hedef_hata=25mm ee_hata=23mm
+[TEST] bolum 43/200 | ortam 2 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 43 kapanis adim=74 kup=(0.432,0.041) hedef=(0.421,0.044) ee=(0.421,0.046) hedef_hata=12mm ee_hata=13mm
+[TEST] bolum 44/200 | ortam 3 | adim=250 | tepe_z=0.096m son_z=0.079m | basarisiz
+[IZ] bolum 44 kapanis adim=147 kup=(0.448,0.032) hedef=(0.416,-0.002) ee=(0.430,0.005) hedef_hata=47mm ee_hata=33mm
+[TEST] bolum 45/200 | ortam 4 | adim=250 | tepe_z=0.105m son_z=0.105m | BASARILI
+[IZ] bolum 45 kapanis adim=105 kup=(0.432,-0.003) hedef=(0.460,0.026) ee=(0.458,0.011) hedef_hata=40mm ee_hata=29mm
+[TEST] bolum 46/200 | ortam 5 | adim=250 | tepe_z=0.442m son_z=0.371m | BASARILI
+[IZ] bolum 46 kapanis adim=100 kup=(0.455,-0.204) hedef=(0.463,-0.182) ee=(0.458,-0.200) hedef_hata=24mm ee_hata=5mm
+[TEST] bolum 47/200 | ortam 6 | adim=250 | tepe_z=0.154m son_z=0.079m | basarisiz
+[IZ] bolum 47 kapanis adim=50 kup=(0.406,0.200) hedef=(0.427,0.207) ee=(0.433,0.214) hedef_hata=22mm ee_hata=30mm
+[TEST] bolum 48/200 | ortam 7 | adim=250 | tepe_z=0.111m son_z=0.079m | basarisiz
+[IZ] bolum 48 kapanis adim=63 kup=(0.451,0.118) hedef=(0.447,0.136) ee=(0.451,0.130) hedef_hata=18mm ee_hata=12mm
+[TEST] bolum 49/200 | ortam 0 | adim=250 | tepe_z=0.169m son_z=0.079m | basarisiz
+[IZ] bolum 49: tutucu hic kapanmadi
+[TEST] bolum 50/200 | ortam 1 | adim=250 | tepe_z=0.286m son_z=0.201m | BASARILI
+[IZ] bolum 50 kapanis adim=79 kup=(0.435,-0.030) hedef=(0.436,-0.017) ee=(0.444,-0.026) hedef_hata=14mm ee_hata=10mm
+[TEST] bolum 51/200 | ortam 2 | adim=250 | tepe_z=0.189m son_z=0.079m | basarisiz
+[IZ] bolum 51 kapanis adim=109 kup=(0.452,0.174) hedef=(0.434,0.160) ee=(0.435,0.160) hedef_hata=23mm ee_hata=22mm
+[TEST] bolum 52/200 | ortam 3 | adim=250 | tepe_z=0.255m son_z=0.191m | BASARILI
+[IZ] bolum 52 kapanis adim=86 kup=(0.525,0.058) hedef=(0.503,0.037) ee=(0.510,0.043) hedef_hata=31mm ee_hata=22mm
+[TEST] bolum 53/200 | ortam 4 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 53 kapanis adim=122 kup=(0.540,-0.126) hedef=(0.507,-0.132) ee=(0.510,-0.132) hedef_hata=33mm ee_hata=31mm
+[TEST] bolum 54/200 | ortam 5 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 54 kapanis adim=147 kup=(0.510,0.058) hedef=(0.484,0.035) ee=(0.489,0.040) hedef_hata=35mm ee_hata=28mm
+[TEST] bolum 55/200 | ortam 6 | adim=250 | tepe_z=0.442m son_z=0.433m | BASARILI
+[IZ] bolum 55 kapanis adim=92 kup=(0.575,0.225) hedef=(0.574,0.232) ee=(0.572,0.232) hedef_hata=7mm ee_hata=7mm
+[TEST] bolum 56/200 | ortam 7 | adim=250 | tepe_z=0.096m son_z=0.088m | basarisiz
+[IZ] bolum 56 kapanis adim=144 kup=(0.436,0.053) hedef=(0.421,-0.007) ee=(0.431,0.005) hedef_hata=61mm ee_hata=48mm
+[TEST] bolum 57/200 | ortam 0 | adim=250 | tepe_z=0.129m son_z=0.079m | basarisiz
+[IZ] bolum 57: tutucu hic kapanmadi
+[TEST] bolum 58/200 | ortam 1 | adim=250 | tepe_z=0.090m son_z=0.079m | basarisiz
+[IZ] bolum 58 kapanis adim=88 kup=(0.568,0.018) hedef=(0.549,-0.007) ee=(0.552,0.002) hedef_hata=32mm ee_hata=23mm
+[TEST] bolum 59/200 | ortam 2 | adim=250 | tepe_z=0.256m son_z=0.079m | basarisiz
+[IZ] bolum 59 kapanis adim=89 kup=(0.465,0.182) hedef=(0.439,0.163) ee=(0.442,0.166) hedef_hata=32mm ee_hata=29mm
+[TEST] bolum 60/200 | ortam 3 | adim=250 | tepe_z=0.314m son_z=0.282m | BASARILI
+[IZ] bolum 60 kapanis adim=69 kup=(0.400,-0.198) hedef=(0.417,-0.200) ee=(0.414,-0.201) hedef_hata=17mm ee_hata=15mm
+[TEST] bolum 61/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 61: tutucu hic kapanmadi
+[TEST] bolum 62/200 | ortam 5 | adim=250 | tepe_z=0.290m son_z=0.287m | BASARILI
+[IZ] bolum 62 kapanis adim=100 kup=(0.534,0.182) hedef=(0.557,0.218) ee=(0.557,0.191) hedef_hata=43mm ee_hata=24mm
+[TEST] bolum 63/200 | ortam 6 | adim=250 | tepe_z=0.083m son_z=0.079m | basarisiz
+[IZ] bolum 63 kapanis adim=55 kup=(0.458,-0.170) hedef=(0.445,-0.207) ee=(0.450,-0.197) hedef_hata=39mm ee_hata=28mm
+[TEST] bolum 64/200 | ortam 7 | adim=250 | tepe_z=0.492m son_z=0.492m | BASARILI
+[IZ] bolum 64 kapanis adim=119 kup=(0.499,0.152) hedef=(0.502,0.157) ee=(0.499,0.160) hedef_hata=6mm ee_hata=8mm
+[TEST] bolum 65/200 | ortam 0 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 65: tutucu hic kapanmadi
+[TEST] bolum 66/200 | ortam 1 | adim=250 | tepe_z=0.381m son_z=0.381m | BASARILI
+[IZ] bolum 66 kapanis adim=89 kup=(0.469,-0.026) hedef=(0.464,-0.033) ee=(0.467,-0.036) hedef_hata=9mm ee_hata=10mm
+[TEST] bolum 67/200 | ortam 2 | adim=250 | tepe_z=0.092m son_z=0.079m | basarisiz
+[IZ] bolum 67 kapanis adim=88 kup=(0.542,-0.169) hedef=(0.548,-0.200) ee=(0.553,-0.198) hedef_hata=31mm ee_hata=31mm
+[TEST] bolum 68/200 | ortam 3 | adim=250 | tepe_z=0.316m son_z=0.307m | BASARILI
+[IZ] bolum 68 kapanis adim=97 kup=(0.447,-0.044) hedef=(0.456,-0.048) ee=(0.451,-0.046) hedef_hata=10mm ee_hata=5mm
+[TEST] bolum 69/200 | ortam 4 | adim=250 | tepe_z=0.093m son_z=0.079m | basarisiz
+[IZ] bolum 69 kapanis adim=101 kup=(0.491,-0.243) hedef=(0.513,-0.243) ee=(0.535,-0.225) hedef_hata=22mm ee_hata=48mm
+[TEST] bolum 70/200 | ortam 5 | adim=250 | tepe_z=0.364m son_z=0.362m | BASARILI
+[IZ] bolum 70 kapanis adim=90 kup=(0.432,-0.198) hedef=(0.430,-0.206) ee=(0.429,-0.200) hedef_hata=8mm ee_hata=4mm
+[TEST] bolum 71/200 | ortam 6 | adim=250 | tepe_z=0.383m son_z=0.382m | BASARILI
+[IZ] bolum 71 kapanis adim=95 kup=(0.459,0.023) hedef=(0.449,0.012) ee=(0.449,0.013) hedef_hata=15mm ee_hata=14mm
+[TEST] bolum 72/200 | ortam 7 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 72 kapanis adim=96 kup=(0.504,0.164) hedef=(0.519,0.194) ee=(0.524,0.203) hedef_hata=33mm ee_hata=44mm
+[TEST] bolum 73/200 | ortam 0 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 73: tutucu hic kapanmadi
+[TEST] bolum 74/200 | ortam 1 | adim=250 | tepe_z=0.258m son_z=0.216m | BASARILI
+[IZ] bolum 74 kapanis adim=75 kup=(0.548,-0.110) hedef=(0.493,0.010) ee=(0.562,-0.124) hedef_hata=132mm ee_hata=20mm
+[TEST] bolum 75/200 | ortam 2 | adim=250 | tepe_z=0.326m son_z=0.324m | BASARILI
+[IZ] bolum 75 kapanis adim=85 kup=(0.552,0.132) hedef=(0.548,0.094) ee=(0.553,0.116) hedef_hata=38mm ee_hata=16mm
+[TEST] bolum 76/200 | ortam 3 | adim=250 | tepe_z=0.455m son_z=0.425m | BASARILI
+[IZ] bolum 76 kapanis adim=75 kup=(0.432,0.106) hedef=(0.423,0.108) ee=(0.437,0.096) hedef_hata=9mm ee_hata=11mm
+[TEST] bolum 77/200 | ortam 4 | adim=250 | tepe_z=0.322m son_z=0.322m | BASARILI
+[IZ] bolum 77 kapanis adim=91 kup=(0.498,0.061) hedef=(0.489,0.078) ee=(0.502,0.078) hedef_hata=19mm ee_hata=18mm
+[TEST] bolum 78/200 | ortam 5 | adim=250 | tepe_z=0.263m son_z=0.263m | BASARILI
+[IZ] bolum 78 kapanis adim=80 kup=(0.447,-0.063) hedef=(0.437,-0.094) ee=(0.442,-0.070) hedef_hata=33mm ee_hata=9mm
+[TEST] bolum 79/200 | ortam 6 | adim=250 | tepe_z=0.474m son_z=0.471m | BASARILI
+[IZ] bolum 79 kapanis adim=0 kup=(0.440,0.233) hedef=(0.451,0.122) ee=(0.463,0.000) hedef_hata=111mm ee_hata=234mm
+[TEST] bolum 80/200 | ortam 7 | adim=250 | tepe_z=0.178m son_z=0.178m | BASARILI
+[IZ] bolum 80 kapanis adim=82 kup=(0.427,0.079) hedef=(0.413,0.081) ee=(0.422,0.073) hedef_hata=14mm ee_hata=8mm
+[TEST] bolum 81/200 | ortam 0 | adim=250 | tepe_z=0.315m son_z=0.079m | basarisiz
+[IZ] bolum 81: tutucu hic kapanmadi
+[TEST] bolum 82/200 | ortam 1 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 82 kapanis adim=72 kup=(0.501,-0.211) hedef=(0.539,-0.209) ee=(0.536,-0.209) hedef_hata=38mm ee_hata=35mm
+[TEST] bolum 83/200 | ortam 2 | adim=250 | tepe_z=0.393m son_z=0.393m | BASARILI
+[IZ] bolum 83 kapanis adim=87 kup=(0.447,-0.099) hedef=(0.453,-0.085) ee=(0.450,-0.083) hedef_hata=15mm ee_hata=16mm
+[TEST] bolum 84/200 | ortam 3 | adim=250 | tepe_z=0.358m son_z=0.358m | BASARILI
+[IZ] bolum 84 kapanis adim=116 kup=(0.454,-0.055) hedef=(0.440,-0.060) ee=(0.440,-0.061) hedef_hata=15mm ee_hata=16mm
+[TEST] bolum 85/200 | ortam 4 | adim=250 | tepe_z=0.151m son_z=0.079m | basarisiz
+[IZ] bolum 85 kapanis adim=109 kup=(0.496,0.248) hedef=(0.496,0.218) ee=(0.493,0.232) hedef_hata=30mm ee_hata=16mm
+[TEST] bolum 86/200 | ortam 5 | adim=250 | tepe_z=0.083m son_z=0.079m | basarisiz
+[IZ] bolum 86 kapanis adim=97 kup=(0.473,0.086) hedef=(0.462,0.033) ee=(0.473,0.049) hedef_hata=53mm ee_hata=37mm
+[TEST] bolum 87/200 | ortam 6 | adim=250 | tepe_z=0.398m son_z=0.398m | BASARILI
+[IZ] bolum 87 kapanis adim=92 kup=(0.549,-0.205) hedef=(0.542,-0.185) ee=(0.542,-0.189) hedef_hata=21mm ee_hata=17mm
+[TEST] bolum 88/200 | ortam 7 | adim=250 | tepe_z=0.234m son_z=0.079m | basarisiz
+[IZ] bolum 88 kapanis adim=91 kup=(0.530,-0.074) hedef=(0.510,-0.062) ee=(0.514,-0.066) hedef_hata=24mm ee_hata=17mm
+[TEST] bolum 89/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 89: tutucu hic kapanmadi
+[TEST] bolum 90/200 | ortam 1 | adim=250 | tepe_z=0.416m son_z=0.416m | BASARILI
+[IZ] bolum 90 kapanis adim=95 kup=(0.512,-0.233) hedef=(0.519,-0.223) ee=(0.514,-0.219) hedef_hata=12mm ee_hata=14mm
+[TEST] bolum 91/200 | ortam 2 | adim=250 | tepe_z=0.087m son_z=0.079m | basarisiz
+[IZ] bolum 91 kapanis adim=148 kup=(0.586,-0.118) hedef=(0.576,-0.158) ee=(0.583,-0.151) hedef_hata=41mm ee_hata=33mm
+[TEST] bolum 92/200 | ortam 3 | adim=250 | tepe_z=0.087m son_z=0.079m | basarisiz
+[IZ] bolum 92 kapanis adim=81 kup=(0.516,-0.175) hedef=(0.533,-0.191) ee=(0.536,-0.204) hedef_hata=24mm ee_hata=35mm
+[TEST] bolum 93/200 | ortam 4 | adim=250 | tepe_z=0.257m son_z=0.083m | basarisiz
+[IZ] bolum 93 kapanis adim=102 kup=(0.437,-0.128) hedef=(0.455,-0.128) ee=(0.459,-0.131) hedef_hata=18mm ee_hata=23mm
+[TEST] bolum 94/200 | ortam 5 | adim=250 | tepe_z=0.165m son_z=0.079m | basarisiz
+[IZ] bolum 94 kapanis adim=89 kup=(0.579,0.144) hedef=(0.572,0.118) ee=(0.576,0.128) hedef_hata=27mm ee_hata=16mm
+[TEST] bolum 95/200 | ortam 6 | adim=250 | tepe_z=0.456m son_z=0.454m | BASARILI
+[IZ] bolum 95 kapanis adim=88 kup=(0.406,0.054) hedef=(0.409,0.052) ee=(0.406,0.052) hedef_hata=4mm ee_hata=2mm
+[TEST] bolum 96/200 | ortam 7 | adim=250 | tepe_z=0.478m son_z=0.473m | BASARILI
+[IZ] bolum 96 kapanis adim=73 kup=(0.415,-0.055) hedef=(0.417,-0.048) ee=(0.417,-0.050) hedef_hata=8mm ee_hata=5mm
+[TEST] bolum 97/200 | ortam 0 | adim=250 | tepe_z=0.095m son_z=0.079m | basarisiz
+[IZ] bolum 97: tutucu hic kapanmadi
+[TEST] bolum 98/200 | ortam 1 | adim=250 | tepe_z=0.080m son_z=0.080m | basarisiz
+[IZ] bolum 98 kapanis adim=97 kup=(0.493,-0.048) hedef=(0.479,-0.050) ee=(0.478,-0.049) hedef_hata=14mm ee_hata=15mm
+[TEST] bolum 99/200 | ortam 2 | adim=250 | tepe_z=0.313m son_z=0.153m | BASARILI
+[IZ] bolum 99 kapanis adim=92 kup=(0.526,-0.053) hedef=(0.529,-0.054) ee=(0.530,-0.051) hedef_hata=3mm ee_hata=4mm
+[TEST] bolum 100/200 | ortam 3 | adim=250 | tepe_z=0.083m son_z=0.079m | basarisiz
+[IZ] bolum 100 kapanis adim=75 kup=(0.411,-0.209) hedef=(0.429,-0.231) ee=(0.425,-0.223) hedef_hata=28mm ee_hata=20mm
+[TEST] bolum 101/200 | ortam 4 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 101 kapanis adim=81 kup=(0.456,0.143) hedef=(0.486,0.177) ee=(0.489,0.176) hedef_hata=46mm ee_hata=46mm
+[TEST] bolum 102/200 | ortam 5 | adim=250 | tepe_z=0.081m son_z=0.079m | basarisiz
+[IZ] bolum 102 kapanis adim=96 kup=(0.590,-0.151) hedef=(0.578,-0.149) ee=(0.580,-0.148) hedef_hata=12mm ee_hata=11mm
+[TEST] bolum 103/200 | ortam 6 | adim=250 | tepe_z=0.433m son_z=0.399m | BASARILI
+[IZ] bolum 103 kapanis adim=75 kup=(0.458,0.109) hedef=(0.457,0.127) ee=(0.461,0.114) hedef_hata=18mm ee_hata=6mm
+[TEST] bolum 104/200 | ortam 7 | adim=250 | tepe_z=0.197m son_z=0.085m | basarisiz
+[IZ] bolum 104 kapanis adim=89 kup=(0.501,-0.202) hedef=(0.499,-0.193) ee=(0.498,-0.193) hedef_hata=9mm ee_hata=10mm
+[TEST] bolum 105/200 | ortam 0 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 105 kapanis adim=25 kup=(1.064,-0.327) hedef=(0.372,-0.021) ee=(0.251,-0.351) hedef_hata=756mm ee_hata=813mm
+[TEST] bolum 106/200 | ortam 1 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 106 kapanis adim=84 kup=(0.571,-0.101) hedef=(0.586,-0.140) ee=(0.584,-0.143) hedef_hata=42mm ee_hata=44mm
+[TEST] bolum 107/200 | ortam 2 | adim=250 | tepe_z=0.114m son_z=0.079m | basarisiz
+[IZ] bolum 107 kapanis adim=122 kup=(0.564,0.191) hedef=(0.558,0.182) ee=(0.557,0.187) hedef_hata=11mm ee_hata=9mm
+[TEST] bolum 108/200 | ortam 3 | adim=250 | tepe_z=0.434m son_z=0.427m | BASARILI
+[IZ] bolum 108 kapanis adim=92 kup=(0.543,0.002) hedef=(0.539,-0.006) ee=(0.538,-0.009) hedef_hata=9mm ee_hata=12mm
+[TEST] bolum 109/200 | ortam 4 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 109 kapanis adim=94 kup=(0.493,0.042) hedef=(0.522,0.054) ee=(0.520,0.052) hedef_hata=31mm ee_hata=29mm
+[TEST] bolum 110/200 | ortam 5 | adim=250 | tepe_z=0.416m son_z=0.416m | BASARILI
+[IZ] bolum 110 kapanis adim=50 kup=(0.429,-0.156) hedef=(0.491,-0.131) ee=(0.478,-0.109) hedef_hata=67mm ee_hata=69mm
+[TEST] bolum 111/200 | ortam 6 | adim=250 | tepe_z=0.083m son_z=0.079m | basarisiz
+[IZ] bolum 111 kapanis adim=98 kup=(0.496,-0.148) hedef=(0.475,-0.128) ee=(0.476,-0.131) hedef_hata=29mm ee_hata=26mm
+[TEST] bolum 112/200 | ortam 7 | adim=250 | tepe_z=0.398m son_z=0.079m | basarisiz
+[IZ] bolum 112 kapanis adim=132 kup=(0.589,-0.120) hedef=(0.579,-0.143) ee=(0.585,-0.130) hedef_hata=25mm ee_hata=11mm
+[TEST] bolum 113/200 | ortam 0 | adim=250 | tepe_z=0.399m son_z=0.079m | basarisiz
+[IZ] bolum 113 kapanis adim=147 kup=(0.603,0.334) hedef=(0.527,0.237) ee=(-0.032,0.039) hedef_hata=124mm ee_hata=700mm
+[TEST] bolum 114/200 | ortam 1 | adim=250 | tepe_z=0.341m son_z=0.337m | BASARILI
+[IZ] bolum 114 kapanis adim=84 kup=(0.577,-0.233) hedef=(0.575,-0.221) ee=(0.575,-0.231) hedef_hata=12mm ee_hata=3mm
+[TEST] bolum 115/200 | ortam 2 | adim=250 | tepe_z=0.191m son_z=0.191m | BASARILI
+[IZ] bolum 115 kapanis adim=92 kup=(0.510,-0.149) hedef=(0.505,-0.140) ee=(0.505,-0.146) hedef_hata=11mm ee_hata=6mm
+[TEST] bolum 116/200 | ortam 3 | adim=250 | tepe_z=0.120m son_z=0.079m | basarisiz
+[IZ] bolum 116 kapanis adim=83 kup=(0.535,-0.051) hedef=(0.523,-0.032) ee=(0.530,-0.044) hedef_hata=22mm ee_hata=9mm
+[TEST] bolum 117/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 117: tutucu hic kapanmadi
+[TEST] bolum 118/200 | ortam 5 | adim=250 | tepe_z=0.365m son_z=0.304m | BASARILI
+[IZ] bolum 118 kapanis adim=70 kup=(0.520,0.202) hedef=(0.530,0.204) ee=(0.530,0.203) hedef_hata=10mm ee_hata=9mm
+[TEST] bolum 119/200 | ortam 6 | adim=250 | tepe_z=0.133m son_z=0.079m | basarisiz
+[IZ] bolum 119 kapanis adim=91 kup=(0.499,-0.116) hedef=(0.478,-0.122) ee=(0.480,-0.118) hedef_hata=22mm ee_hata=19mm
+[TEST] bolum 120/200 | ortam 7 | adim=250 | tepe_z=0.357m son_z=0.246m | BASARILI
+[IZ] bolum 120 kapanis adim=75 kup=(0.402,-0.124) hedef=(0.423,-0.120) ee=(0.417,-0.114) hedef_hata=21mm ee_hata=18mm
+[TEST] bolum 121/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 121: tutucu hic kapanmadi
+[TEST] bolum 122/200 | ortam 1 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 122 kapanis adim=106 kup=(0.422,0.231) hedef=(0.458,0.228) ee=(0.451,0.227) hedef_hata=36mm ee_hata=29mm
+[TEST] bolum 123/200 | ortam 2 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 123 kapanis adim=94 kup=(0.460,-0.055) hedef=(0.438,-0.057) ee=(0.440,-0.058) hedef_hata=23mm ee_hata=21mm
+[TEST] bolum 124/200 | ortam 3 | adim=250 | tepe_z=0.314m son_z=0.314m | BASARILI
+[IZ] bolum 124 kapanis adim=99 kup=(0.519,-0.125) hedef=(0.516,-0.124) ee=(0.516,-0.122) hedef_hata=4mm ee_hata=5mm
+[TEST] bolum 125/200 | ortam 4 | adim=250 | tepe_z=0.088m son_z=0.079m | basarisiz
+[IZ] bolum 125 kapanis adim=121 kup=(0.445,-0.194) hedef=(0.468,-0.219) ee=(0.470,-0.220) hedef_hata=33mm ee_hata=36mm
+[TEST] bolum 126/200 | ortam 5 | adim=250 | tepe_z=0.450m son_z=0.450m | BASARILI
+[IZ] bolum 126 kapanis adim=74 kup=(0.480,0.146) hedef=(0.478,0.148) ee=(0.479,0.148) hedef_hata=3mm ee_hata=3mm
+[TEST] bolum 127/200 | ortam 6 | adim=250 | tepe_z=0.334m son_z=0.334m | BASARILI
+[IZ] bolum 127 kapanis adim=83 kup=(0.428,-0.049) hedef=(0.420,-0.051) ee=(0.426,-0.061) hedef_hata=8mm ee_hata=12mm
+[TEST] bolum 128/200 | ortam 7 | adim=250 | tepe_z=0.306m son_z=0.079m | basarisiz
+[IZ] bolum 128 kapanis adim=75 kup=(0.534,0.146) hedef=(0.558,0.160) ee=(0.543,0.151) hedef_hata=28mm ee_hata=10mm
+[TEST] bolum 129/200 | ortam 0 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 129 kapanis adim=25 kup=(0.556,-0.189) hedef=(0.388,-0.027) ee=(0.766,-0.072) hedef_hata=234mm ee_hata=240mm
+[TEST] bolum 130/200 | ortam 1 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 130 kapanis adim=97 kup=(0.589,-0.181) hedef=(0.562,-0.165) ee=(0.567,-0.165) hedef_hata=31mm ee_hata=27mm
+[TEST] bolum 131/200 | ortam 2 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 131 kapanis adim=140 kup=(0.605,-0.071) hedef=(0.564,-0.112) ee=(0.573,-0.098) hedef_hata=58mm ee_hata=41mm
+[TEST] bolum 132/200 | ortam 3 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 132 kapanis adim=96 kup=(0.569,0.053) hedef=(0.543,0.029) ee=(0.545,0.034) hedef_hata=36mm ee_hata=31mm
+[TEST] bolum 133/200 | ortam 4 | adim=250 | tepe_z=0.310m son_z=0.079m | basarisiz
+[IZ] bolum 133 kapanis adim=87 kup=(0.562,0.138) hedef=(0.573,0.122) ee=(0.572,0.128) hedef_hata=20mm ee_hata=14mm
+[TEST] bolum 134/200 | ortam 5 | adim=250 | tepe_z=0.301m son_z=0.079m | basarisiz
+[IZ] bolum 134 kapanis adim=84 kup=(0.555,-0.214) hedef=(0.575,-0.224) ee=(0.571,-0.216) hedef_hata=22mm ee_hata=15mm
+[TEST] bolum 135/200 | ortam 6 | adim=250 | tepe_z=0.424m son_z=0.424m | BASARILI
+[IZ] bolum 135 kapanis adim=95 kup=(0.477,-0.006) hedef=(0.453,-0.021) ee=(0.455,-0.020) hedef_hata=28mm ee_hata=27mm
+[TEST] bolum 136/200 | ortam 7 | adim=250 | tepe_z=0.083m son_z=0.079m | basarisiz
+[IZ] bolum 136 kapanis adim=80 kup=(0.399,0.105) hedef=(0.425,0.130) ee=(0.426,0.138) hedef_hata=36mm ee_hata=43mm
+[TEST] bolum 137/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 137: tutucu hic kapanmadi
+[TEST] bolum 138/200 | ortam 1 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 138 kapanis adim=80 kup=(0.555,0.150) hedef=(0.564,0.124) ee=(0.561,0.133) hedef_hata=28mm ee_hata=18mm
+[TEST] bolum 139/200 | ortam 2 | adim=250 | tepe_z=0.252m son_z=0.252m | BASARILI
+[IZ] bolum 139 kapanis adim=118 kup=(0.543,0.084) hedef=(0.541,0.064) ee=(0.539,0.068) hedef_hata=19mm ee_hata=16mm
+[TEST] bolum 140/200 | ortam 3 | adim=250 | tepe_z=0.090m son_z=0.079m | basarisiz
+[IZ] bolum 140 kapanis adim=97 kup=(0.583,0.034) hedef=(0.551,0.042) ee=(0.556,0.042) hedef_hata=33mm ee_hata=28mm
+[TEST] bolum 141/200 | ortam 4 | adim=250 | tepe_z=0.088m son_z=0.079m | basarisiz
+[IZ] bolum 141 kapanis adim=121 kup=(0.502,-0.125) hedef=(0.536,-0.174) ee=(0.536,-0.171) hedef_hata=60mm ee_hata=57mm
+[TEST] bolum 142/200 | ortam 5 | adim=250 | tepe_z=0.449m son_z=0.449m | BASARILI
+[IZ] bolum 142 kapanis adim=75 kup=(0.491,0.107) hedef=(0.481,0.099) ee=(0.500,0.110) hedef_hata=13mm ee_hata=9mm
+[TEST] bolum 143/200 | ortam 6 | adim=250 | tepe_z=0.116m son_z=0.079m | basarisiz
+[IZ] bolum 143 kapanis adim=121 kup=(0.442,-0.124) hedef=(0.421,-0.116) ee=(0.420,-0.119) hedef_hata=23mm ee_hata=23mm
+[TEST] bolum 144/200 | ortam 7 | adim=250 | tepe_z=0.109m son_z=0.079m | basarisiz
+[IZ] bolum 144 kapanis adim=79 kup=(0.488,-0.119) hedef=(0.510,-0.129) ee=(0.514,-0.126) hedef_hata=24mm ee_hata=27mm
+[TEST] bolum 145/200 | ortam 0 | adim=250 | tepe_z=1.055m son_z=0.079m | basarisiz
+[IZ] bolum 145: tutucu hic kapanmadi
+[TEST] bolum 146/200 | ortam 1 | adim=250 | tepe_z=0.348m son_z=0.348m | BASARILI
+[IZ] bolum 146 kapanis adim=95 kup=(0.558,-0.190) hedef=(0.556,-0.184) ee=(0.556,-0.188) hedef_hata=7mm ee_hata=3mm
+[TEST] bolum 147/200 | ortam 2 | adim=250 | tepe_z=0.431m son_z=0.410m | BASARILI
+[IZ] bolum 147 kapanis adim=98 kup=(0.514,0.055) hedef=(0.512,0.062) ee=(0.510,0.064) hedef_hata=7mm ee_hata=9mm
+[TEST] bolum 148/200 | ortam 3 | adim=250 | tepe_z=0.277m son_z=0.079m | basarisiz
+[IZ] bolum 148 kapanis adim=91 kup=(0.565,0.129) hedef=(0.581,0.105) ee=(0.579,0.113) hedef_hata=28mm ee_hata=21mm
+[TEST] bolum 149/200 | ortam 4 | adim=250 | tepe_z=0.251m son_z=0.079m | basarisiz
+[IZ] bolum 149 kapanis adim=75 kup=(0.457,0.202) hedef=(0.472,0.205) ee=(0.475,0.224) hedef_hata=16mm ee_hata=28mm
+[TEST] bolum 150/200 | ortam 5 | adim=250 | tepe_z=0.342m son_z=0.340m | BASARILI
+[IZ] bolum 150 kapanis adim=72 kup=(0.447,-0.006) hedef=(0.459,-0.020) ee=(0.456,-0.017) hedef_hata=18mm ee_hata=15mm
+[TEST] bolum 151/200 | ortam 6 | adim=250 | tepe_z=0.108m son_z=0.079m | basarisiz
+[IZ] bolum 151 kapanis adim=119 kup=(0.510,-0.101) hedef=(0.495,-0.117) ee=(0.497,-0.114) hedef_hata=21mm ee_hata=18mm
+[TEST] bolum 152/200 | ortam 7 | adim=250 | tepe_z=0.086m son_z=0.079m | basarisiz
+[IZ] bolum 152 kapanis adim=98 kup=(0.595,-0.115) hedef=(0.572,-0.189) ee=(0.582,-0.184) hedef_hata=77mm ee_hata=70mm
+[TEST] bolum 153/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 153: tutucu hic kapanmadi
+[TEST] bolum 154/200 | ortam 1 | adim=250 | tepe_z=0.297m son_z=0.286m | BASARILI
+[IZ] bolum 154 kapanis adim=86 kup=(0.568,0.238) hedef=(0.565,0.219) ee=(0.568,0.224) hedef_hata=19mm ee_hata=13mm
+[TEST] bolum 155/200 | ortam 2 | adim=250 | tepe_z=0.316m son_z=0.079m | basarisiz
+[IZ] bolum 155 kapanis adim=88 kup=(0.475,-0.051) hedef=(0.485,-0.071) ee=(0.485,-0.067) hedef_hata=22mm ee_hata=19mm
+[TEST] bolum 156/200 | ortam 3 | adim=250 | tepe_z=0.333m son_z=0.287m | BASARILI
+[IZ] bolum 156 kapanis adim=87 kup=(0.589,-0.234) hedef=(0.581,-0.234) ee=(0.583,-0.235) hedef_hata=8mm ee_hata=6mm
+[TEST] bolum 157/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 157: tutucu hic kapanmadi
+[TEST] bolum 158/200 | ortam 5 | adim=250 | tepe_z=0.199m son_z=0.079m | basarisiz
+[IZ] bolum 158 kapanis adim=51 kup=(0.410,0.096) hedef=(0.408,0.113) ee=(0.421,0.103) hedef_hata=17mm ee_hata=13mm
+[TEST] bolum 159/200 | ortam 6 | adim=250 | tepe_z=0.364m son_z=0.350m | BASARILI
+[IZ] bolum 159 kapanis adim=77 kup=(0.562,-0.117) hedef=(0.572,-0.096) ee=(0.567,-0.127) hedef_hata=23mm ee_hata=12mm
+[TEST] bolum 160/200 | ortam 7 | adim=250 | tepe_z=0.080m son_z=0.079m | basarisiz
+[IZ] bolum 160 kapanis adim=96 kup=(0.598,-0.179) hedef=(0.579,-0.160) ee=(0.583,-0.163) hedef_hata=27mm ee_hata=22mm
+[TEST] bolum 161/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 161: tutucu hic kapanmadi
+[TEST] bolum 162/200 | ortam 1 | adim=250 | tepe_z=0.339m son_z=0.306m | BASARILI
+[IZ] bolum 162 kapanis adim=77 kup=(0.433,0.168) hedef=(0.430,0.162) ee=(0.431,0.177) hedef_hata=7mm ee_hata=9mm
+[TEST] bolum 163/200 | ortam 2 | adim=250 | tepe_z=0.377m son_z=0.307m | BASARILI
+[IZ] bolum 163 kapanis adim=54 kup=(0.433,0.046) hedef=(0.436,0.033) ee=(0.447,0.044) hedef_hata=14mm ee_hata=14mm
+[TEST] bolum 164/200 | ortam 3 | adim=250 | tepe_z=0.085m son_z=0.079m | basarisiz
+[IZ] bolum 164 kapanis adim=71 kup=(0.481,0.092) hedef=(0.513,0.083) ee=(0.514,0.085) hedef_hata=33mm ee_hata=33mm
+[TEST] bolum 165/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 165: tutucu hic kapanmadi
+[TEST] bolum 166/200 | ortam 5 | adim=250 | tepe_z=0.093m son_z=0.079m | basarisiz
+[IZ] bolum 166 kapanis adim=129 kup=(0.544,-0.145) hedef=(0.514,-0.223) ee=(0.532,-0.201) hedef_hata=84mm ee_hata=58mm
+[TEST] bolum 167/200 | ortam 6 | adim=250 | tepe_z=0.472m son_z=0.471m | BASARILI
+[IZ] bolum 167 kapanis adim=85 kup=(0.556,-0.219) hedef=(0.553,-0.222) ee=(0.556,-0.222) hedef_hata=5mm ee_hata=3mm
+[TEST] bolum 168/200 | ortam 7 | adim=250 | tepe_z=0.095m son_z=0.079m | basarisiz
+[IZ] bolum 168 kapanis adim=123 kup=(0.590,0.037) hedef=(0.570,-0.087) ee=(0.569,-0.076) hedef_hata=125mm ee_hata=115mm
+[TEST] bolum 169/200 | ortam 0 | adim=250 | tepe_z=0.724m son_z=0.079m | basarisiz
+[IZ] bolum 169: tutucu hic kapanmadi
+[TEST] bolum 170/200 | ortam 1 | adim=250 | tepe_z=0.312m son_z=0.261m | BASARILI
+[IZ] bolum 170 kapanis adim=91 kup=(0.428,-0.151) hedef=(0.427,-0.145) ee=(0.429,-0.146) hedef_hata=6mm ee_hata=5mm
+[TEST] bolum 171/200 | ortam 2 | adim=250 | tepe_z=0.307m son_z=0.079m | basarisiz
+[IZ] bolum 171 kapanis adim=94 kup=(0.577,-0.108) hedef=(0.592,-0.131) ee=(0.592,-0.124) hedef_hata=27mm ee_hata=22mm
+[TEST] bolum 172/200 | ortam 3 | adim=250 | tepe_z=0.114m son_z=0.079m | basarisiz
+[IZ] bolum 172 kapanis adim=121 kup=(0.482,0.193) hedef=(0.465,0.175) ee=(0.466,0.177) hedef_hata=25mm ee_hata=23mm
+[TEST] bolum 173/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 173 kapanis adim=99 kup=(0.428,0.058) hedef=(0.466,0.024) ee=(0.468,0.030) hedef_hata=51mm ee_hata=48mm
+[TEST] bolum 174/200 | ortam 5 | adim=250 | tepe_z=0.339m son_z=0.321m | BASARILI
+[IZ] bolum 174 kapanis adim=73 kup=(0.414,0.150) hedef=(0.410,0.126) ee=(0.410,0.134) hedef_hata=25mm ee_hata=16mm
+[TEST] bolum 175/200 | ortam 6 | adim=250 | tepe_z=0.442m son_z=0.438m | BASARILI
+[IZ] bolum 175 kapanis adim=96 kup=(0.436,0.203) hedef=(0.431,0.195) ee=(0.431,0.200) hedef_hata=9mm ee_hata=5mm
+[TEST] bolum 176/200 | ortam 7 | adim=250 | tepe_z=0.414m son_z=0.406m | BASARILI
+[IZ] bolum 176 kapanis adim=73 kup=(0.444,-0.046) hedef=(0.442,-0.062) ee=(0.443,-0.061) hedef_hata=17mm ee_hata=16mm
+[TEST] bolum 177/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 177: tutucu hic kapanmadi
+[TEST] bolum 178/200 | ortam 1 | adim=250 | tepe_z=0.100m son_z=0.079m | basarisiz
+[IZ] bolum 178 kapanis adim=90 kup=(0.498,-0.150) hedef=(0.486,-0.171) ee=(0.494,-0.172) hedef_hata=24mm ee_hata=23mm
+[TEST] bolum 179/200 | ortam 2 | adim=250 | tepe_z=0.315m son_z=0.315m | BASARILI
+[IZ] bolum 179 kapanis adim=77 kup=(0.548,-0.002) hedef=(0.547,-0.059) ee=(0.555,-0.033) hedef_hata=57mm ee_hata=32mm
+[TEST] bolum 180/200 | ortam 3 | adim=250 | tepe_z=0.192m son_z=0.079m | basarisiz
+[IZ] bolum 180 kapanis adim=108 kup=(0.570,0.214) hedef=(0.563,0.207) ee=(0.561,0.203) hedef_hata=10mm ee_hata=15mm
+[TEST] bolum 181/200 | ortam 4 | adim=250 | tepe_z=0.388m son_z=0.287m | BASARILI
+[IZ] bolum 181 kapanis adim=85 kup=(0.475,0.041) hedef=(0.479,0.063) ee=(0.480,0.050) hedef_hata=22mm ee_hata=11mm
+[TEST] bolum 182/200 | ortam 5 | adim=250 | tepe_z=0.437m son_z=0.436m | BASARILI
+[IZ] bolum 182 kapanis adim=70 kup=(0.468,0.178) hedef=(0.459,0.170) ee=(0.460,0.173) hedef_hata=12mm ee_hata=9mm
+[TEST] bolum 183/200 | ortam 6 | adim=250 | tepe_z=0.384m son_z=0.370m | BASARILI
+[IZ] bolum 183 kapanis adim=74 kup=(0.433,-0.235) hedef=(0.431,-0.246) ee=(0.432,-0.239) hedef_hata=11mm ee_hata=5mm
+[TEST] bolum 184/200 | ortam 7 | adim=250 | tepe_z=0.342m son_z=0.304m | BASARILI
+[IZ] bolum 184 kapanis adim=86 kup=(0.539,-0.161) hedef=(0.549,-0.169) ee=(0.544,-0.166) hedef_hata=13mm ee_hata=7mm
+[TEST] bolum 185/200 | ortam 0 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 185: tutucu hic kapanmadi
+[TEST] bolum 186/200 | ortam 1 | adim=250 | tepe_z=0.470m son_z=0.470m | BASARILI
+[IZ] bolum 186 kapanis adim=95 kup=(0.572,0.000) hedef=(0.571,-0.013) ee=(0.572,-0.004) hedef_hata=14mm ee_hata=4mm
+[TEST] bolum 187/200 | ortam 2 | adim=250 | tepe_z=0.089m son_z=0.079m | basarisiz
+[IZ] bolum 187 kapanis adim=97 kup=(0.523,-0.033) hedef=(0.534,-0.034) ee=(0.533,-0.029) hedef_hata=12mm ee_hata=11mm
+[TEST] bolum 188/200 | ortam 3 | adim=250 | tepe_z=0.403m son_z=0.400m | BASARILI
+[IZ] bolum 188 kapanis adim=76 kup=(0.509,0.005) hedef=(0.532,0.008) ee=(0.518,0.004) hedef_hata=24mm ee_hata=9mm
+[TEST] bolum 189/200 | ortam 4 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 189: tutucu hic kapanmadi
+[TEST] bolum 190/200 | ortam 5 | adim=250 | tepe_z=0.090m son_z=0.079m | basarisiz
+[IZ] bolum 190 kapanis adim=90 kup=(0.445,-0.068) hedef=(0.430,-0.075) ee=(0.431,-0.077) hedef_hata=17mm ee_hata=16mm
+[TEST] bolum 191/200 | ortam 6 | adim=250 | tepe_z=0.479m son_z=0.464m | BASARILI
+[IZ] bolum 191 kapanis adim=82 kup=(0.579,0.182) hedef=(0.576,0.160) ee=(0.580,0.166) hedef_hata=22mm ee_hata=16mm
+[TEST] bolum 192/200 | ortam 7 | adim=250 | tepe_z=0.426m son_z=0.399m | BASARILI
+[IZ] bolum 192 kapanis adim=77 kup=(0.555,-0.048) hedef=(0.558,-0.086) ee=(0.563,-0.041) hedef_hata=37mm ee_hata=11mm
+[TEST] bolum 193/200 | ortam 0 | adim=250 | tepe_z=2.704m son_z=0.079m | basarisiz
+[IZ] bolum 193: tutucu hic kapanmadi
+[TEST] bolum 194/200 | ortam 1 | adim=250 | tepe_z=0.082m son_z=0.079m | basarisiz
+[IZ] bolum 194 kapanis adim=97 kup=(0.473,0.189) hedef=(0.447,0.171) ee=(0.447,0.171) hedef_hata=31mm ee_hata=31mm
+[TEST] bolum 195/200 | ortam 2 | adim=250 | tepe_z=0.277m son_z=0.203m | BASARILI
+[IZ] bolum 195 kapanis adim=77 kup=(0.506,-0.006) hedef=(0.514,0.003) ee=(0.515,0.004) hedef_hata=13mm ee_hata=14mm
+[TEST] bolum 196/200 | ortam 3 | adim=250 | tepe_z=0.412m son_z=0.412m | BASARILI
+[IZ] bolum 196 kapanis adim=92 kup=(0.559,0.121) hedef=(0.565,0.103) ee=(0.561,0.105) hedef_hata=20mm ee_hata=16mm
+[TEST] bolum 197/200 | ortam 4 | adim=250 | tepe_z=0.267m son_z=0.079m | basarisiz
+[IZ] bolum 197 kapanis adim=81 kup=(0.483,0.219) hedef=(0.496,0.230) ee=(0.498,0.219) hedef_hata=17mm ee_hata=15mm
+[TEST] bolum 198/200 | ortam 5 | adim=250 | tepe_z=0.442m son_z=0.442m | BASARILI
+[IZ] bolum 198 kapanis adim=99 kup=(0.510,-0.119) hedef=(0.514,-0.123) ee=(0.513,-0.123) hedef_hata=6mm ee_hata=5mm
+[TEST] bolum 199/200 | ortam 6 | adim=250 | tepe_z=0.085m son_z=0.079m | basarisiz
+[IZ] bolum 199 kapanis adim=160 kup=(0.569,-0.002) hedef=(0.566,-0.036) ee=(0.572,-0.033) hedef_hata=35mm ee_hata=32mm
+[TEST] bolum 200/200 | ortam 7 | adim=250 | tepe_z=0.079m son_z=0.079m | basarisiz
+[IZ] bolum 200 kapanis adim=96 kup=(0.600,-0.154) hedef=(0.574,-0.142) ee=(0.575,-0.142) hedef_hata=28mm ee_hata=28mm
+
+============================================================
+
+[ALGI] modelin KENDI kup tahmininin hatasi (canli, adim adim):
+[ALGI]   adim   0 (n=200): medyan   35.0mm  ort   39.9mm  |  kayma x  -8.4 y  +3.7 mm
+[ALGI]   adim  20 (n=200): medyan   32.8mm  ort  126.0mm  |  kayma x  -3.8 y  +4.1 mm
+[ALGI]   adim  40 (n=200): medyan   20.5mm  ort  198.1mm  |  kayma x  -1.4 y  +0.7 mm
+[ALGI]   adim  60 (n=200): medyan   17.9mm  ort  296.1mm  |  kayma x  -1.3 y  +0.4 mm
+[ALGI]   adim  80 (n=200): medyan   24.1mm  ort  405.6mm  |  kayma x  -2.3 y  -3.4 mm
+[ALGI]   adim 100 (n=200): medyan   28.9mm  ort  514.3mm  |  kayma x  -1.9 y  -3.0 mm
+[ALGI]   adim 120 (n=200): medyan   24.4mm  ort  608.3mm  |  kayma x  -2.1 y  -2.5 mm
+[ALGI]   adim 140 (n=200): medyan   23.7mm  ort  684.9mm  |  kayma x  -0.9 y  -5.1 mm
+[ALGI]   adim 160 (n=200): medyan   24.0mm  ort  750.6mm  |  kayma x  -0.9 y  -3.5 mm
+
+[ALGI-EGIM] canli algi kalitesi (cevrimdisi 'egim' testinin canli esi):
+[ALGI-EGIM] adim   0: x: egim +0.711 kor +0.844  y: egim +0.888 kor +0.974  | kayma cikinca medyan  33.4mm
+[ALGI-EGIM] adim  20: x: egim -0.006 kor -0.083  y: egim +0.291 kor +0.561  | kayma cikinca medyan  31.6mm
+[ALGI-EGIM] adim  40: x: egim +0.004 kor +0.112  y: egim +0.084 kor +0.277  | kayma cikinca medyan  20.7mm
+[ALGI-EGIM] adim  60: x: egim +0.001 kor +0.060  y: egim +0.040 kor +0.175  | kayma cikinca medyan  18.2mm
+
+[IZ] ERKEN adimlarda XY hatasi (kol henuz sapmadan):
+[IZ]   adim 20 (n=200): hedef<->kup med    33mm  ort   126mm   |  ee<->kup med    90mm
+[IZ]   adim 40 (n=200): hedef<->kup med    21mm  ort   198mm   |  ee<->kup med    30mm
+[IZ]   adim 60 (n=200): hedef<->kup med    18mm  ort   296mm   |  ee<->kup med    18mm
+
+[IZ] tutucu kapanis aninda XY hatasi (174 bolum):
+[IZ]   modelin HEDEFI  <-> kup : ort 37mm  med 23mm  min 3mm  max 756mm
+[IZ]   kolun GERCEK yeri <-> kup: ort 40mm  med 18mm  min 2mm  max 1259mm
+[IZ]   (kup 4cm; kavrama icin ~<20mm gerekir)
+
+[TEST] SONUC: 76/200 basarili (38%)
+============================================================
+[TEST] gif kaydedildi: /home/orhan/isaac_captures/policy_rollout.gif
+/home/orhan/miniconda3/envs/isaaclab/lib/python3.10/site-packages/isaacsim/exts/isaacsim.simulation_app/isaacsim/simulation_app/simulation_app.py:576: RuntimeWarning: coroutine '_Orchestrator.stop.<locals>.on_stop' was never awaited
+  pass
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+[SHUTDOWN] close() 30.0s icinde donmedi -> zorla cikis
