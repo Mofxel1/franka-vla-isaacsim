@@ -6,10 +6,16 @@ inference time. The policy is [SmolVLA](https://huggingface.co/blog/smolvla)
 (450M parameters, flow matching, action chunking), trained by imitation from a
 scripted expert that *does* know where the cube is.
 
-> **Status: the closed loop does not work yet (0/20).** Perception is at 36 mm
-> median error in the live loop; grasping a 4 cm cube needs better than 20 mm.
-> This repository is as much a record of *how the failure was narrowed down* as
-> it is a pipeline. See [What the measurements revealed](#what-the-measurements-revealed).
+> **Status: the closed loop works — 76/200 (38%) on the best model.**
+> For most of this project it read 0/20. That number was a measurement bug, not
+> the policy — rows 8 and 9 of [the mismatch table](#what-the-measurements-revealed).
+
+![Eight parallel episodes, three of them successful](media/rollout.gif)
+
+*Eight episodes running in parallel, front camera, ~5 s each. Tiles 2, 5 and 7
+grasp the cube and lift it; the rest come down beside it and never close the
+gripper. That few-centimetre miss is what "perception is at 30–40 mm and
+grasping needs 20 mm" looks like.*
 
 ---
 
@@ -64,8 +70,8 @@ plan, find its lowest point, and compare that XY to where the cube actually is.
 
 **2. A probe that "proved" the data was fine was itself leaking.** A small CNN
 trained on the same frames appeared to localize the cube to 12 mm, which for
-weeks anchored the belief that the information was in the images and SmolVLA was
-simply failing to use it. The probe split train/validation **by frame**, but the
+weeks anchored the belief that the information was in the images and SmolVLA
+was simply failing to use it. The probe split train/validation **by frame**, but the
 cube is stationary within an episode — so frames of the same episode landed on
 both sides and the model could memorize "this scene looks like that, the cube is
 there". Re-run with an **episode-level** split, the same architecture scores
@@ -79,7 +85,8 @@ actions **object-centric** (x, y expressed relative to the cube, which the model
 must predict itself via an auxiliary output head).
 
 **4. The two ends of the pipeline kept disagreeing.** This single failure mode
-appeared six separate times, and cost more time than everything else combined:
+appeared **nine** separate times and cost more than everything else combined.
+The last two are the ones that had been hiding the working policy:
 
 | # | mismatch | how it showed up |
 |---|---|---|
@@ -90,6 +97,8 @@ appeared six separate times, and cost more time than everything else combined:
 | 5 | expert's 0.2 s REST phase wrote `des_ee_pose = ee_pose` | unlearnable labels; also inflated the x action std 7× |
 | 6 | LeRobot ignores dataset cameras if the checkpoint config lists its own | a third camera was about to be *silently dropped* from training |
 | 7 | eval's warmup stepped the sim with a **zero action** | in an IK-Abs action space that is an invalid end-effector target: the arm was flung into a pose never seen in training, and the arm dominates the camera view |
+| 8 | eval read the cube's height **after** `env.step()` | Isaac Lab auto-resets inside that call, so `final_z` was always the freshly spawned cube (0.055 m) and the success test `final_z > 0.10` **could never pass** |
+| 9 | eval broadcast env 0's action to all 8 envs and scored only env 0 | collection gave each env its own action; the same policy scored 2% one way and 38% the other |
 
 Number 6 is worth dwelling on: [`factory.py:305`](https://github.com/huggingface/lerobot)
 only fills `input_features` from the dataset **if the policy config's copy is
@@ -101,7 +110,19 @@ conclusion that the third camera does not help.
 an x-slope of 0.903 on its own training set and 0.747 on freshly collected
 episodes. The first number looked like a breakthrough. It was memorization.
 
-**6. A wrong fix can close a branch for weeks.** Number 7 in the table above —
+**6. The replacement metric was also a proxy, and also lied.** After open-loop
+metrics were caught lying, a localization probe became "THE metric" and every
+decision rested on it for weeks. Once success could actually be measured, the
+correlation between that probe and task success turned out to be **+0.31** —
+the wrong sign. The model with the best probe score (26.3 mm) has the worst
+success rate (1%); the model with the worst probe score (49.4 mm) is second
+best (31%). The probe measures one plan at the start of an episode; the task is
+a 250-step closed loop, and everything in between — recovering from drift,
+gripper timing, not knocking the cube away — is invisible to it. Two branches
+were closed on that evidence and both were wrong. Success rate is now the
+decision metric; 200 episodes take 8 minutes.
+
+**7. A wrong fix can close a branch for weeks.** Number 7 in the table above —
 the warmup — was attempted once, nine days before it was found. The attempted
 fix held the arm in place, but read the end-effector pose from a stale buffer
 right after reset, so the arm was commanded to the *previous* episode's pose. It
@@ -115,25 +136,36 @@ by issuing no command at all — the warmup only ever needed to refresh the came
 
 ## Current numbers
 
-Measured on `s3_val404` — 32 episodes none of the models have ever seen.
+200 episodes per model, each evaluated in the camera regime it was trained in.
 
-| model | cameras | offline median | closed loop, step 0 | live x correlation |
-|---|---|---|---|---|
-| `train_geo3` | 2 (front + wrist) | 41.4 mm | **36.4 mm** | **0.840** |
-| `train_rest` | 2 (front + wrist) | 41.4 mm | not re-measured | — |
-| `train_3kam` | 3 (+ side) | **33.6 mm** | not re-measured | — |
+| model | regime | success | localization probe |
+|---|---|---|---|
+| **`train_fixcam`** | fixed camera | **76/200 (38%)** | 31.6 mm |
+| `train_dart2` | randomized + DART noise | 62/200 (31%) | 49.4 mm |
+| `train_3kam` | randomized, 3 cameras | 35/200 (18%) | 33.6 mm |
+| `train_geo3` | randomized, 2 cameras | 24/200 (12%) | 41.4 mm |
+| `train_rest` | randomized, REST frames dropped | 22/200 (11%) | 41.4 mm |
+| `train_fixdag` | fixed camera + DAgger | 2/200 (1%) | **26.3 mm** |
 
-Grasp threshold is 20 mm. The closed loop still scores 0/20.
+Two branches had been closed as failures on the broken metric and are in fact
+the second and third best: **DART** and the **third camera**.
 
-The live-versus-offline gap that dominated this project for weeks is **closed**:
-live perception (36.4 mm) is now slightly better than offline (41.4 mm). It was
-the warmup bug — see finding 7. Every closed-loop number measured before that fix
-was taken with the arm flung out of distribution and is invalid; the two models
-marked "not re-measured" are the first thing to redo.
+The first eight episodes of every run are a known artifact — the table's
+collision body is not ready on the first reset after `env.reset()`, so the cube
+falls through it to the floor (0.021 m instead of 0.079 m) and the policy, which
+has never seen the cube that low, fails all eight.
 
-What remains is a single, clearly stated problem: **perception is at 36 mm and
-grasping needs 20 mm.** Because the live gap is closed, offline improvements
-should now transfer to the live loop — an assumption that was not true before.
+**Why `train_fixdag` collapses** is worth stating, because it is a structural
+flaw in DAgger with a scripted expert rather than a tuning problem. The expert
+is a state machine whose phase is internal. When the learner never reaches the
+grasp pose, the machine never leaves `APPROACH`, so it never emits a close-gripper
+command: **96 of 104 DAgger episodes contain no gripper-close label at all**
+(41% of frames in expert data, 3.4% here). Half the training set then teaches
+"in situations like this, keep the gripper open" — and those are exactly the
+situations the policy meets at evaluation. This also explains why DART works
+where DAgger fails: DART perturbs the expert's *own* trajectory, so the phase
+advances normally and the close-gripper examples survive. The fix is a
+phase-agnostic expert that recomputes its phase from geometry each step.
 
 ---
 
@@ -144,14 +176,20 @@ should now transfer to the live loop — an assumption that was not true before.
 | Object-centric action space | **kept** — closed-loop targeting improved ~10× |
 | Auxiliary cube-position head | **kept** — also gives a direct readout of what the model sees |
 | Zeroed state vector | **kept** — removes the shortcut |
-| Domain randomization in eval | **kept** — eval had none while all training data was randomized |
 | Weighting vision-critical frames | **kept** — vision only matters in ~15 of 250 frames per episode |
-| DART (noise injection) | degradation curve flattened +80% → +21%, but the error floor doubled |
-| Clean + noisy data mixture | no gain (clean 22 > mixture 38 > noisy 49 mm) |
-| Dropping the expert's REST frames | fixed two real bugs, but did not close the live gap |
-| Third (side) camera | offline 41 → 34 mm; live result invalid (measured before the warmup fix) |
-| Unfreezing the vision encoder | **not worth it** — frozen SigLIP features beat a from-scratch CNN on the same data (61 vs 82 mm) |
-| Render-only warmup in eval | **kept** — closed the live/offline gap (60 → 36 mm) |
+| Render-only warmup in eval | **kept** — stepping with a zero action flung the arm out of distribution |
+| **Fixed camera** | **best single change** — 12% → 38%. Randomising the camera ±25 cm / ±20° changes the pixel→world mapping every episode, so the model must infer the camera pose before it can locate the cube, from 208 episodes |
+| **DART (noise injection)** | **31%** — was wrongly eliminated on the broken metric |
+| **Third (side) camera** | **18% vs 12%** — also wrongly eliminated |
+| Domain randomization in eval | necessary once training used it, but adding it to eval was the wrong half of the fix: removing it from *training* is what helped |
+| Clean + noisy data mixture | no gain |
+| Dropping the expert's REST frames | 11% vs 12% — no real effect |
+| DAgger | **1%** — see above; the scripted expert stops emitting gripper-close labels |
+| Unfreezing the vision encoder | not worth it — frozen SigLIP features beat a from-scratch CNN on the same data |
+| Calibrating out the regression-to-mean | 3 mm, not a lever |
+| Higher camera resolution | not a lever — 112 px scores *better* than 224 px on the probe |
+
+---
 
 ---
 

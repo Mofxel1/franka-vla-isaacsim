@@ -10,6 +10,10 @@
 # --- Buyuk medya: yeniden uretilebilir ---
 *.gif
 *.mp4
+# ISTISNA: README'deki demo kasitli olarak repoda.
+# NOT: git .gitignore'da SATIR ICI yorum desteklemez -- yorumu ayni satira
+# yazmak deseni bozar ve istisna calismaz.
+!media/*.gif
 
 # --- Gurultulu loglar (ilerleme cubugu spam'i) ---
 # Olculen SONUCLAR docs/SONUCLAR.md'de ve results/sonuc_*.log'da duruyor.
