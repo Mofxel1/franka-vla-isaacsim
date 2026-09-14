@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/h5py/_hl/files.py", line 555, in __init__
+    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/orhan/miniconda3/envs/lerobot/lib/python3.12/site-packages/h5py/_hl/files.py", line 232, in make_fid
+    fid = h5f.open(name, flags, fapl=fapl)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 106, in h5py.h5f.open
+FileNotFoundError: [Errno 2] Unable to synchronously open file (unable to open file: name = '/data/franka_vla/data/combodag_s1001.hdf5', errno = 2, error message = 'No such file or directory', flags = 0, o_flags = 0)
+kapali kare orani %18.0  (UZMAN %41.1 / eski DAgger %3.4)
+tutucuyu HIC kapatmayan bolum 114/224  (eski DAgger 96/104)
+DOGRULAMA: GECTI

@@ -10,12 +10,13 @@ scripted expert that *does* know where the cube is.
 > For most of this project it read 0/20. That number was a measurement bug, not
 > the policy — rows 8 and 9 of [the mismatch table](#what-the-measurements-revealed).
 
-![Eight parallel episodes, three of them successful](media/rollout.gif)
+![Eight parallel episodes, five of them successful](media/rollout.gif)
 
-*Eight episodes running in parallel, front camera, ~5 s each. Tiles 2, 5 and 7
-grasp the cube and lift it; the rest come down beside it and never close the
-gripper. That few-centimetre miss is what "perception is at 30–40 mm and
-grasping needs 20 mm" looks like.*
+*Eight episodes running in parallel, front camera, ~5 s each — one untouched
+wave of the evaluation, not a hand-picked run. Five tiles grasp the cube and
+lift it; the other three come down beside it and never close the gripper. That
+few-centimetre miss is the whole remaining problem. The measured rate over 200
+episodes is 56%; this wave happens to sit slightly above it.*
 
 ---
 
@@ -168,8 +169,18 @@ command: **96 of 104 DAgger episodes contain no gripper-close label at all**
 "in situations like this, keep the gripper open" — and those are exactly the
 situations the policy meets at evaluation. This also explains why DART works
 where DAgger fails: DART perturbs the expert's *own* trajectory, so the phase
-advances normally and the close-gripper examples survive. The fix is a
-phase-agnostic expert that recomputes its phase from geometry each step.
+advances normally and the close-gripper examples survive.
+
+The fix is a [phase-agnostic expert](scripts/stateless_expert.py) that
+recomputes its phase from geometry every step — *holding the cube → lift;
+within 15 mm of it → close; aligned above it → descend; otherwise → approach
+10 cm above it* — with the thresholds read off the data rather than guessed
+(finger joints total 0.080 open, 0.045 holding the cube). It drives the task
+to 92% on its own, and the labels it produces in DAgger rollouts contain
+close-gripper commands in 18% of frames instead of 3.4%. Because it carries no
+internal state, it also recovers for free: if the cube slips out of the gripper
+the distance check fails and the expert simply says *go back and approach
+again* — which is the behaviour DAgger is supposed to collect.
 
 ---
 
@@ -185,10 +196,13 @@ phase-agnostic expert that recomputes its phase from geometry each step.
 | **Fixed camera** | **best single change** — 12% → 38%. Randomising the camera ±25 cm / ±20° changes the pixel→world mapping every episode, so the model must infer the camera pose before it can locate the cube, from 208 episodes |
 | **DART (noise injection)** | **31%** — was wrongly eliminated on the broken metric |
 | **Third (side) camera** | **18% vs 12%** — also wrongly eliminated |
+| **All three together** | **56%** — the three gains compose; gripper-never-closes fell from 75% to 12% of episodes |
+| Skipping the first wave | the table's collision body is not ready on the first reset, so the cube falls through it to the floor (0.021 m instead of 0.079 m). Exactly episodes 0–7 of every run, deterministic. Now dropped from both training data and evaluation |
 | Domain randomization in eval | necessary once training used it, but adding it to eval was the wrong half of the fix: removing it from *training* is what helped |
 | Clean + noisy data mixture | no gain |
 | Dropping the expert's REST frames | 11% vs 12% — no real effect |
-| DAgger | **1%** — see above; the scripted expert stops emitting gripper-close labels |
+| DAgger (phased expert) | **1%** — the scripted expert stops emitting gripper-close labels; see below |
+| Phase-agnostic expert | fixes the label collapse: close-gripper frames went 3.4% → 18%, episodes with no close label 92% → 51%. Scores 92% driving on its own. Dataset built, **not yet trained** |
 | Unfreezing the vision encoder | not worth it — frozen SigLIP features beat a from-scratch CNN on the same data |
 | Calibrating out the regression-to-mean | 3 mm, not a lever |
 | Higher camera resolution | not a lever — 112 px scores *better* than 224 px on the probe |

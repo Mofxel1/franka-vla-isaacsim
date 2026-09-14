@@ -41,6 +41,14 @@ parser.add_argument("--side_cam", action="store_true",
                          "birlikte ucgenleme saglar. SmolVLA goruntuleri dongude "
                          "isliyor, kamera basina parametre yok -> katman boyutlari "
                          "degismez, mevcut checkpoint'ten devam edilebilir.")
+parser.add_argument("--stateless_expert", action="store_true",
+                    help="Uzmanin fazini ICSEL tutmak yerine HER ADIMDA "
+                         "geometriden hesapla. DAgger icin SART: politika "
+                         "kavrama pozuna varamayinca fazli makine APPROACH'ta "
+                         "takiliyor ve 'tutucuyu kapat' etiketi HIC uretilmiyor "
+                         "(olculdu: uzman verisinde %41 kapali kare, DAgger "
+                         "verisinde %3.4; 104 bolumun 96'sinda hic kapanmiyor). "
+                         "train_fixdag'in %1'inin sebebi buydu.")
 parser.add_argument("--dagger_port", type=int, default=0,
                     help="DAgger modu: verilen porttaki politika sunucusundan "
                          "aksiyon al ve ONU uygula, ama ETIKET olarak uzmanin "
@@ -170,7 +178,12 @@ def main():
 
     # Uzman state machine
     dt = cfg.sim.dt * cfg.decimation
-    sm = PickAndLiftSm(dt, n, dev, position_threshold=0.01)
+    if args_cli.stateless_expert:
+        from stateless_expert import StatelessPickSm
+        sm = StatelessPickSm(n, dev)
+        print("[UZMAN] FAZSIZ -- faz her adimda geometriden hesaplanir", flush=True)
+    else:
+        sm = PickAndLiftSm(dt, n, dev, position_threshold=0.01)
     actions = torch.zeros(env.unwrapped.action_space.shape, device=dev)
     actions[:, 3] = 1.0
     desired_orientation = torch.zeros((n, 4), device=dev)
@@ -230,6 +243,10 @@ def main():
 
             # --- 2) Uzman s_t'den a_t'yi uretsin ---
             desired_position = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
+            if args_cli.stateless_expert:
+                # parmak eklemleri: joint_pos[7] + joint_pos[8]
+                # ACIK 0.0800 / KUPU TUTARKEN 0.0450 (olculdu) -> esik 0.06
+                sm.set_fingers(joint_pos[:, 7] + joint_pos[:, 8])
             actions = sm.compute(
                 torch.cat([ee_pos, ee_quat], dim=-1),
                 torch.cat([obj_pos, desired_orientation], dim=-1),
@@ -334,6 +351,7 @@ def main():
         f.attrs["action_space"] = "ee_pose_abs(pos3+quat4)+gripper1"
         f.attrs["domain_randomization"] = not args_cli.no_dr
         f.attrs["fixed_camera"] = bool(args_cli.fix_cam or args_cli.no_dr)
+        f.attrs["stateless_expert"] = bool(args_cli.stateless_expert)
         f.attrs["seed"] = args_cli.seed
         f.attrs["action_noise"] = args_cli.action_noise
         g = f.create_group("data")

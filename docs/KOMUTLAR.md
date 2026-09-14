@@ -45,8 +45,20 @@ python -u scripts/collect_demos.py \
 - `--no_dr` — domain randomization kapat (**normalde AÇIK bırak**)
 
 Tuzaklar:
-- **100'erlik partiler hâlinde topla.** 200 bölüm tek seferde ~15 GB RAM ister
-  (sistemde 23 GB), OOM ile ölür. 3 kamerada 70'erlik yap.
+- **Parti boyutu RAM'e göre seçilir.** `collect_demos.py` bütün bölümleri RAM'de
+  biriktirip SONA yazar; parti bitmeden ölürse **hiçbir şey yazılmaz.**
+  Ölçülen: bölüm başına ~0.15 GB (3 kamera, 250 kare).
+
+  | kurulum | güvenli parti |
+  |---|---|
+  | 2 kamera | 100 |
+  | 3 kamera | 70 |
+  | 3 kamera + DAgger (politika sunucusu +2.5 GB) | **50** |
+
+  2026-09-14: 3 kamera + DAgger'da 100'lük parti denendi, iki parti de bölüm
+  99'da `anon-rss 14.9 GB` ile SIGKILL. Traceback YOK, log aniden kesiliyor —
+  bu imzayı görürsen OOM'dur, `grep "Out of memory" /var/log/syslog` ile doğrula.
+  TODO: artımlı yazma eklenirse bu sınır tamamen kalkar.
 - `--num_envs` toplamada kaçsa eval'de de o olmalı — asimetri x eğimini
   0.202'ye düşürmüştü.
 - Birleştirmeye **gerek yok**: çevirici çoklu dosya okuyor (aşağıda). Birleştirme
