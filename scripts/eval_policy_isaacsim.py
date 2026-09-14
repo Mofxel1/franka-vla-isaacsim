@@ -27,6 +27,15 @@ from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--num_episodes", type=int, default=10)
+parser.add_argument("--skip_first_episodes", type=int, default=8,
+                    help="Ilk N bolumu SAYMA. 2026-09-13'te olculdu: masanin "
+                         "carpisma govdesi env.reset() sonrasi ilk bolumde hazir "
+                         "degil, kup masanin icinden gecip YERE dusuyor "
+                         "(z=0.021 vs normal 0.079 -- 5.8 cm). Uzman umursamiyor "
+                         "(kupun yerini simulatorden biliyor) ama politika kupu o "
+                         "yukseklikte hic gormedi ve ilk dalga HER KOSUDA 0/8 "
+                         "cikiyor. Tam olarak 0-7 numarali bolumler, deterministik. "
+                         "Varsayilan 8 = bir dalga (num_envs).")
 parser.add_argument("--legacy_broadcast", action="store_true",
                     help="ESKI davranis: 0. ortamin aksiyonunu 8 ortama yayinla "
                          "ve sadece 0. ortami olc. Yeni varsayilan her ortamin "
@@ -267,6 +276,7 @@ def main():
     final_z = np.zeros(n_track)
     ep_traces = [[] for _ in range(n_track)]
     reset_flags = np.ones(NE, dtype=bool)
+    n_warm = 0            # sayilmayan isinma bolumleri
 
     def _write_wave(frames, idx):
         """8 ortami 2x4 dosemeli tek videoya yaz (her karo bir bolum)."""
@@ -287,6 +297,15 @@ def main():
         """i. ortamin biten bolumunu kaydet ve izini temizle."""
         tr = ep_traces[i]
         success = peak_z[i] > LIFT_SUCCESS_HEIGHT and final_z[i] > LIFT_SUCCESS_HEIGHT
+        nonlocal n_warm
+        if n_warm < args_cli.skip_first_episodes:
+            n_warm += 1
+            print(f"[TEST] (isinma {n_warm}/{args_cli.skip_first_episodes}, "
+                  f"SAYILMIYOR) ortam {i} | tepe_z={peak_z[i]:.3f}m "
+                  f"son_z={final_z[i]:.3f}m", flush=True)
+            ep_traces[i] = []
+            peak_z[i] = final_z[i] = 0.0
+            return
         results.append({"peak_z": float(peak_z[i]), "final_z": float(final_z[i]),
                         "success": bool(success)})
         print(f"[TEST] bolum {len(results)}/{args_cli.num_episodes} | ortam {i} | "

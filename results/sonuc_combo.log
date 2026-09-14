@@ -1,0 +1,6 @@
+girdi ozellikleri: ['observation.images.front', 'observation.images.wrist', 'observation.state', 'observation.images.side']
+bolum 498 kare 44820
+kameralar: ['observation.images.front', 'observation.images.wrist', 'observation.images.side']
+aksiyon std[:3] [0.0138 0.035  0.1013]
+yardimci std    [0.0543 0.1371]
+DOGRULAMA: GECTI

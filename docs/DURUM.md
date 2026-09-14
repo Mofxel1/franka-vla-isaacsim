@@ -6,27 +6,24 @@ Son güncelleme: 2026-09-12 (akşam)
 
 ## Tek cümlelik özet
 
-**2026-09-13: kapalı döngü ÇALIŞIYOR. En iyi model %38.**
+**2026-09-14: en iyi model %56.** Kazananlar birleştirildi —
+sabit kamera + DART gürültüsü + üçüncü kamera.
 
-Üç ölçüm hatası düzeltildi (ısınma kolu fırlatıyordu; `final_z` sıfırlanmış
-küpten okunuyordu; eval 0. ortamın aksiyonunu 8 ortama yayınlıyordu). Eval
-artık 8 ortamı bağımsız ölçüyor ve 200 bölüm **8 dakika** sürüyor.
+```
+geo3   (randomize, 2 kamera)        24/200  %12
+fixcam (sabit kamera)               76/200  %38
+combo  (sabit + DART + 3 kamera)   111/200  %56   <- EN IYI
+```
 
-| model | rejim | başarı | çevrimdışı |
-|---|---|---|---|
-| **`train_fixcam`** | sabit kamera | **%38** | 31.6 mm |
-| `train_dart2` | randomize + DART | %31 | 49.4 mm |
-| `train_3kam` | randomize, 3 kamera | %18 | 33.6 mm |
-| `train_geo3` | randomize, 2 kamera | %12 | 41.4 mm |
-| `train_rest` | randomize, REST'siz | %11 | 41.4 mm |
-| `train_fixdag` | sabit + DAgger | %1 | **26.3 mm** |
+Hata dağılımı: küp %65 kaldırılıyor, %53 tutuluyor (kaldıranların %82'si
+tutuyor). Tutucunun hiç kapanmadığı bölüm %75'ten **%12.5**'e düştü.
+Ana kayıp artık "teşebbüs etmemek" değil, **kaçırmak**.
 
-**`localize_test.py` görev başarısını ÖNGÖRMÜYOR** (korelasyon +0.310, işaret
-bile yanlış). En iyi çevrimdışı model canlıda en kötüsü. Artık karar metriği
-doğrudan **başarı oranı**; localize_test sadece tanı aracı.
+**Karar metriği doğrudan başarı oranı** (200 bölüm ~8 dk).
+`localize_test` öngörü gücü yok (korelasyon +0.31), sadece tanı aracı.
 
-**Sıradaki iş:** kazananları birleştir — sabit kamera + DART + üç kamera.
-Üçü de bağımsız kazanç sağlıyor, hiçbiri birlikte denenmedi.
+**Sıradaki:** fazsız uzman + DAgger (DAgger'ın %1'inin sebebi teşhis edildi:
+betik-uzmanın fazı ilerlemediği için "tutucuyu kapat" etiketi hiç üretilmiyor).
 
 ## Kanıtın özeti
 

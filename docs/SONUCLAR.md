@@ -1479,6 +1479,45 @@ geometriden yeniden hesapla. (Not: `vla_franka` reposunun config'inde
 
 ---
 
+### 2026-09-14 — KAZANANLARI BİRLEŞTİR: %38 → %56
+
+Üç bağımsız kazanç ilk kez birlikte: **sabit kamera + DART gürültüsü + üçüncü
+kamera.** Ayrıca ilk dalga düzeltmesi (çevirmede ilk 8 bölüm atlandı, eval'de
+ilk 8 sayılmadı).
+
+```
+toplama: --fix_cam --side_cam --action_noise 0.020   (200 bolum, uzman %88 basarili)
+cevirme: --skip_episodes 8 --skip_first 12 --only_success --max_abs 1.5
+         --cube_box 0.15 0.85 -0.50 0.50
+egitim : train_fixcam@4000'den 4000 adim (config'e yan kamera eklenmis kopya)
+olcum  : 200 bolum, --fix_cam --side_cam, n_samples=1
+```
+
+| model | rejim | başarı |
+|---|---|---|
+| `train_geo3` | randomize, 2 kamera | 24/200 (%12) |
+| `train_fixcam` | sabit kamera | 76/200 (%38) |
+| **`train_combo`** | **sabit + DART + 3 kamera** | **111/200 (%56)** |
+
+**Hata dağılımı:**
+
+```
+kup kaldirildi (tepe_z>0.10)   136/208  %65
+kaldirilip TUTULDU             111/208  %53
+kaldiranlarin tutma orani               %82
+tutucu HIC kapanmadi            25/200  %12.5   (onceden %75)
+```
+
+Tutucunun kapanma oranı %25'ten %87.5'e çıktı. Artık ana kayıp "kavramaya hiç
+teşebbüs etmemek" değil, **kaldırmaya çalışıp kaçırmak** (%65 kaldırıyor, %53
+tutuyor).
+
+**Doğrulama listesi** (bu projede sessiz uyuşmazlıklar dokuz kez çıktı):
+veri setinde ve sunucuda üç kamera da var, çevirme ilk 8 bölümü atladı
+(16 bölüm), eval ilk 8'i saymadı, eval `--fix_cam --side_cam` ile koştu.
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in

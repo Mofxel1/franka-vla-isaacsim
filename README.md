@@ -6,7 +6,7 @@ inference time. The policy is [SmolVLA](https://huggingface.co/blog/smolvla)
 (450M parameters, flow matching, action chunking), trained by imitation from a
 scripted expert that *does* know where the cube is.
 
-> **Status: the closed loop works — 76/200 (38%) on the best model.**
+> **Status: the closed loop works — 111/200 (56%) on the best model.**
 > For most of this project it read 0/20. That number was a measurement bug, not
 > the policy — rows 8 and 9 of [the mismatch table](#what-the-measurements-revealed).
 
@@ -140,7 +140,8 @@ by issuing no command at all — the warmup only ever needed to refresh the came
 
 | model | regime | success | localization probe |
 |---|---|---|---|
-| **`train_fixcam`** | fixed camera | **76/200 (38%)** | 31.6 mm |
+| **`train_combo`** | fixed camera + DART + 3 cameras | **111/200 (56%)** | — |
+| `train_fixcam` | fixed camera | 76/200 (38%) | 31.6 mm |
 | `train_dart2` | randomized + DART noise | 62/200 (31%) | 49.4 mm |
 | `train_3kam` | randomized, 3 cameras | 35/200 (18%) | 33.6 mm |
 | `train_geo3` | randomized, 2 cameras | 24/200 (12%) | 41.4 mm |
@@ -148,7 +149,10 @@ by issuing no command at all — the warmup only ever needed to refresh the came
 | `train_fixdag` | fixed camera + DAgger | 2/200 (1%) | **26.3 mm** |
 
 Two branches had been closed as failures on the broken metric and are in fact
-the second and third best: **DART** and the **third camera**.
+among the best: **DART** and the **third camera**. Combining them with the fixed
+camera — the first time all three were used together — took the policy from 38%
+to **56%**. Of those runs the cube is lifted 65% of the time and held 53%; the
+gripper now fails to close in only 12% of episodes, down from 75%.
 
 The first eight episodes of every run are a known artifact — the table's
 collision body is not ready on the first reset after `env.reset()`, so the cube

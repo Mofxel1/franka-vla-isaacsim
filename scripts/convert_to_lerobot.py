@@ -88,6 +88,12 @@ parser.add_argument("--only_success", action="store_true",
                          "normalizasyonu bozuyor. Olculdu: filtresiz sette yardimci "
                          "std 5.09 m (olmasi gereken 0.055), model de olcegi 90 kat "
                          "sismis bir esleme ogrendi (x egimi 2.27 yerine ~1.0).")
+parser.add_argument("--skip_episodes", type=int, default=0,
+                    help="Her kaynak dosyanin ILK N bolumunu atla. Masanin "
+                         "carpisma govdesi env.reset() sonrasi ilk bolumde hazir "
+                         "olmadigi icin kup YERE dusuyor (z=0.021 vs 0.079). O "
+                         "bolumler egitim verisinde kupun asla olusmayacagi bir "
+                         "yukseklikte. Onerilen: 8 (= toplamadaki num_envs).")
 parser.add_argument("--cube_box", type=float, nargs=4, default=None,
                     metavar=("X0", "X1", "Y0", "Y1"),
                     help="Kup bu XY kutusundan CIKTIGI kareden itibaren bolumu KES "
@@ -217,6 +223,16 @@ def main():
     total_frames = 0
     n_skipped_abs = 0
     n_skipped_box = n_truncated = 0
+    if args.skip_episodes:
+        _keep = []
+        for _f in srcs:
+            _names = sorted(_f["data"].keys())
+            _keep += [(_f, n) for n in _names[args.skip_episodes:]]
+        n_dropped = len(pairs) - len(_keep)
+        pairs = _keep
+        eps = [e for _, e in pairs]
+        print(f"[CEVIR] ilk {args.skip_episodes} bolum/dosya atlandi "
+              f"(masa hazir degil, kup yerde): {n_dropped} bolum")
     for k, (_f, name) in enumerate(pairs):
         ep = _f["data"][name]
         if args.only_success and not bool(ep.attrs.get("success", False)):
