@@ -41,6 +41,18 @@ parser.add_argument("--side_cam", action="store_true",
                          "birlikte ucgenleme saglar. SmolVLA goruntuleri dongude "
                          "isliyor, kamera basina parametre yok -> katman boyutlari "
                          "degismez, mevcut checkpoint'ten devam edilebilir.")
+parser.add_argument("--reset_hold", type=int, default=12,
+                    help="Sifirlama sonrasi kolu EV POZUNDA tut (kac adim). "
+                         "2026-09-15'te bulundu: Isaac Lab sifirlamada eklem "
+                         "KONUMLARINI sifirliyor ama surucu HEDEFI onceki "
+                         "bolumden kaliyor; kol ona dogru firliyor ve IK "
+                         "patliyor. Olculdu: bolumlerin %23'unde 7 eklemin "
+                         "HEPSI limit disina cikiyor (eklem 4, gercek araligi "
+                         "[-3.07,-0.07], +19 rad'a kadar gidiyor). Uzman REST "
+                         "fazinda des_ee_pose=ee_pose yazdigi icin kolu "
+                         "duzeltmiyor, sadece ucusunu yankiliyor. "
+                         "Patlamayan bolumlerde uzman basarisi %100, "
+                         "patlayanlarda %46. 0 = kapali (eski davranis).")
 parser.add_argument("--stateless_expert", action="store_true",
                     help="Uzmanin fazini ICSEL tutmak yerine HER ADIMDA "
                          "geometriden hesapla. DAgger icin SART: politika "
@@ -186,12 +198,28 @@ def main():
         sm = PickAndLiftSm(dt, n, dev, position_threshold=0.01)
     actions = torch.zeros(env.unwrapped.action_space.shape, device=dev)
     actions[:, 3] = 1.0
+
+    # EV POZU: sifirlama sonrasi kolu burada tutacagiz.
+    # DIKKAT: eski kod baslangicta `env.step(actions)` yapiyordu; o aksiyon
+    # hedef konumu (0,0,0) yani ROBOTUN TABANI demek -- ulasilamaz bir hedef ve
+    # DLS cozucusunu zorluyor. Bunun yerine kolun KENDI mevcut pozunu hedef
+    # veriyoruz: gecerli, ulasilabilir, kolu yerinde tutar.
+    _ee0 = env.unwrapped.scene["ee_frame"]
+    home_action = actions.clone()
+    home_action[:, :3] = _ee0.data.target_pos_w[..., 0, :] - origins
+    home_action[:, 3:7] = _ee0.data.target_quat_w[..., 0, :]
+    home_action[:, 7] = 1.0                      # tutucu ACIK
+    print(f"[EV POZU] ({home_action[0,0]:+.4f},{home_action[0,1]:+.4f},"
+          f"{home_action[0,2]:+.4f}) | sifirlama sonrasi {args_cli.reset_hold} adim tutulacak",
+          flush=True)
+    hold = np.zeros(n, dtype=int)
     desired_orientation = torch.zeros((n, 4), device=dev)
     desired_orientation[:, 1] = 1.0
 
-    # kamera tamponlari reset sonrasi ilk adimda bos olabilir -> bir kez isit
+    # kamera tamponlari reset sonrasi ilk adimda bos olabilir -> bir kez isit.
+    # EV POZU komutuyla: kol yerinde kalir.
     for _ in range(2):
-        env.step(actions)
+        env.step(home_action)
 
     # --- DAgger istemcisi (istege bagli) ---
     dagger = None
@@ -290,6 +318,12 @@ def main():
                 noise = torch.randn_like(actions) * args_cli.action_noise
                 noise[:, 3:] = 0.0        # sadece KONUM bozulur; quat/gripper aynen
                 exec_actions = actions + noise
+            # SIFIRLAMA TUTUSU: yeni bolumun ilk adimlarinda kolu ev pozunda tut,
+            # yoksa onceki bolumden kalan surucu hedefine firliyor ve IK patliyor.
+            if args_cli.reset_hold > 0 and hold.any():
+                _m = torch.from_numpy(hold > 0).to(dev)
+                exec_actions = torch.where(_m.unsqueeze(-1), home_action, exec_actions)
+                hold = np.maximum(hold - 1, 0)
             obs, rew, term, trunc, info = env.step(exec_actions)
             dones = term | trunc
             step_count += 1
@@ -319,6 +353,7 @@ def main():
                     buffers[i] = defaultdict(list)
                 sm.reset_idx(finished)
                 dagger_reset[finished.cpu().numpy()] = True
+                hold[finished.cpu().numpy()] = args_cli.reset_hold
                 # Yeni bolum -> sahneyi yeniden randomize et
                 dr.apply(front_cam, origins, dev, n, side_cam=side_cam)
                 # NOT (2026-09-03): buraya "isinma" icin env.step(actions) eklendi
@@ -352,6 +387,7 @@ def main():
         f.attrs["domain_randomization"] = not args_cli.no_dr
         f.attrs["fixed_camera"] = bool(args_cli.fix_cam or args_cli.no_dr)
         f.attrs["stateless_expert"] = bool(args_cli.stateless_expert)
+        f.attrs["reset_hold"] = int(args_cli.reset_hold)
         f.attrs["seed"] = args_cli.seed
         f.attrs["action_noise"] = args_cli.action_noise
         g = f.create_group("data")

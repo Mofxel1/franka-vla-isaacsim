@@ -1518,6 +1518,73 @@ veri setinde ve sunucuda üç kamera da var, çevirme ilk 8 bölümü atladı
 
 ---
 
+### 2026-09-15 — ORHAN'IN GÖZLEMİ: kol bazen fiziksel olarak kırılıyor
+
+GIF'i izlerken fark edildi: bazı karolarda kol parçalanmış görünüyor. Sayısal
+analizlerin hiçbiri bunu yakalamamıştı — **görsel muayene yakaladı.**
+
+#### Ölçüm
+
+| | eklem limiti aşan bölüm | en büyük aşım |
+|---|---|---|
+| uzman verisi (combo_s901) | 24/104 (%23) | 19.1 rad = **1095°** |
+| politika verisi (combodag_s1001) | 12/56 (%21) | 13.3 rad = 762° |
+
+**Yedi eklemin hepsi** limit dışına çıkıyor. Eklem 4'ün gerçek aralığı
+`[-3.07, -0.07]` (dirsek, serbest dönemez); veride −6.67 ile +19.04 arası.
+
+Simülatörün limitleri **doğru tanımlı** (resmi Franka değerleriyle birebir,
+`soft_joint_pos_limit_factor=1.0`) ama fizik uygulamıyor.
+
+#### Kök sebep: sıfırlama sonrası çözücü patlaması
+
+```
+bolum            patlak   |hiz| kare0    kare1     kare2
+episode_000008    EVET       0.000     113.338   1931.208
+episode_000016    EVET       0.000     118.773   1934.273
+episode_000009      -        0.000       1.050      0.162
+```
+
+Sıfırlama hızları doğru sıfırlıyor (kare 0 = 0.000). Sonra **tek fizik
+adımında** hız 113 rad/s'ye çıkıyor — limit 2.175. Kare 2'de 1931 rad/s.
+Bu bir sürücü davranışı değil, çözücü patlaması. Patlamalar **her zaman
+kare 2'de** başlıyor ve bölüm boyunca geri dönmüyor.
+
+İlk dalganın temiz olması ipucu veriyor: orada başlangıçta 2 adım atıldığı için
+kol yerleşmiş (kare 0 hızı 0.063), taze sıfırlananlarda hız tam 0.000 ve
+patlama orada oluyor.
+
+#### DENENDİ, YETMEDİ: sıfırlama sonrası ev pozunda tutma
+
+`collect_demos.py --reset_hold 12` eklendi: sıfırlamadan sonra kol kendi ev
+pozunda tutuluyor (eski kod başlangıçta hedef olarak **(0,0,0) — robotun
+tabanını** veriyordu, o da düzeltildi).
+
+Tutuş **çalışıyor** (normal bölümlerde kol 0-2 mm oynuyor) ama patlamayı
+önlemiyor: 23% → 17% (n=24, fark anlamlı değil). Patlayan bölümlerde kol
+komuta rağmen uçuyor. Kök sebep Isaac Lab'in articulation sıfırlamasında,
+bizim kontrolümüzün dışında.
+
+#### Bedeli ve çözüm
+
+```
+UZMAN:    patlamayan bolumlerde basari %100,  patlayanlarda %46
+          -> uzmanin %88'i TAMAMEN bu yuzden
+POLITIKA: patlamayan %40.9, patlayan %33.3   -> dogrudan kazanc kucuk
+```
+
+Asıl zarar **veri kalitesinde**: eğitim görüntülerinin ~%23'ünde robot fiziksel
+olarak imkânsız bir konfigürasyonda, ve `--only_success` yüzünden bölümlerin
+%12'sini tamamen kaybediyoruz.
+
+**Çözüm:** `convert_to_lerobot.py --drop_joint_violations` — eklem limitini
+aşan bölümler veri setinden atılır. Kök sebep düzeltilemedi, veri temizlenir.
+
+**Faz 3 için kritik:** bu konfigürasyonlar gerçek Nova 5'e asla aktarılamaz.
+Gerçek robota geçmeden önce eklem limitleri zorlanmalı.
+
+---
+
 ## Test 2 — Eğim testi (eski metrik, artık ikincil)
 
 `scripts/diagnostics/vision_test.py`. Kare 10'da 50 adımlık plan; plan adımı 5'in

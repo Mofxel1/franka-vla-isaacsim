@@ -88,6 +88,17 @@ parser.add_argument("--only_success", action="store_true",
                          "normalizasyonu bozuyor. Olculdu: filtresiz sette yardimci "
                          "std 5.09 m (olmasi gereken 0.055), model de olcegi 90 kat "
                          "sismis bir esleme ogrendi (x egimi 2.27 yerine ~1.0).")
+parser.add_argument("--drop_joint_violations", action="store_true",
+                    help="Eklem limitini asan bolumleri AT. 2026-09-15'te "
+                         "bulundu: Isaac Lab sifirlamasi sonrasi ilk fizik "
+                         "adiminda cozucu patliyor -- eklem hizi 0'dan 113 "
+                         "rad/s'ye (limit 2.175), kare 2'de 1931 rad/s. "
+                         "Bolumlerin ~%23'unde 7 eklemin HEPSI limit disina "
+                         "cikiyor (eklem 4, gercek araligi [-3.07,-0.07], "
+                         "+19 rad'a kadar). O bolumlerin GORUNTULERINDE robot "
+                         "fiziksel olarak imkansiz bir konfigurasyonda ve "
+                         "gercek donanima asla aktarilamaz. Kok sebep Isaac "
+                         "Lab tarafinda, duzeltilemedi; veri temizlenir.")
 parser.add_argument("--skip_episodes", type=int, default=0,
                     help="Her kaynak dosyanin ILK N bolumunu atla. Masanin "
                          "carpisma govdesi env.reset() sonrasi ilk bolumde hazir "
@@ -222,7 +233,7 @@ def main():
     t0 = time.time()
     total_frames = 0
     n_skipped_abs = 0
-    n_skipped_box = n_truncated = 0
+    n_skipped_box = n_truncated = n_skipped_joint = 0
     if args.skip_episodes:
         _keep = []
         for _f in srcs:
@@ -244,6 +255,13 @@ def main():
             _c = np.abs(ep["observation.state.object_pos"][:, :3]).max()
             if _a > args.max_abs or _c > args.max_abs:
                 n_skipped_abs += 1
+                continue
+        if args.drop_joint_violations:
+            _jp = ep["observation.state.joint_pos"][:, :7]
+            _lo = np.array([-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973])
+            _hi = np.array([2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973])
+            if np.maximum(np.maximum(_lo - _jp, _jp - _hi), 0).max() > 0.05:
+                n_skipped_joint += 1
                 continue
         if args.cube_box:
             _o = ep["observation.state.object_pos"][:, :2]
@@ -349,6 +367,8 @@ def main():
     if args.cube_box:
         print(f"[CEVIR] kup kutusu {args.cube_box}: {n_truncated} bolum KESILDI, "
               f"{n_skipped_box} bolum atlandi")
+    if args.drop_joint_violations:
+        print(f"[CEVIR] eklem limiti asan (fizik patlamasi) atlanan bolum: {n_skipped_joint}")
     print(f"[CEVIR] sure: {time.time()-t0:.0f}s")
     print("=" * 60)
 
