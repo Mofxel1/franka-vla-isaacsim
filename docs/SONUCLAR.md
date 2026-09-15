@@ -1565,6 +1565,34 @@ Tutuş **çalışıyor** (normal bölümlerde kol 0-2 mm oynuyor) ama patlamayı
 komuta rağmen uçuyor. Kök sebep Isaac Lab'in articulation sıfırlamasında,
 bizim kontrolümüzün dışında.
 
+#### ILK DALGA TESHISI DE YANLISMIS -- ters cevrildi
+
+`randomize_table` duzeltilince "ilk dalga anomalisi" de kapandi, ama sebebi
+sandigimiz gibi degilmis. Eski teshis soyleydi:
+
+> ilk dalgada kup 0.0210'da duruyor, sonrakilerde 0.0790 -- masanin carpisma
+> govdesi hazir degil, kup masanin icinden gecip YERE dusuyor
+
+**Bu yanlis.** Kaynaktan dogrulandi (`lift_env_cfg.py`):
+- masa z=0 (ust yuzeyi), **zemin duzlemi z=-1.05**, kup z=0.055'te doguyor
+
+Kup masanin icinden gecip yere dusseydi z = **-1.029** olurdu. 0.0210 ise
+kupun yari yuksekligi kadar masanin ustu -- yani **kup masada, dogru yerde.**
+
+Dogrusu sudur:
+- **0.0210 = NORMAL** (kup masada duruyor)
+- **0.0790 = ANOMALI** (kup masadan 5.8 cm YUKARIDA) -- de-instance edilen
+  masanin bozuk/hayalet collider'i
+- Yani "ilk dalga" diye attigimiz 0-7 numarali bolumler **tek DOGRU
+  bolumlermis**. `--skip_episodes 8` filtresi tam da saglam veriyi cope
+  atiyormus.
+
+Duzeltme sonrasi olculdu (`combo2_s901`, 56 bolum): kupun durus yuksekligi
+**butun bolumlerde 0.0210**, tek bir 0.0790 yok. Eklem limiti asan bolum 0/56,
+uzman basarisi **56/56**.
+
+**Sonuc: `--skip_episodes 8` / `--skip_first_episodes 8` ARTIK GEREKSIZ.**
+
 #### KOK SEBEP BULUNDU: masa renk randomizasyonu
 
 Orhan "veriden temizlemek sadece bypass eder, kokten cozelim" dedi. Cozuldu.

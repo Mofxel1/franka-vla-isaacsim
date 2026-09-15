@@ -36,6 +36,29 @@ python -u scripts/collect_demos.py \
   --out /data/franka_vla/data/franka_lift_s101.hdf5
 ```
 
+> **2026-09-15 — KOL PATLAMASI DUZELTILDI.** `randomize_table` masaya malzeme
+> bagliyordu; masa prim'inin collider'i oldugu icin bu, bolum sifirlamalarinda
+> kolu kiriyordu (bolumlerin ~%23'u, hiz 1900+ rad/s). Artik VARSAYILAN OLARAK
+> KAPALI. Olculdu: uzman basarisi %88 -> **%100**, eklem ihlali %23 -> **0**.
+> Ayrinti: docs/SONUCLAR.md
+>
+> Ayni duzeltme "ilk dalga" anomalisini de kapatti ve o teshisin TERS oldugunu
+> gosterdi: kupun 0.0210'da durmasi NORMAL (masa z=0, zemin z=-1.05), asil
+> anomali 0.0790'di. Yani `--skip_episodes 8` ile attigimiz ilk 8 bolum
+> **tek saglam bolumlermis**. O bayrak ARTIK KULLANILMAMALI.
+
+Temiz veri toplama (2026-09-15 tarifi, 4 parti x 56 bolum = 224 bolum):
+
+```bash
+for S in 901 902 903 904; do
+  python -u scripts/collect_demos.py \
+    --num_envs 8 --num_episodes 56 --env_spacing 25.0 --seed $S --headless \
+    --fix_cam --side_cam --action_noise 0.020 --res 224 \
+    --kit_args="--/rtx/verifyDriverVersion/enabled=false" \
+    --out /data/franka_vla/data/combo2_s$S.hdf5
+done
+```
+
 Önemli bayraklar:
 - `--env_spacing 25.0` — **8.0 varsayılanı yetersiz**, ortamlar birbirini görüyor
 - `--side_cam` — üçüncü (yan) kamerayı da kaydet. Yan kamera y ekseni boyunca
@@ -45,6 +68,15 @@ python -u scripts/collect_demos.py \
 - `--no_dr` — domain randomization kapat (**normalde AÇIK bırak**)
 
 Tuzaklar:
+- **`--reset_hold` ISE YARAMIYOR.** Patlamayi onlemek icin yazilmisti; olculdu
+  (`--reset_hold 0` ile 5/32, acikken 5/32 -- fark yok). Sebep masaydi.
+  Varsayilan 12 birakildi ama `--skip_first 12` ile zaten atiliyor.
+- **56 bolumluk parti bile TAKILABILIR.** 2026-09-15: 4. parti 56/56 bolumu
+  topladi, yazma asamasinda takildi. Olculdu: 20 sn'de RSS 128 KB buyudu
+  (bolum basina ~113 MB olmali), IO sabit, GPU 210/2100 MHz, ana Python
+  is parcacigi %98'de bos donuyor. Pil/termal degil -- BELLEK baskisi
+  (23 GB'in 14'u dolu). SIGTERM yetmedi, SIGKILL gerekti. Yeniden kosunca
+  ayni tohumla sorunsuz bitti. Bolum bazinda ilerlemeyi logla ki yakalayasin.
 - **Parti boyutu RAM'e göre seçilir.** `collect_demos.py` bütün bölümleri RAM'de
   biriktirip SONA yazar; parti bitmeden ölürse **hiçbir şey yazılmaz.**
   Ölçülen: bölüm başına ~0.15 GB (3 kamera, 250 kare).
@@ -71,12 +103,21 @@ Tuzaklar:
 ```bash
 conda activate lerobot
 python -u scripts/convert_to_lerobot.py \
-  --hdf5 /data/franka_vla/data/franka_lift_s101.hdf5 /data/franka_vla/data/franka_lift_s102.hdf5 \
-  --repo_id franka_lift_yeni \
+  --hdf5 /data/franka_vla/data/combo2_s901.hdf5 /data/franka_vla/data/combo2_s902.hdf5 \
+         /data/franka_vla/data/combo2_s903.hdf5 /data/franka_vla/data/combo2_s904.hdf5 \
+  --repo_id franka_lift_combo2 \
   --zero_state --object_centric --aux_cube \
   --max_frames 150 --repeat_early 2 --early_len 60 --skip_first 12 \
   --only_success --max_abs 1.5 \
+  --cube_box 0.15 0.85 -0.50 0.50 \
   --overwrite --root /home/orhan/franka_runs/lerobot
+```
+
+> **DUSEN BAYRAKLAR (2026-09-15):** `--skip_episodes 8` (hatanin etrafindan
+> dolasmak icindi, artik SAGLAM veriyi atiyor) ve `--drop_joint_violations`
+> (0/224 ihlal var, gereksiz). Ikisi de kullanilmamali.
+
+```bash
 ```
 
 Bayrakların **neden** böyle olduğu:
