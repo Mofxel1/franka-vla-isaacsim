@@ -1565,53 +1565,82 @@ Tutuş **çalışıyor** (normal bölümlerde kol 0-2 mm oynuyor) ama patlamayı
 komuta rağmen uçuyor. Kök sebep Isaac Lab'in articulation sıfırlamasında,
 bizim kontrolümüzün dışında.
 
-#### KOK SEBEP ARAYISI — 8 deneme, hicbiri tutmadi
+#### KOK SEBEP BULUNDU: masa renk randomizasyonu
 
-Orhan hakli olarak "veriden temizlemek sadece bypass eder, kokten cozelim" dedi.
-Kok sebep arandi; **bulunamadi** ama alan cok daraldi.
+Orhan "veriden temizlemek sadece bypass eder, kokten cozelim" dedi. Cozuldu.
 
-**Kesin olarak bilinenler:**
+**Sebep:** `domain_randomizer.py` icindeki `randomize_table`. Masaya UsdShade
+malzemesi bagliyor. Masa prim'inin COLLIDER'i var; simulasyon koserken ona
+`MaterialBindingAPI.Apply()` + `Bind()` uygulamak carpisma temsilini yeniden
+kurduruyor. Bolum sifirlamalarinda articulation'a surucuden gelemeyecek bir
+impuls biniyor: kol tek kontrol adiminda 2 rad oynuyor, hiz 1900+ rad/s'ye
+cikiyor (limit 2.175) ve bir daha toparlanmiyor.
 
-- Sifirlama ani TERTEMIZ. Olculdu: IK'nin okudugu poz taze (+0.389,0,+0.458 =
-  ev pozu), eklemler ev konfigurasyonunda, hiz **0.000**, parmaklar acik,
-  kup masada.
-- SONRAKI TEK ADIMDA eklemler 0.7 rad oynuyor, hiz 113 rad/s'ye firliyor
-  (limit 2.175), kare 2'de 1931 rad/s.
-- Komut O ADIMDA dogru: ev pozu (+0.463,0,+0.385). Yani hata ~sifir olmali.
-- Tetikleyici onceki bolumun nerede bittigi: <10cm %18 | >20cm %38 |
-  **>30cm %100 (11/11)**, korelasyon +0.558.
-- Ayni tohumla hep AYNI 6/32 bolum patliyor -> deterministik.
+**En aci tarafi:** bu islem HICBIR ISE YARAMIYORDU. Masa
+`table_instanceable.usd` referansi, baglama her zaman basarisiz oluyordu
+(`baglanan_mesh=0`) ve masa rengi HIC degismedi. Bedeli bolumlerin ~%23'unde
+kirilan bir koldu, karsiligi sifir.
 
-**Denenen ve TUTMAYAN 8 duzeltme:**
+**Olcumler** (tohum 1106, 32 bolum, ayni yapilandirma):
 
-| # | deneme | sonuc |
+| varyant | patlama | uzman basarisi |
 |---|---|---|
-| 1 | sifirlama sonrasi kolu ev pozunda tutma (`--reset_hold`) | %23 → %17, anlamsiz |
-| 2 | `sim.forward()` | degisiklik yok |
-| 3 | `scene.update(dt)` (once yanlislikla dt=0 verilmisti) | degisiklik yok |
-| 4 | **IK eklem hedefini limitlere kirpma** | 6/32, hiz hala 1941 rad/s |
-| 5 | cozucu iterasyonlari 8→32 / 0→4 | **DAHA KOTU**: hiz 7562, asim 31.3 rad |
-| 6 | surucu sertligi 400→100 | 6/32, hiz 2490 |
-| 7 | self-collision kapatma | 6/32, hiz 2295 |
-| 8 | surucu hedefini acikca sifirlama | 6/32, hiz 1943 |
+| DR tam acik (eski taban) | 5/32 | 29/32 |
+| DR tamamen kapali | **0/32** | **32/32** |
+| SADECE masa randomizasyonu kapali | **0/32** | **32/32** |
+| sadece kamera kapali (`--fix_cam`) | 5/32 | 29/32 |
+| `--reset_hold 0` | 5/32 | 29/32 |
+| isik prim'leri bir kez yazilir | 5/32 | 29/32 |
+| isiklar fizik agaci disinda | 6/32 | 29/32 |
+| **DUZELTME SONRASI (varsayilan, DR acik)** | **0/32** | **32/32** |
 
-**En bilgilendirici olan 4 numara:** komut edilen eklem hedefi limitlere
-kirpilmis olmasina RAGMEN eklemler limiti asiyor ve 1941 rad/s'ye cikiyor.
-Hicbir PD surucu sinirli bir hedeften bunu uretemez. Yani eklemler oraya
-**surulmuyor** — articulation durumu cozucu tarafindan bozuluyor.
+**Uzmanin tavani %88 degilmis, %100.** "Uzmanin dogal siniri" sandigimiz sey
+tamamen bu hataymis. Daha once olculmustu: patlamayan bolumlerde uzman %100,
+patlayanlarda %46.
 
-**Sonuc:** bu, Isaac Sim 4.5.0 / Isaac Lab v2.1.0'da bolum sifirlamasinda
-tetiklenen bir PhysX articulation kararsizligi. Surum bizde SABIT (surucu 535
-yuzunden 5.x'e gecilemiyor, bkz. YOL_HARITASI). Uygulama katmanindan
-cozulemiyor.
+#### Nasil bulundu: ablasyon, tahmin degil
 
-**Denenmemis kalanlar:** fizik dt / decimation degisikligi,
-`replicate_physics=False`, Isaac Lab surum yukseltmesi (surucu engeli).
+Once 8 "duzeltme" denendi, hepsi tuttmadi: reset_hold, `sim.forward()`,
+`scene.update(dt)`, IK kirpma, cozucu iterasyonlari, surucu sertligi,
+self-collision, surucu hedefi sifirlama. **Hepsi fizik ayarlariydi ve hicbiri
+gercek katmana dokunmuyordu.** "6/32 sabit kaldi" diye yorumlanan sey aslinda
+fizikle hic alakasi olmayan, sahne yazimina bagli bir olaydi.
 
-**Simdilik:** `--drop_joint_violations` ile bolumler veri setinden atiliyor.
-Bu bir BYPASS'tir, cozum degildir ve boyle isaretlenmistir.
-`clamped_ik_action.py` korunuyor: bu kararsizligi cozmuyor ama gercek Nova 5'e
-gecerken eklem limitlerinin zorlanmasi zaten sart.
+Cozen yaklasim tersiydi: once patlamayi URETMEYEN en sade ortami kur, sonra
+gercek boru hattina tek tek parca ekle.
+
+| prob | patlama | oldurulen hipotez |
+|---|---|---|
+| v1: serbest uzay, kup yok, elle sifirlama | 0/32 | mesafe (>30cm'de bile 0/17) |
+| v2: gercek yol, uzman surer, kup kavranir | 0/40 | kavrama / temas |
+| v3: v2 + kameralar (RTX, fizik dongusunde render) | 0/40 | kamera / render |
+| gercek `collect_demos` | 6/32 | -- tekrar uretim saglandi |
+
+Sonra tek bayrakli ablasyonlarla `dr.apply()` icinde daraltildi.
+
+**Yanlis cikan ara teshisler (kayit icin):**
+- "Sifirlama eklemleri bozuk birakiyor" -> YANLIS. Olculdu: sifirlama sonrasi
+  ilk karede 8 ortamin da sapmasi **0.0000**, IK hedefi mevcut pozdan 0.015 rad
+  uzakta. Sifirlama kusursuz.
+- "Bayat surucu hedefi kolu cekiyor" -> YANLIS. `Articulation.reset()` hedefi
+  temizlemiyor ama ardindan gelen `sim.forward()` fizik ILERLETMIYOR, sadece
+  kinematik guncelliyor. Bir sonraki `env.step()` zaten yeni hedefi yaziyor.
+- "Taze poz + BAYAT Jacobian" (`clamped_ik_action.py`'ye yazilmisti) -> YANLIS.
+  Kirpma patlamayi onlemedi. Dosyanin yorumu duzeltildi.
+- "Evden uzakta biten bolum patlar" (korelasyon +0.558) -> ESLIKCI DEGISKEN.
+  Evden uzakta bitmek = kupu kaldirmis = basarili bolum. Serbest uzayda 55 cm'ye
+  kadar goturup sifirladim, 0 patlama.
+- "USD prim YAPISINI degistirmek tetikliyor" -> YANLIS. Prim'ler bir kez
+  yazilacak sekilde degistirildi, patlama surdu.
+- "`SetInstanceable(False)` tetikliyor" -> YANLIS. O satir hic calismiyormus
+  (`IsInstance()` ve `IsInstanceable()` ikisi de False).
+
+#### Mevcut veri setleri
+
+`combo_s901` 24/104 (%23.1), `combodag_s1002` 12/56 (%21.4) bolumde yedi eklemin
+hepsi limit disina cikiyor (en buyuk asim 19.1 rad, hiz 2757 rad/s). Bu veri
+setleri BU HATAYLA toplandi; kareler fiziksel olarak imkansiz bir robot
+gosteriyor. Duzeltme sonrasi yeniden toplanmalari gerekir.
 
 #### Bedeli ve çözüm
 

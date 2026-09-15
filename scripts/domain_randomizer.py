@@ -21,6 +21,16 @@ class DomainRandomizer:
         self._table_ok = None      # ilk denemede tespit edilir
         self._stage = None
         self._log = []
+        # USD YAZIMI SADECE BIR KEZ. Bu onbellekler prim/oznitelik/xform-op
+        # tutamaclarini saklar; bolum basina yalnizca .Set() cagrilir.
+        # NEDENI (2026-09-15'te olculdu): simulasyon koserken
+        # /World/envs/env_i/ altinda prim YAPISI degistirmek (ClearXformOpOrder,
+        # AddTranslateOp, Create*Attr) articulation'a surucuden gelemeyecek bir
+        # impuls bindiriyordu. Bolumlerin ~%23'unde kol paramparca oluyordu.
+        # Olculdu: DR kapali 0/32 patlama ve uzman basarisi 32/32; DR acik
+        # 5/32 patlama ve 29/32. Ayrinti: docs/SONUCLAR.md
+        self._dome_ops = None      # (intensity, color, rotateY)
+        self._env_light_ops = {}   # path -> (radius, intensity, color, translate)
 
     # ---------- USD stage ----------
     @property
@@ -69,16 +79,20 @@ class DomainRandomizer:
             if not prim or not prim.IsValid():
                 self._note("isik prim'i bulunamadi: /World/light")
                 return
-            light = UsdLux.DomeLight(prim)
-            light.GetIntensityAttr().Set(float(self.rng.uniform(800.0, 5500.0)))
+            if self._dome_ops is None:
+                light = UsdLux.DomeLight(prim)
+                xf = UsdGeom.Xformable(prim)
+                xf.ClearXformOpOrder()          # SADECE ILK CAGRIDA
+                self._dome_ops = (light.GetIntensityAttr(), light.GetColorAttr(),
+                                  xf.AddRotateYOp())
+            i_attr, c_attr, rot_op = self._dome_ops
+            i_attr.Set(float(self.rng.uniform(800.0, 5500.0)))
             # notr etrafinda sicak/soguk kayma
             t = self.rng.uniform(-0.18, 0.18)
             base = self.rng.uniform(0.6, 0.95)
-            light.GetColorAttr().Set(Gf.Vec3f(float(base + t), float(base), float(base - t)))
+            c_attr.Set(Gf.Vec3f(float(base + t), float(base), float(base - t)))
             # dome'u dondur -> golge yonu degissin
-            xf = UsdGeom.Xformable(prim)
-            xf.ClearXformOpOrder()
-            xf.AddRotateYOp().Set(float(self.rng.uniform(0, 360)))
+            rot_op.Set(float(self.rng.uniform(0, 360)))
         except Exception as e:
             self._note(f"isik randomizasyonu basarisiz: {e}")
 
@@ -91,6 +105,41 @@ class DomainRandomizer:
         """
         if not self.jitter_table or self._table_ok is False:
             return
+        # ===================================================================
+        # VARSAYILAN OLARAK KAPALI. KOLU KIRAN SEY BU FONKSIYONDU.
+        #
+        # Bu fonksiyon masaya UsdShade malzemesi baglar. Masa prim'inin
+        # COLLIDER'i var; simulasyon koserken ona API semasi uygulamak
+        # (MaterialBindingAPI.Apply + Bind) carpisma temsilini yeniden
+        # kurduruyor. Sonuc: bolum sifirlamalarinda articulation'a surucuden
+        # gelemeyecek bir impuls biniyor. Kol tek kontrol adiminda 2 rad
+        # oynuyor, hiz 1900+ rad/s'ye cikiyor (limit 2.175) ve bir daha
+        # toparlanmiyordu.
+        #
+        # OLCULDU (2026-09-15, tohum 1106, 32 bolum, ayni yapilandirma):
+        #   DR tam acik                        : 5/32 patlama, basari 29/32
+        #   DR tamamen kapali                  : 0/32 patlama, basari 32/32
+        #   SADECE bu fonksiyon kapali         : 0/32 patlama, basari 32/32
+        #   sadece kamera kapali (--fix_cam)   : 5/32 patlama, basari 29/32
+        #   isik prim'leri bir kez yazilir     : 5/32  -> ISIK SEBEP DEGIL
+        #   isiklar fizik agaci disinda        : 6/32  -> ISIK SEBEP DEGIL
+        #
+        # Ustelik HICBIR ISE YARAMIYORDU: masa 'table_instanceable.usd'
+        # referansi, baglama her zaman basarisiz (baglanan_mesh=0) ve masa
+        # rengi HIC degismedi. Yani bedeli bolumlerin ~%23'unde kirilan bir
+        # koldu, karsiligi sifir.
+        #
+        # Masa rengi gercekten isteniyorsa dogru yol: SIMULASYON BASLAMADAN
+        # once, sahne kurulurken instance'lanmamis bir masa varligi spawn edip
+        # malzemeyi orada baglamak. Kosarken sahne yapisina dokunmak degil.
+        # Denemek icin: DR_TABLE=1
+        import os as _os
+        if _os.environ.get("DR_TABLE") != "1":
+            self._table_ok = False
+            self._note("masa renk randomizasyonu KAPALI (fizigi bozup kolu "
+                       "kiriyordu, ayrica hic calismiyordu -- bkz. kod notu)")
+            return
+        # ===================================================================
         try:
             from pxr import Usd, UsdShade, Sdf, Gf
             ok_any = False
@@ -113,7 +162,6 @@ class DomainRandomizer:
                 mtl.CreateSurfaceOutput().ConnectToSource(sh.ConnectableAPI(), "surface")
                 # USD instancing: /World/envs/env_N/Table bir instance proxy ise
                 # gercek geometri paylasilan prototipte kalir ve baglama islemez.
-                # Instancing'i kapatip alttaki Mesh'lere de tek tek baglaniyoruz.
                 if prim.IsInstance() or prim.IsInstanceable():
                     prim.SetInstanceable(False)
                 api = UsdShade.MaterialBindingAPI.Apply(prim)
@@ -146,24 +194,28 @@ class DomainRandomizer:
             org = origins.detach().cpu().numpy()
             for i in range(org.shape[0]):
                 lp = f"/World/envs/env_{i}/rand_light"
-                prim = self.stage.GetPrimAtPath(lp)
-                if not prim or not prim.IsValid():
+                ops = self._env_light_ops.get(lp)
+                if ops is None:
+                    # ILK CAGRI: prim'i, ozniteliklerini ve tek bir translate
+                    # op'unu burada olustur. Bundan sonra USD YAPISINA
+                    # DOKUNULMAZ -- yoksa fizik sahnesi her bolumde resync olur.
                     light = UsdLux.SphereLight.Define(self.stage, Sdf.Path(lp))
-                else:
-                    light = UsdLux.SphereLight(prim)
-                    prim_x = UsdGeom.Xformable(prim)
-                    prim_x.ClearXformOpOrder()
-                light.CreateRadiusAttr(float(self.rng.uniform(0.05, 0.25)))
-                light.CreateIntensityAttr(float(self.rng.uniform(1.5e4, 2.2e5)))
+                    xf = UsdGeom.Xformable(light.GetPrim())
+                    xf.ClearXformOpOrder()
+                    ops = (light.CreateRadiusAttr(), light.CreateIntensityAttr(),
+                           light.CreateColorAttr(), xf.AddTranslateOp())
+                    self._env_light_ops[lp] = ops
+                r_attr, i_attr, c_attr, t_op = ops
+                r_attr.Set(float(self.rng.uniform(0.05, 0.25)))
+                i_attr.Set(float(self.rng.uniform(1.5e4, 2.2e5)))
                 c = self.rng.uniform(0.55, 1.0, 3)
-                light.CreateColorAttr(Gf.Vec3f(float(c[0]), float(c[1]), float(c[2])))
+                c_attr.Set(Gf.Vec3f(float(c[0]), float(c[1]), float(c[2])))
                 # masanin uzerinde rastgele konum
                 off = np.array([self.rng.uniform(0.0, 0.9),
                                 self.rng.uniform(-0.7, 0.7),
                                 self.rng.uniform(0.9, 1.8)])
                 pos = org[i] + off
-                UsdGeom.Xformable(light.GetPrim()).AddTranslateOp().Set(
-                    Gf.Vec3d(float(pos[0]), float(pos[1]), float(pos[2])))
+                t_op.Set(Gf.Vec3d(float(pos[0]), float(pos[1]), float(pos[2])))
             if "lokal isik" not in " ".join(self._log):
                 self._note(f"lokal isik: {org.shape[0]} ortam icin olusturuldu")
         except Exception as e:

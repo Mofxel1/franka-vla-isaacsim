@@ -1,38 +1,35 @@
 """EKLEM LIMITLERINE KIRPAN IK aksiyon terimi.
 
-SORUN (2026-09-15'te olculdu):
-Isaac Lab'in `DifferentialInverseKinematicsAction.apply_actions` metodu IK
-cikitisini limitlere KIRPMADAN uyguluyor:
+NE ISE YARAR: Isaac Lab'in `DifferentialInverseKinematicsAction` terimi IK
+cikitisini eklem limitlerine KIRPMADAN uyguluyor:
 
     joint_pos_des = self._ik_controller.compute(...)
     self._asset.set_joint_position_target(joint_pos_des, self._joint_ids)
 
-Sonuc: bolumlerin ~%23'unde YEDI EKLEMIN HEPSI limit disina cikiyor.
-Eklem 4'un gercek araligi [-3.07, -0.07] (dirsek, serbest DONEMEZ); veride
--6.67 ile +19.04 arasi, yani limitin 1095 derece otesi. Kol gorsel olarak
-parcalanmis gibi goruluyor (GIF'te fark edildi).
+Bu sinif araya tek bir kirpma ekler. Kol fiziksel olarak imkansiz bir eklem
+konfigurasyonu HEDEFI alamaz.
 
-TETIKLEYICI: bolum sifirlamasi. Olculdu --
-  - sifirlama ani TERTEMIZ: poz taze, eklemler ev konfigurasyonunda, hiz 0.000
-  - SONRAKI TEK ADIMDA eklemler 0.7 rad oynuyor, hiz 113 rad/s (limit 2.175)
-  - onceki bolum ev pozundan ne kadar uzakta bittiyse patlama o kadar kesin:
-    <10cm %18 | >20cm %38 | >30cm %100 (11/11), korelasyon +0.558
+DIKKAT -- BU BIR HATA DUZELTMESI DEGIL, BIR EMNIYET KEMERIDIR.
+Bu dosya once "bolumlerin ~%23'unde kolun paramparca olmasi" sorununun cozumu
+sanilarak yazildi ve buraya "sifirlama sonrasi taze poz + BAYAT Jacobian"
+diye bir teshis not edilmisti. O TESHIS YANLISTI ve 2026-09-15'te olcumle
+curutuldu:
 
-NEDENI: `body_pos_w` okunurken `update_articulations_kinematic()` cagriliyor ve
-TAZELENIYOR, ama `jacobian_w` dogrudan `root_physx_view.get_jacobians()` okuyor
--- zaman damgali tampon YOK, kinematik guncelleme YOK. Yani sifirlamadan sonra
-IK, TAZE poz ile BAYAT Jacobian'i birlikte kullaniyor. DLS sonumlemesi de cok
-dusuk (lambda_val=0.01), bu yuzden tutarsizlik buyuk eklem farkina donusuyor.
+  - Kirpma patlamayi ONLEMEDI (6/32 sabit kaldi, hiz hala 1941 rad/s).
+  - Sifirlama sonrasi ilk karede eklemler varsayilan poza TAM oturuyor
+    (sapma 0.0000) ve IK hedefi mevcut pozdan sadece 0.015 rad uzakta.
+    Yani ne poz bayat, ne Jacobian bozuk, ne de IK hatali bir hedef uretiyor.
+  - Gercek sebep domain randomization'daki `prim.SetInstanceable(False)`
+    cagrisiydi: masayi de-instance edip carpisma temsilini yeniden kuruyor,
+    bolum sifirlamalarinda articulation'a impuls biniyordu.
+    Ayrinti ve olcumler: scripts/domain_randomizer.py + docs/SONUCLAR.md
 
-Denendi ve YETMEDI: sifirlama sonrasi ev pozunda tutma (--reset_hold),
-sim.forward(), scene.update(dt). Ucu de patlamayi onlemedi (%23 -> %17-19).
-
-BU COZUM: sebebi ne olursa olsun IK ciktisi eklem limitlerine kirpilir. Kol
-fiziksel olarak imkansiz bir konfigurasyona GIDEMEZ. Faz 3'te gercek Nova 5'e
-gecerken bu zaten zorunlu.
+NEDEN YINE DE DURUYOR: Faz 3'te gercek Dobot Nova 5'e gecilecek. Gercek
+donanimda eklem limiti disi bir hedef gondermek fiziksel hasar demektir;
+kirpma orada zaten zorunlu. Sim tarafinda da bedeli yok.
 
 Kullanim (env cfg kurulurken):
-    from clamped_ik_action import ClampedDifferentialIKActionCfg
+    from clamped_ik_action import ClampedDifferentialIKAction
     cfg.actions.arm_action.class_type = ClampedDifferentialIKAction
 """
 import torch
