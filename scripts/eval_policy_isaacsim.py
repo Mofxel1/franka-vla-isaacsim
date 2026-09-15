@@ -160,6 +160,31 @@ class PolicyClient:
 def main():
     cfg = parse_env_cfg(TASK, device=args_cli.device, num_envs=args_cli.num_envs)
     cfg.commands.object_pose.debug_vis = False
+
+    # IK cikitisini EKLEM LIMITLERINE kirp -- toplama tarafiyla AYNI olmali,
+    # yoksa boru hattinin iki ucu yine uyusmaz. Bkz. clamped_ik_action.py
+    from clamped_ik_action import ClampedDifferentialIKAction
+    cfg.actions.arm_action.class_type = ClampedDifferentialIKAction
+
+    # DENENDI, DAHA KOTU YAPTI (2026-09-15): cozucu iterasyonlarini artirmak
+    # (pos 8->32, vel 0->4) patlamayi onlemedi, siddetlendirdi:
+    # hiz 1941 -> 7562 rad/s, asim 6.66 -> 31.34 rad. GERI ALINDI.
+    #
+    # DENENIYOR: surucu sertligi. FRANKA_PANDA_HIGH_PD_CFG, IK takibi icin
+    # sertligi 80'den 400'e cikariyor. Sert surucu + sifirlama sureksizligi
+    # kararsizligin klasik recetesi.
+    import os as _os
+    if _os.environ.get("NO_SELF_COLL") == "1":
+        # SIFIRLAMADA kol isinlanirken ayni karede self-collision tetiklenirse
+        # PhysX devasa impuls uretebilir. Varsayilan enabled_self_collisions=True.
+        cfg.scene.robot.spawn.articulation_props.enabled_self_collisions = False
+        print("[FIZIK] self-collision KAPALI", flush=True)
+    _st = float(_os.environ.get("ARM_STIFFNESS", "0"))
+    if _st > 0:
+        for _a in ("panda_shoulder", "panda_forearm"):
+            cfg.scene.robot.actuators[_a].stiffness = _st
+            cfg.scene.robot.actuators[_a].damping = _st / 5.0
+        print(f"[FIZIK] kol surucu sertligi -> {_st} (varsayilan 400)", flush=True)
     cfg.scene.env_spacing = args_cli.env_spacing
     cfg.scene.front_cam = TiledCameraCfg(
         prim_path="{ENV_REGEX_NS}/front_cam",

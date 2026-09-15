@@ -125,6 +125,33 @@ def build_env_cfg():
     cfg: LiftEnvCfg = parse_env_cfg(TASK, device=args_cli.device, num_envs=args_cli.num_envs)
     # Debug marker'lari kapat -- egitim goruntusune sizmamalilar
     cfg.commands.object_pose.debug_vis = False
+
+    # IK cikitisini EKLEM LIMITLERINE kirp. Isaac Lab kirpmiyor ve sifirlama
+    # sonrasi taze poz + BAYAT Jacobian birlesimi bolumlerin ~%23'unde kolu
+    # fiziksel olarak imkansiz konfigurasyonlara sokuyordu (eklem 4, gercek
+    # araligi [-3.07,-0.07], +19 rad'a kadar). Ayrinti: clamped_ik_action.py
+    from clamped_ik_action import ClampedDifferentialIKAction
+    cfg.actions.arm_action.class_type = ClampedDifferentialIKAction
+
+    # DENENDI, DAHA KOTU YAPTI (2026-09-15): cozucu iterasyonlarini artirmak
+    # (pos 8->32, vel 0->4) patlamayi onlemedi, siddetlendirdi:
+    # hiz 1941 -> 7562 rad/s, asim 6.66 -> 31.34 rad. GERI ALINDI.
+    #
+    # DENENIYOR: surucu sertligi. FRANKA_PANDA_HIGH_PD_CFG, IK takibi icin
+    # sertligi 80'den 400'e cikariyor. Sert surucu + sifirlama sureksizligi
+    # kararsizligin klasik recetesi.
+    import os as _os
+    if _os.environ.get("NO_SELF_COLL") == "1":
+        # SIFIRLAMADA kol isinlanirken ayni karede self-collision tetiklenirse
+        # PhysX devasa impuls uretebilir. Varsayilan enabled_self_collisions=True.
+        cfg.scene.robot.spawn.articulation_props.enabled_self_collisions = False
+        print("[FIZIK] self-collision KAPALI", flush=True)
+    _st = float(_os.environ.get("ARM_STIFFNESS", "0"))
+    if _st > 0:
+        for _a in ("panda_shoulder", "panda_forearm"):
+            cfg.scene.robot.actuators[_a].stiffness = _st
+            cfg.scene.robot.actuators[_a].damping = _st / 5.0
+        print(f"[FIZIK] kol surucu sertligi -> {_st} (varsayilan 400)", flush=True)
     # Ortamlari birbirinden uzaklastir: komsu robot/masa kadraja girmemeli
     cfg.scene.env_spacing = args_cli.env_spacing
 
@@ -213,6 +240,7 @@ def main():
           f"{home_action[0,2]:+.4f}) | sifirlama sonrasi {args_cli.reset_hold} adim tutulacak",
           flush=True)
     hold = np.zeros(n, dtype=int)
+    _blown = np.zeros(n, dtype=bool)
     desired_orientation = torch.zeros((n, 4), device=dev)
     desired_orientation[:, 1] = 1.0
 
@@ -324,9 +352,36 @@ def main():
                 _m = torch.from_numpy(hold > 0).to(dev)
                 exec_actions = torch.where(_m.unsqueeze(-1), home_action, exec_actions)
                 hold = np.maximum(hold - 1, 0)
+            _r0 = env.unwrapped.scene["robot"]; _h0 = _r0.body_names.index("panda_hand")
+            _pre_jp = _r0.data.joint_pos[:, :7].clone()
+            _pre_bp = (_r0.data.body_pos_w[:, _h0] - origins).clone()
+            _pre_jv = _r0.data.joint_vel[:, :7].clone()
             obs, rew, term, trunc, info = env.step(exec_actions)
             dones = term | trunc
             step_count += 1
+
+            if os.environ.get("BLOWUP_PROBE"):
+                _r = env.unwrapped.scene["robot"]
+                _jv = _r.data.joint_vel[:, :7]
+                _bad = (_jv.abs().max(dim=1).values > 10.0).nonzero(as_tuple=False).flatten()
+                for _i in _bad.tolist():
+                    if _blown[_i]:
+                        continue
+                    _blown[_i] = True
+                    _h = _r.body_names.index("panda_hand")
+                    _bp = (_r.data.body_pos_w[:, _h] - origins)[_i].cpu().numpy()
+                    _a = exec_actions[_i].cpu().numpy()
+                    _dj = (_r.data.joint_pos[_i, :7] - _pre_jp[_i]).cpu().numpy()
+                    print(f"[PATLAMA] ortam {_i} bolum-adim {len(buffers[_i]['action'])} "
+                          f"|hiz|max={_jv[_i].abs().max().item():9.1f}", flush=True)
+                    print(f"          komut  ({_a[0]:+.3f},{_a[1]:+.3f},{_a[2]:+.3f}) "
+                          f"quat({_a[3]:+.3f},{_a[4]:+.3f},{_a[5]:+.3f},{_a[6]:+.3f}) grip={_a[7]:+.2f}",
+                          flush=True)
+                    _pb = _pre_bp[_i].cpu().numpy()
+                    print(f"          ADIM ONCESI IK_poz ({_pb[0]:+.3f},{_pb[1]:+.3f},{_pb[2]:+.3f}) "
+                          f"|hiz|onceki={_pre_jv[_i].abs().max().item():7.3f}", flush=True)
+                    print(f"          ADIM SONRASI       ({_bp[0]:+.3f},{_bp[1]:+.3f},{_bp[2]:+.3f})  "
+                          f"eklem degisimi(rad) " + " ".join(f"{x:+.2f}" for x in _dj), flush=True)
 
             rew_np = rew.detach().cpu().numpy()
             done_np = dones.detach().cpu().numpy()
@@ -354,6 +409,60 @@ def main():
                 sm.reset_idx(finished)
                 dagger_reset[finished.cpu().numpy()] = True
                 hold[finished.cpu().numpy()] = args_cli.reset_hold
+                _blown[finished.cpu().numpy()] = False
+
+                # ===== BAYAT POZ DUZELTMESI (2026-09-15) =====
+                # Isaac Lab sifirlamada eklem durumunu PhysX'e YAZIYOR ama link
+                # pozlari (articulation.data.body_pos_w) simulasyon ilerlemeden
+                # tazelenmiyor. IK aksiyon terimi mevcut EE pozunu TAM ORADAN
+                # okuyor (_compute_frame_pose -> body_pos_w), dolayisiyla
+                # sifirlamadan sonraki ILK adimda ONCEKI bolumun bittigi yeri
+                # "mevcut poz" saniyor. Hedef ev pozu oldugu icin hata 30-50 cm
+                # cikiyor, DLS devasa bir eklem farki uretiyor ve sert PD surucu
+                # onu uyguluyor -> cozucu patliyor.
+                #
+                # KANIT (combo_s901, n=96): onceki bolumun bitis noktasi ev
+                # pozundan ne kadar uzaksa patlama o kadar kesin --
+                #   <10cm: %18 | >20cm: %38 | >30cm: %100 (11/11)
+                #   korelasyon +0.558
+                # Hiz izi: kare0 0.000 -> kare1 113 rad/s (limit 2.175)
+                #          -> kare2 1931 rad/s
+                #
+                # sim.forward() PhysX'e ileri kinematigi yeniden hesaplatir
+                # (update_articulations_kinematic), boylece bir sonraki
+                # process_actions TAZE pozu okur.
+                # DIKKAT -- dt SIFIR OLMAMALI. ArticulationData tamponu soyle:
+                #     if self._body_state_w.timestamp < self._sim_timestamp:
+                #         ...taze oku...
+                #     return self._body_state_w.data
+                # ve `_sim_timestamp += dt` sadece update(dt) icinde ilerliyor.
+                # scene.update(0.0) cagirmak zaman damgasini ILERLETMEZ, tampon
+                # "taze" sayilir ve BAYAT veri doner. Ilk denemede bu hataya
+                # dusuldu ve duzeltme ise yaramadi (patlama %23 -> %19).
+                env.unwrapped.sim.forward()
+                env.unwrapped.scene.update(dt)
+                if os.environ.get("RESET_DRIVE_TARGET", "0") == "1":
+                    # Sifirlama eklem KONUMLARINI sifirliyor; peki SURUCU HEDEFI?
+                    # Onceki bolumun son IK ciktisinda kalmis olabilir ve
+                    # sifirlanmis kolu oraya cekiyor olabilir.
+                    _rb = env.unwrapped.scene["robot"]
+                    _ids = finished
+                    _rb.set_joint_position_target(
+                        _rb.data.default_joint_pos[_ids], env_ids=_ids)
+                    _rb.write_data_to_sim()
+                if False:
+                    _r = env.unwrapped.scene["robot"]; _h = _r.body_names.index("panda_hand")
+                    for _i in finished.tolist()[:2]:
+                        _bp = (_r.data.body_pos_w[:, _h] - origins)[_i].cpu().numpy()
+                        _sp = (ee.data.target_pos_w[..., 0, :] - origins)[_i].cpu().numpy()
+                        _jv = _r.data.joint_vel[_i, :7].cpu().numpy()
+                        _fg = (_r.data.joint_pos[_i, 7] + _r.data.joint_pos[_i, 8]).item()
+                        _oz = (obj.root_pos_w - origins)[_i, 2].item()
+                        print(f"[PROBE] ortam {_i} sifirlama sonrasi: "
+                              f"IK({_bp[0]:+.3f},{_bp[1]:+.3f},{_bp[2]:+.3f}) "
+                              f"sensor({_sp[0]:+.3f},{_sp[1]:+.3f},{_sp[2]:+.3f}) "
+                              f"|hiz|max={np.abs(_jv).max():7.3f} parmak={_fg:.4f} kup_z={_oz:.4f}",
+                              flush=True)
                 # Yeni bolum -> sahneyi yeniden randomize et
                 dr.apply(front_cam, origins, dev, n, side_cam=side_cam)
                 # NOT (2026-09-03): buraya "isinma" icin env.step(actions) eklendi

@@ -1565,6 +1565,54 @@ Tutuş **çalışıyor** (normal bölümlerde kol 0-2 mm oynuyor) ama patlamayı
 komuta rağmen uçuyor. Kök sebep Isaac Lab'in articulation sıfırlamasında,
 bizim kontrolümüzün dışında.
 
+#### KOK SEBEP ARAYISI — 8 deneme, hicbiri tutmadi
+
+Orhan hakli olarak "veriden temizlemek sadece bypass eder, kokten cozelim" dedi.
+Kok sebep arandi; **bulunamadi** ama alan cok daraldi.
+
+**Kesin olarak bilinenler:**
+
+- Sifirlama ani TERTEMIZ. Olculdu: IK'nin okudugu poz taze (+0.389,0,+0.458 =
+  ev pozu), eklemler ev konfigurasyonunda, hiz **0.000**, parmaklar acik,
+  kup masada.
+- SONRAKI TEK ADIMDA eklemler 0.7 rad oynuyor, hiz 113 rad/s'ye firliyor
+  (limit 2.175), kare 2'de 1931 rad/s.
+- Komut O ADIMDA dogru: ev pozu (+0.463,0,+0.385). Yani hata ~sifir olmali.
+- Tetikleyici onceki bolumun nerede bittigi: <10cm %18 | >20cm %38 |
+  **>30cm %100 (11/11)**, korelasyon +0.558.
+- Ayni tohumla hep AYNI 6/32 bolum patliyor -> deterministik.
+
+**Denenen ve TUTMAYAN 8 duzeltme:**
+
+| # | deneme | sonuc |
+|---|---|---|
+| 1 | sifirlama sonrasi kolu ev pozunda tutma (`--reset_hold`) | %23 → %17, anlamsiz |
+| 2 | `sim.forward()` | degisiklik yok |
+| 3 | `scene.update(dt)` (once yanlislikla dt=0 verilmisti) | degisiklik yok |
+| 4 | **IK eklem hedefini limitlere kirpma** | 6/32, hiz hala 1941 rad/s |
+| 5 | cozucu iterasyonlari 8→32 / 0→4 | **DAHA KOTU**: hiz 7562, asim 31.3 rad |
+| 6 | surucu sertligi 400→100 | 6/32, hiz 2490 |
+| 7 | self-collision kapatma | 6/32, hiz 2295 |
+| 8 | surucu hedefini acikca sifirlama | 6/32, hiz 1943 |
+
+**En bilgilendirici olan 4 numara:** komut edilen eklem hedefi limitlere
+kirpilmis olmasina RAGMEN eklemler limiti asiyor ve 1941 rad/s'ye cikiyor.
+Hicbir PD surucu sinirli bir hedeften bunu uretemez. Yani eklemler oraya
+**surulmuyor** — articulation durumu cozucu tarafindan bozuluyor.
+
+**Sonuc:** bu, Isaac Sim 4.5.0 / Isaac Lab v2.1.0'da bolum sifirlamasinda
+tetiklenen bir PhysX articulation kararsizligi. Surum bizde SABIT (surucu 535
+yuzunden 5.x'e gecilemiyor, bkz. YOL_HARITASI). Uygulama katmanindan
+cozulemiyor.
+
+**Denenmemis kalanlar:** fizik dt / decimation degisikligi,
+`replicate_physics=False`, Isaac Lab surum yukseltmesi (surucu engeli).
+
+**Simdilik:** `--drop_joint_violations` ile bolumler veri setinden atiliyor.
+Bu bir BYPASS'tir, cozum degildir ve boyle isaretlenmistir.
+`clamped_ik_action.py` korunuyor: bu kararsizligi cozmuyor ama gercek Nova 5'e
+gecerken eklem limitlerinin zorlanmasi zaten sart.
+
 #### Bedeli ve çözüm
 
 ```
