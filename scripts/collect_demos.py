@@ -53,6 +53,13 @@ parser.add_argument("--reset_hold", type=int, default=12,
                          "duzeltmiyor, sadece ucusunu yankiliyor. "
                          "Patlamayan bolumlerde uzman basarisi %100, "
                          "patlayanlarda %46. 0 = kapali (eski davranis).")
+parser.add_argument("--two_objects", action="store_true",
+                    help="FAZ 2: masada IKI renkli kup (kirmizi/mavi) ve bolum "
+                         "basina degisen talimat. Hedef nesne rastgele secilir, "
+                         "talimat ona gore yazilir ve eg.attrs['task']'e BOLUM "
+                         "BASINA kaydedilir. Uzman ve yardimci kafa HEDEF "
+                         "nesneyi izler; celdiricinin tepe yuksekligi ayrica "
+                         "kaydedilir (yanlis nesneyi kaldirma orani icin).")
 parser.add_argument("--stateless_expert", action="store_true",
                     help="Uzmanin fazini ICSEL tutmak yerine HER ADIMDA "
                          "geometriden hesapla. DAgger icin SART: politika "
@@ -152,6 +159,20 @@ def build_env_cfg():
             cfg.scene.robot.actuators[_a].stiffness = _st
             cfg.scene.robot.actuators[_a].damping = _st / 5.0
         print(f"[FIZIK] kol surucu sertligi -> {_st} (varsayilan 400)", flush=True)
+    # FAZ 2: iki renkli kup + ortak dagilimli yerlestirme
+    if args_cli.two_objects:
+        from isaaclab.managers import EventTermCfg
+        from phase2_scene import kup_cfg, reset_iki_nesne, NESNELER
+        cfg.scene.object = kup_cfg(NESNELER[0])
+        cfg.scene.object2 = kup_cfg(NESNELER[1])
+        # Hazir tek-nesne randomizasyonunu KALDIR: iki kupu birlikte, ayni
+        # dagilimdan ve minimum mesafeyi gozeterek yerlestiren terimle degistir.
+        # (Ayri terimler kullanmak dagilimlari ayirir; ust uste dogan kupleri
+        # PhysX firlatir.)
+        cfg.events.reset_object_position = EventTermCfg(
+            func=reset_iki_nesne, mode="reset", params={})
+        print("[FAZ2] iki nesneli sahne: kirmizi + mavi kup", flush=True)
+
     # Ortamlari birbirinden uzaklastir: komsu robot/masa kadraja girmemeli
     cfg.scene.env_spacing = args_cli.env_spacing
 
@@ -244,6 +265,18 @@ def main():
     desired_orientation = torch.zeros((n, 4), device=dev)
     desired_orientation[:, 1] = 1.0
 
+    # FAZ 2: her ortam icin HEDEF nesne (0=kirmizi, 1=mavi). Bolum basinda
+    # yeniden secilir. Talimat buradan uretilir ve bolum ozniteligine yazilir.
+    if args_cli.two_objects:
+        from phase2_scene import NESNELER, talimat as _talimat
+        _rng2 = np.random.RandomState(args_cli.seed + 7777)
+        hedef = _rng2.randint(0, len(NESNELER), size=n)
+        # celdiricinin bolum icindeki EN YUKSEK z'si -- yanlis nesneyi
+        # kaldirma oranini olcmek icin (dil yok sayilirsa bu oran yukselir)
+        celdirici_tepe = np.zeros(n)
+    else:
+        hedef = None
+
     # kamera tamponlari reset sonrasi ilk adimda bos olabilir -> bir kez isit.
     # EV POZU komutuyla: kol yerinde kalir.
     for _ in range(2):
@@ -296,6 +329,18 @@ def main():
 
             obj: RigidObjectData = env.unwrapped.scene["object"].data
             obj_pos = obj.root_pos_w - origins
+            if args_cli.two_objects:
+                # HEDEF nesnenin konumu `obj_pos`'a yazilir; boylece hem uzman
+                # hem yardimci kafa "talimatta gecen nesne"yi izler ve asagidaki
+                # basari olcutu ("object_pos z esigi asti mi") dogru nesneyi
+                # olcer. Celdirici ayri takip edilir.
+                obj2_pos = env.unwrapped.scene["object2"].data.root_pos_w - origins
+                _m = torch.from_numpy(hedef).to(dev).bool().unsqueeze(-1)
+                hedef_pos = torch.where(_m, obj2_pos, obj_pos)
+                cel_pos = torch.where(_m, obj_pos, obj2_pos)
+                obj_pos = hedef_pos
+                celdirici_tepe = np.maximum(celdirici_tepe,
+                                            cel_pos[:, 2].cpu().numpy())
 
             # --- 2) Uzman s_t'den a_t'yi uretsin ---
             desired_position = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
@@ -398,14 +443,30 @@ def main():
                         peak_z = float(np.max([p[2] for p in b["observation.state.object_pos"]]))
                         final_z = float(b["observation.state.object_pos"][-1][2])
                         success = peak_z > LIFT_SUCCESS_HEIGHT and final_z > LIFT_SUCCESS_HEIGHT
+                        ek = {"_success": success, "_peak_z": peak_z, "_final_z": final_z}
+                        if args_cli.two_objects:
+                            ad = NESNELER[int(hedef[i])]["ad"]
+                            ek["_task"] = _talimat(ad)
+                            ek["_hedef"] = ad
+                            # YANLIS nesne kaldirildi mi? Dil yok sayilirsa bu
+                            # oran yukselir -- basari oranina bakarak anlasilmaz.
+                            ek["_celdirici_tepe"] = float(celdirici_tepe[i])
+                            ek["_yanlis_kaldirdi"] = bool(
+                                celdirici_tepe[i] > LIFT_SUCCESS_HEIGHT)
                         if (not args_cli.only_success) or success:
-                            episodes.append({k: np.asarray(v) for k, v in b.items()} |
-                                            {"_success": success, "_peak_z": peak_z, "_final_z": final_z})
+                            episodes.append({k: np.asarray(v) for k, v in b.items()} | ek)
                             ep_count += 1
+                            _ek_log = (f" hedef={ek['_hedef']}"
+                                       f"{' YANLIS-KALDIRDI' if ek['_yanlis_kaldirdi'] else ''}"
+                                       if args_cli.two_objects else "")
                             print(f"[TOPLA] bolum {ep_count}/{args_cli.num_episodes} "
                                   f"({len(b['action'])} adim, tepe_z={peak_z:.3f}m, son_z={final_z:.3f}m, "
-                                  f"{'BASARILI' if success else 'basarisiz'})", flush=True)
+                                  f"{'BASARILI' if success else 'basarisiz'}{_ek_log})", flush=True)
                     buffers[i] = defaultdict(list)
+                    if args_cli.two_objects:
+                        # YENI BOLUM -> yeni hedef nesne ve yeni talimat
+                        hedef[i] = _rng2.randint(0, len(NESNELER))
+                        celdirici_tepe[i] = 0.0
                 sm.reset_idx(finished)
                 dagger_reset[finished.cpu().numpy()] = True
                 hold[finished.cpu().numpy()] = args_cli.reset_hold
@@ -508,7 +569,13 @@ def main():
             eg.attrs["success"] = bool(succ)
             eg.attrs["peak_object_z"] = float(peak)
             eg.attrs["final_object_z"] = float(fin)
-            eg.attrs["task"] = args_cli.task_prompt
+            # BOLUM BASINA talimat. Faz 2'de her bolumde farkli.
+            # DIKKAT: convert_to_lerobot BUNU okumali, dosya ozniteligini degil.
+            eg.attrs["task"] = ep.pop("_task", args_cli.task_prompt)
+            if "_hedef" in ep:
+                eg.attrs["target_object"] = ep.pop("_hedef")
+                eg.attrs["distractor_peak_z"] = float(ep.pop("_celdirici_tepe"))
+                eg.attrs["lifted_wrong"] = bool(ep.pop("_yanlis_kaldirdi"))
             for k, v in ep.items():
                 comp = dict(compression="gzip", compression_opts=4) if v.ndim == 4 else {}
                 eg.create_dataset(k, data=v, **comp)

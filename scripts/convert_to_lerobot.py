@@ -167,7 +167,11 @@ def main():
     srcs = [h5py.File(p, "r") for p in args.hdf5]
     src = srcs[0]
     fps = float(src.attrs["fps"])
-    task = str(src.attrs["task"])
+    # DOSYA ozniteligi yalnizca YEDEK. Faz 2'de talimat BOLUM BASINA degisiyor
+    # ve dosya ozniteligi eski sabit metni tasiyor. Burada dosyayi okumak butun
+    # dil bilgisini SESSIZCE cope atardi -- bu projede ayni aileden dokuz hata
+    # cikti, bu onuncusu olurdu.
+    task_varsayilan = str(src.attrs["task"])
     res = int(src.attrs["image_resolution"])
     # (dosya, bolum_adi) ciftleri -- coklu kaynak
     pairs = [(f, e) for f in srcs for e in sorted(f["data"].keys())]
@@ -186,7 +190,8 @@ def main():
 
     print(f"[CEVIR] kaynak : {args.hdf5}")
     print(f"[CEVIR] hedef  : {out_root}")
-    print(f"[CEVIR] {len(eps)} bolum | {fps:.0f} Hz | {res}px | gorev: \"{task}\"")
+    print(f"[CEVIR] {len(eps)} bolum | {fps:.0f} Hz | {res}px | "
+          f"varsayilan gorev: \"{task_varsayilan}\"")
 
     # LeRobot sema tanimi
     features = {
@@ -244,10 +249,15 @@ def main():
         eps = [e for _, e in pairs]
         print(f"[CEVIR] ilk {args.skip_episodes} bolum/dosya atlandi "
               f"(masa hazir degil, kup yerde): {n_dropped} bolum")
+    gorev_sayaci = {}
     for k, (_f, name) in enumerate(pairs):
         ep = _f["data"][name]
         if args.only_success and not bool(ep.attrs.get("success", False)):
             continue
+        # BOLUMUN KENDI talimati. Faz 1 dosyalarinda bu oznitelik dosya
+        # ozniteligiyle ayni; Faz 2'de bolumden bolume degisir.
+        ep_task = str(ep.attrs.get("task", task_varsayilan))
+        gorev_sayaci[ep_task] = gorev_sayaci.get(ep_task, 0) + 1
         n = int(ep.attrs["num_samples"])
         S0 = args.skip_first
         if args.max_abs > 0:
@@ -318,7 +328,7 @@ def main():
                 "observation.images.front": front[t],
                 "observation.images.wrist": wrist[t],
                 "action": act,
-                "task": task,
+                "task": ep_task,
             }
             if HAS_SIDE:
                 frame["observation.images.side"] = side[t]
@@ -358,6 +368,13 @@ def main():
     out_mb = dirsize(out_root) / 1e6
 
     print("\n" + "=" * 60)
+    if len(gorev_sayaci) > 1:
+        print(f"[CEVIR] TALIMAT CESITLILIGI: {len(gorev_sayaci)} farkli gorev")
+        for t, c in sorted(gorev_sayaci.items(), key=lambda x: -x[1]):
+            print(f"[CEVIR]   {c:4d} bolum  \"{t}\"")
+    else:
+        print(f"[CEVIR] TEK gorev metni -- dil sinyali YOK "
+              f"(Faz 1 verisi ya da --two_objects unutulmus)")
     print(f"[CEVIR] TAMAM -> {out_root}")
     print(f"[CEVIR] {len(eps)} bolum | {total_frames:,} kare")
     print(f"[CEVIR] boyut: {src_mb:,.0f} MB  ->  {out_mb:,.0f} MB  "
