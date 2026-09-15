@@ -1565,6 +1565,55 @@ Tutuş **çalışıyor** (normal bölümlerde kol 0-2 mm oynuyor) ama patlamayı
 komuta rağmen uçuyor. Kök sebep Isaac Lab'in articulation sıfırlamasında,
 bizim kontrolümüzün dışında.
 
+### 2026-09-15 — TEMIZ VERIYLE YENIDEN: %56 -> %71.5
+
+Kol patlamasi duzeltildikten sonra butun veri sifirdan toplandi ve model
+yeniden egitildi. Eski veri setleri (20.7 GB ham HDF5 + turetilmis LeRobot
+setleri) silindi -- hepsi hatali kodla uretilmisti.
+
+| asama | eski (hatali) | yeni (temiz) |
+|---|---|---|
+| uzman basarisi | %88 | **224/224 = %100** |
+| eklem limiti asan bolum | %23 | **0/224** |
+| bozuk collider bolumu | 8+ bolumlerin tamami | **0/224** |
+| cevirmede filtreye takilan | `--skip_episodes 8` + `--only_success` + %23 ihlal | **0 bolum** |
+| kare sayisi | -- | 60.480 |
+| **KAPALI DONGU BASARISI** | **111/200 (%56)** | **143/200 (%71.5)** |
+
+Tarif %56'yi veren combo ile AYNI tutuldu (sabit kamera + DART + 3 kamera,
+`--object_centric --zero_state --aux_cube`, 4000 adim, `base_fixcam_3kam`
+tabanindan). Sadece iki bayrak dustu: `--skip_episodes 8` ve
+`--drop_joint_violations` -- ikisi de hatanin etrafindan dolasmak icindi.
+
+**DIKKAT -- kiyas tam adil degil.** %56 olcumu de hatali ortamda yapilmisti:
+`eval_policy_isaacsim.py` de `dr.apply()` cagiriyor, yani o olcumde de kol
+bolumlerin bir kisminda kiriliyordu. %71.5 ilk kez hem temiz veriyle
+egitilmis hem temiz ortamda olculmus sayidir. Yani bu "ayni testte
+iyilesme" degil, "bozuk test vs dogru test".
+
+#### Algi: darbogaz belirgin sekilde acildi
+
+```
+adim   0 : medyan 49.0mm   kayma x -35.9  y -12.6   (kayma cikinca 34.3mm)
+adim  60 : medyan 16.9mm   kayma x  -2.7  y  +0.0
+adim 160 : medyan 15.3mm
+egim x +0.814 (kor +0.879)   egim y +0.868 (kor +0.979)
+```
+
+Egim onceden 0.747'de takiliydi (taze veri, 3 kamera). Simdi x 0.814,
+y 0.868 ve y korelasyonu 0.979. Adim 40'tan sonra hata kavrama esiginin
+(20mm) altina iniyor.
+
+**SIRADAKI SOMUT HEDEF: adim 0'daki x kaymasi -35.9 mm.** Bu rastgele hata
+degil, SABIT bir offset -- kaymayi cikarinca medyan 49.0 -> 34.3mm dusuyor.
+Model kupun yerini tutarli bicimde yanlis tahmin ediyor. Kalibrasyon
+sapmasi gibi davraniyor ve duzeltilirse ilk temas daha isabetli olur.
+
+Egitim: kayip 0.176 -> 0.085, 4000 adim, ~68 dk (GPU 86C'de 1222 MHz'e
+kisitlandi, 1.09 -> 1.16 s/adim).
+
+---
+
 #### ILK DALGA TESHISI DE YANLISMIS -- ters cevrildi
 
 `randomize_table` duzeltilince "ilk dalga anomalisi" de kapandi, ama sebebi
