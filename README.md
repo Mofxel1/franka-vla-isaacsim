@@ -6,17 +6,20 @@ inference time. The policy is [SmolVLA](https://huggingface.co/blog/smolvla)
 (450M parameters, flow matching, action chunking), trained by imitation from a
 scripted expert that *does* know where the cube is.
 
-> **Status: the closed loop works — 111/200 (56%) on the best model.**
+> **Status: the closed loop works — 143/200 (71.5%) on the best model.**
 > For most of this project it read 0/20. That number was a measurement bug, not
-> the policy — rows 8 and 9 of [the mismatch table](#what-the-measurements-revealed).
+> the policy. The jump from 56% to 71.5% is not a modelling change either: the
+> training data itself was being corrupted by the simulator, in 23% of episodes
+> — see [*the randomizer was breaking the robot*](#what-the-measurements-revealed).
 
-![Eight parallel episodes, five of them successful](media/rollout.gif)
+![Eight parallel episodes, seven of them successful](media/rollout.gif)
 
 *Eight episodes running in parallel, front camera, ~5 s each — one untouched
-wave of the evaluation, not a hand-picked run. Five tiles grasp the cube and
-lift it; the other three come down beside it and never close the gripper. That
-few-centimetre miss is the whole remaining problem. The measured rate over 200
-episodes is 56%; this wave happens to sit slightly above it.*
+wave of the evaluation, not a hand-picked run. Seven tiles grasp the cube and
+lift it; the rightmost tile of the top row comes down onto the table beside the
+cube and never closes the gripper. That few-centimetre miss is the whole remaining problem. The measured
+rate over 200 episodes is 71.5%; this particular wave sits above it. The
+lighting differs from tile to tile — that is the domain randomization.*
 
 ---
 
@@ -60,6 +63,30 @@ imitation-learning metrics hide it completely.
 
 Most of the effort here went into measurement, not modeling. Five findings that
 generalize beyond this project:
+
+**0. The randomizer was breaking the robot.** The table-colour randomiser bound
+a `UsdShade` material to the table prim. The table has a collider, and applying
+a material binding to it *while the simulation is running* makes PhysX rebuild
+its collision representation. At the next episode reset the articulation takes
+an impulse no drive could produce: the arm moves 2 rad in a single control step
+and runs away past 1900 rad/s against a 2.175 rad/s joint limit. It never
+recovers. **23% of episodes** — so 23% of the training images show a physically
+impossible robot, and the scripted expert's apparent ceiling of 88% was entirely
+this. With the randomiser disabled the expert scores **224/224**.
+
+The binding never worked anyway: the table is an instanced USD asset, zero
+meshes were ever bound, and the table colour never changed once. Pure cost,
+zero benefit.
+
+Eight fixes were tried before this was found — drive stiffness, solver
+iterations, self-collisions, clamping the IK output to joint limits, holding the
+arm at home after reset, resetting the drive target. Every one of them was in
+the physics layer; the trigger was in the USD scene layer, which none of them
+touched. What eventually found it was ablation in the opposite direction: build
+the simplest environment that does **not** reproduce the failure, then add the
+real pipeline back one piece at a time. Three probes in a row scored 0/32, 0/40,
+0/40 — the useful question was not "why is the probe wrong" but "what do these
+three have that the real pipeline doesn't".
 
 **1. Open-loop metrics lie.** Action MAE 5 mm, quaternion MAE 0.0005, gripper
 accuracy 100%, loss 0.029 — and the policy could not find the cube at all. Every
@@ -139,9 +166,15 @@ by issuing no command at all — the warmup only ever needed to refresh the came
 
 200 episodes per model, each evaluated in the camera regime it was trained in.
 
+> **The rows below `train_combo2` were all measured in a simulator that was
+> breaking the arm in ~23% of episodes, and trained on data with the same
+> corruption. They are kept because the *ordering* between them is still
+> informative, but the absolute numbers understate every model.**
+
 | model | regime | success | localization probe |
 |---|---|---|---|
-| **`train_combo`** | fixed camera + DART + 3 cameras | **111/200 (56%)** | — |
+| **`train_combo2`** | same recipe as `train_combo`, **clean data** | **143/200 (71.5%)** | 49.0 mm → 15.3 mm |
+| `train_combo` | fixed camera + DART + 3 cameras | 111/200 (56%) | — |
 | `train_fixcam` | fixed camera | 76/200 (38%) | 31.6 mm |
 | `train_dart2` | randomized + DART noise | 62/200 (31%) | 49.4 mm |
 | `train_3kam` | randomized, 3 cameras | 35/200 (18%) | 33.6 mm |
@@ -152,13 +185,26 @@ by issuing no command at all — the warmup only ever needed to refresh the came
 Two branches had been closed as failures on the broken metric and are in fact
 among the best: **DART** and the **third camera**. Combining them with the fixed
 camera — the first time all three were used together — took the policy from 38%
-to **56%**. Of those runs the cube is lifted 65% of the time and held 53%; the
-gripper now fails to close in only 12% of episodes, down from 75%.
+to 56%, and the gripper-never-closes failure fell from 75% of episodes to 12%.
+Re-collecting that same recipe once the simulator stopped breaking the arm took
+it to **71.5%** without changing a single hyperparameter.
 
-The first eight episodes of every run are a known artifact — the table's
-collision body is not ready on the first reset after `env.reset()`, so the cube
-falls through it to the floor (0.021 m instead of 0.079 m) and the policy, which
-has never seen the cube that low, fails all eight.
+A caveat worth stating plainly: 56% and 71.5% are **not a controlled
+comparison.** The evaluation script also called the randomiser, so the older
+number was measured in the same broken simulator it was trained in. 71.5% is the
+first figure that is both trained on clean data and measured in a clean
+environment. It is the new baseline, not a 15-point improvement over a
+like-for-like control.
+
+The "first wave artifact" — the belief that episodes 0–7 of every run were
+broken because the cube fell through the table — **was diagnosed backwards.**
+The table sits at z = 0 and the ground plane at z = **−1.05**; a cube that fell
+through the table would read −1.029, not 0.021. 0.021 is simply the cube resting
+*on* the table. The anomaly was the other value: 0.079 m, the cube floating
+5.8 cm above the surface on the phantom collider left by the material binding.
+So the first eight episodes were the only correct ones in every run, and
+`--skip_episodes 8` was discarding the one clean wave. Both the flag and the
+workaround are gone.
 
 **Why `train_fixdag` collapses** is worth stating, because it is a structural
 flaw in DAgger with a scripted expert rather than a tuning problem. The expert
@@ -197,14 +243,15 @@ again* — which is the behaviour DAgger is supposed to collect.
 | **DART (noise injection)** | **31%** — was wrongly eliminated on the broken metric |
 | **Third (side) camera** | **18% vs 12%** — also wrongly eliminated |
 | **All three together** | **56%** — the three gains compose; gripper-never-closes fell from 75% to 12% of episodes |
-| Skipping the first wave | the table's collision body is not ready on the first reset, so the cube falls through it to the floor (0.021 m instead of 0.079 m). Exactly episodes 0–7 of every run, deterministic. Now dropped from both training data and evaluation |
+| **Disabling the table-colour randomiser** | **56% → 71.5%** on the same recipe. Not a modelling change: it stopped the simulator from breaking the arm in 23% of episodes. Expert success 88% → 100%, joint-limit violations 23% → 0, and every episode now survives the conversion filters |
+| Skipping the first wave | **reverted — the diagnosis was inverted.** 0.021 m is the cube resting *on* the table (ground plane is at −1.05); 0.079 m was the anomaly. Episodes 0–7 were the only clean ones and the flag was discarding them |
 | Domain randomization in eval | necessary once training used it, but adding it to eval was the wrong half of the fix: removing it from *training* is what helped |
 | Clean + noisy data mixture | no gain |
 | Dropping the expert's REST frames | 11% vs 12% — no real effect |
 | DAgger (phased expert) | **1%** — the scripted expert stops emitting gripper-close labels; see below |
-| Phase-agnostic expert | fixes the label collapse: close-gripper frames went 3.4% → 18%, episodes with no close label 92% → 51%. Scores 92% driving on its own. Dataset built, **not yet trained** |
+| Phase-agnostic expert | fixes the label collapse: close-gripper frames went 3.4% → 18%, episodes with no close label 92% → 51%. Scores 92% driving on its own. Dataset built; superseded by the clean re-collection, **not yet trained** |
 | Unfreezing the vision encoder | not worth it — frozen SigLIP features beat a from-scratch CNN on the same data |
-| Calibrating out the regression-to-mean | 3 mm, not a lever |
+| Calibrating out the regression-to-mean | 3 mm on the old data, not a lever then. **Worth revisiting:** on clean data the live probe shows a *constant* −35.9 mm bias in x at step 0; removing it drops the median error from 49.0 mm to 34.3 mm |
 | Higher camera resolution | not a lever — 112 px scores *better* than 224 px on the probe |
 
 ---
@@ -267,10 +314,18 @@ lerobot-train --dataset.repo_id=franka_lift --dataset.root=<...> \
   --policy.path=<base-or-checkpoint> --policy.device=cuda \
   --batch_size=32 --steps=4000 --save_freq=4000
 
-# 4. measure — this is the number that matters
-HDF5=<held-out.hdf5> K=8 FRAME=2 OBJ_CENTRIC=1 REST_SKIP=12 \
-  python scripts/diagnostics/localize_test.py <checkpoint> 45
+# 4. measure — closed loop is the decision metric (200 episodes, ~8 min)
+#    terminal A (lerobot env):
+python -u scripts/policy_server.py --ckpt <checkpoint> --device cuda \
+  --object_centric --n_action_steps 25 --n_samples 8 --port 8765
+#    terminal B (isaaclab env):
+python -u scripts/eval_policy_isaacsim.py --num_envs 8 --num_episodes 200 \
+  --env_spacing 25.0 --headless --fix_cam --side_cam --dr_seed 4242
 ```
+
+`localize_test.py` is a **diagnostic, not a decision metric** — its correlation
+with closed-loop success came out at +0.31, with the wrong sign. Two branches
+(DART and the third camera) were wrongly closed on its evidence.
 
 The `chain_*.sh` files in `results/` run these end to end, each with a
 post-conversion statistics gate that aborts before training if normalization
@@ -295,8 +350,12 @@ driver, and `simulation_app.close()` hangs, hence
 
 ## Roadmap
 
-**Phase 1 — single cube in simulation** *(current)*. Done when the closed loop
-lifts the cube consistently (≥5/10).
+**Phase 1 — single cube in simulation** *(current)*. The ≥5/10 bar is met:
+**143/200 (71.5%)**. The next concrete lever is the perception bias — the
+policy's own cube estimate carries a *constant* −35.9 mm offset in x at step 0,
+and removing it takes the median error from 49.0 mm to 34.3 mm, against a 20 mm
+grasp tolerance. After step 40 the wrist camera closes the loop and the error
+falls under 17 mm, so the cost is paid entirely on the first approach.
 
 **Phase 2 — multiple objects and real language.** Right now every episode uses
 the identical instruction, so the model can ignore language entirely and lose
