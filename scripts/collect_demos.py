@@ -53,6 +53,13 @@ parser.add_argument("--reset_hold", type=int, default=12,
                          "duzeltmiyor, sadece ucusunu yankiliyor. "
                          "Patlamayan bolumlerde uzman basarisi %100, "
                          "patlayanlarda %46. 0 = kapali (eski davranis).")
+parser.add_argument("--multi_verb", action="store_true",
+                    help="FAZ 2b: DORT fiil (lift/stack/place/push). --two_objects "
+                         "gerektirir. Tek fiille talimat yalnizca 1 bit tasir "
+                         "(hangi kup) ve model dili yok sayip %50 alabilir. "
+                         "Dort fiil talimatin DAVRANIS secmesini zorunlu kilar. "
+                         "Basari olcutu fiile OZELDIR (push'ta kup hic kalkmaz, "
+                         "stack'te indirilir) -- tek olcut kullanmak yanlis olur.")
 parser.add_argument("--two_objects", action="store_true",
                     help="FAZ 2: masada IKI renkli kup (kirmizi/mavi) ve bolum "
                          "basina degisen talimat. Hedef nesne rastgele secilir, "
@@ -238,7 +245,16 @@ def main():
 
     # Uzman state machine
     dt = cfg.sim.dt * cfg.decimation
-    if args_cli.stateless_expert:
+    if args_cli.multi_verb and not args_cli.two_objects:
+        raise SystemExit("--multi_verb, --two_objects gerektirir "
+                         "(stack fiili ikinci nesneyi hedefler)")
+    if args_cli.multi_verb:
+        from multi_verb_expert import (MultiVerbExpert, LIFT, STACK, PLACE, PUSH,
+                                       FIIL_ADI, BOLGELER, YONLER)
+        from phase2_scene import talimat_uret, basari_olc, NESNELER
+        sm = MultiVerbExpert(n, dev)
+        print("[UZMAN] COK FIILLI FAZSIZ -- lift/stack/place/push", flush=True)
+    elif args_cli.stateless_expert:
         from stateless_expert import StatelessPickSm
         sm = StatelessPickSm(n, dev)
         print("[UZMAN] FAZSIZ -- faz her adimda geometriden hesaplanir", flush=True)
@@ -271,6 +287,19 @@ def main():
         from phase2_scene import NESNELER, talimat as _talimat
         _rng2 = np.random.RandomState(args_cli.seed + 7777)
         hedef = _rng2.randint(0, len(NESNELER), size=n)
+        if args_cli.multi_verb:
+            _FIILLER = [LIFT, STACK, PLACE, PUSH]
+            _zorla = os.environ.get("FORCE_VERB")     # hata ayiklama: tek fiil
+            if _zorla:
+                _ad2f = {v: k for k, v in FIIL_ADI.items()}
+                _FIILLER = [_ad2f[_zorla]]
+                print(f"[FAZ2] FIIL ZORLANDI: {_zorla}", flush=True)
+            _YER_ADLARI = ["left", "right"]
+            fiil_arr = _rng2.choice(_FIILLER, size=n)
+            yer_arr = _rng2.choice(_YER_ADLARI, size=n)
+            # oteki kupun izi -- fiile ozel basari olcutu icin gerekli.
+            # HDF5'e YAZILMIYOR: yeni dataset eklemek cevirici tarafinda risk.
+            diger_iz = [[] for _ in range(n)]
         # celdiricinin bolum icindeki EN YUKSEK z'si -- yanlis nesneyi
         # kaldirma oranini olcmek icin (dil yok sayilirsa bu oran yukselir)
         celdirici_tepe = np.zeros(n)
@@ -344,14 +373,28 @@ def main():
 
             # --- 2) Uzman s_t'den a_t'yi uretsin ---
             desired_position = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
-            if args_cli.stateless_expert:
+            if args_cli.stateless_expert or args_cli.multi_verb:
                 # parmak eklemleri: joint_pos[7] + joint_pos[8]
                 # ACIK 0.0800 / KUPU TUTARKEN 0.0450 (olculdu) -> esik 0.06
+                # FAZSIZ uzman "kavradi mi" kararini BUNDAN veriyor; beslenmezse
+                # hep "acik" sanir ve kavrama sonrasi dala HIC gecmez.
                 sm.set_fingers(joint_pos[:, 7] + joint_pos[:, 8])
-            actions = sm.compute(
-                torch.cat([ee_pos, ee_quat], dim=-1),
-                torch.cat([obj_pos, desired_orientation], dim=-1),
-                torch.cat([desired_position, desired_orientation], dim=-1))
+            if args_cli.multi_verb:
+                _yer = torch.tensor(
+                    [BOLGELER[y] if f in (PLACE,) else YONLER[y]
+                     for f, y in zip(fiil_arr, yer_arr)],
+                    device=dev, dtype=obj_pos.dtype)
+                actions = sm.compute(
+                    ee_pos, obj_pos, cel_pos,
+                    torch.as_tensor(fiil_arr, device=dev),
+                    _yer, desired_orientation)
+                for i in range(n):
+                    diger_iz[i].append(cel_pos[i].cpu().numpy())
+            else:
+                actions = sm.compute(
+                    torch.cat([ee_pos, ee_quat], dim=-1),
+                    torch.cat([obj_pos, desired_orientation], dim=-1),
+                    torch.cat([desired_position, desired_orientation], dim=-1))
 
             # --- 3) (s_t, a_t) ciftini kaydet ---
             act_np = actions.detach().cpu().numpy()
@@ -444,9 +487,24 @@ def main():
                         final_z = float(b["observation.state.object_pos"][-1][2])
                         success = peak_z > LIFT_SUCCESS_HEIGHT and final_z > LIFT_SUCCESS_HEIGHT
                         ek = {"_success": success, "_peak_z": peak_z, "_final_z": final_z}
+                        if args_cli.multi_verb:
+                            # FIILE OZEL olcut. Tek olcut ("z esigi asti mi")
+                            # PUSH'ta hep basarisiz, STACK'te hep yanlis olurdu.
+                            f_i = int(fiil_arr[i]); y_i = str(yer_arr[i])
+                            h_ad = NESNELER[int(hedef[i])]["ad"]
+                            d_ad = NESNELER[1 - int(hedef[i])]["ad"]
+                            _h_iz = np.asarray(b["observation.state.object_pos"])
+                            _d_iz = np.asarray(diger_iz[i])
+                            _jp = np.asarray(b["observation.state.joint_pos"])
+                            _parmak = _jp[:, 7] + _jp[:, 8]
+                            success = bool(basari_olc(f_i, _h_iz, _d_iz, _parmak, y_i))
+                            ek["_success"] = success
+                            ek["_task"] = talimat_uret(f_i, h_ad, d_ad, y_i)
+                            ek["_fiil"] = FIIL_ADI[f_i]
+                            ek["_yer"] = y_i
                         if args_cli.two_objects:
                             ad = NESNELER[int(hedef[i])]["ad"]
-                            ek["_task"] = _talimat(ad)
+                            ek.setdefault("_task", _talimat(ad))
                             ek["_hedef"] = ad
                             # YANLIS nesne kaldirildi mi? Dil yok sayilirsa bu
                             # oran yukselir -- basari oranina bakarak anlasilmaz.
@@ -457,6 +515,7 @@ def main():
                             episodes.append({k: np.asarray(v) for k, v in b.items()} | ek)
                             ep_count += 1
                             _ek_log = (f" hedef={ek['_hedef']}"
+                                       f"{' [' + ek['_fiil'] + '/' + ek['_yer'] + ']' if '_fiil' in ek else ''}"
                                        f"{' YANLIS-KALDIRDI' if ek['_yanlis_kaldirdi'] else ''}"
                                        if args_cli.two_objects else "")
                             print(f"[TOPLA] bolum {ep_count}/{args_cli.num_episodes} "
@@ -467,6 +526,10 @@ def main():
                         # YENI BOLUM -> yeni hedef nesne ve yeni talimat
                         hedef[i] = _rng2.randint(0, len(NESNELER))
                         celdirici_tepe[i] = 0.0
+                        if args_cli.multi_verb:
+                            fiil_arr[i] = _rng2.choice(_FIILLER)
+                            yer_arr[i] = _rng2.choice(_YER_ADLARI)
+                            diger_iz[i] = []
                 sm.reset_idx(finished)
                 dagger_reset[finished.cpu().numpy()] = True
                 hold[finished.cpu().numpy()] = args_cli.reset_hold
@@ -572,6 +635,9 @@ def main():
             # BOLUM BASINA talimat. Faz 2'de her bolumde farkli.
             # DIKKAT: convert_to_lerobot BUNU okumali, dosya ozniteligini degil.
             eg.attrs["task"] = ep.pop("_task", args_cli.task_prompt)
+            if "_fiil" in ep:
+                eg.attrs["verb"] = ep.pop("_fiil")
+                eg.attrs["place_target"] = ep.pop("_yer")
             if "_hedef" in ep:
                 eg.attrs["target_object"] = ep.pop("_hedef")
                 eg.attrs["distractor_peak_z"] = float(ep.pop("_celdirici_tepe"))

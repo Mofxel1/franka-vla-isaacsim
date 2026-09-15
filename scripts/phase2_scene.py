@@ -19,6 +19,7 @@ TASARIM KARARLARI (hepsi olculmus bir sebebe dayaniyor):
 3. Hedef nesne bolum basina rastgele secilir ve talimat ona gore yazilir.
    Talimat `eg.attrs["task"]` ile BOLUM BASINA kaydedilir.
 """
+import numpy as np
 import torch
 import isaaclab.sim as sim_utils
 from isaaclab.assets import RigidObject, RigidObjectCfg
@@ -36,7 +37,7 @@ NESNELER = [
 
 # Kupun dogabilecegi alan. Faz 1'de olculdu: kup x[0.400,0.598] y[-0.248,0.243]
 POZ_X = (0.42, 0.60)
-POZ_Y = (-0.24, 0.24)
+POZ_Y = (-0.18, 0.18)   # bolge cizgisi 0.30; her iki yone de yer kalsin
 MIN_ARA = 0.12             # iki kup merkezi arasi en az 12 cm (kup 4.2 cm)
 
 
@@ -113,3 +114,68 @@ def reset_iki_nesne(env, env_ids, asset_cfgs=None):
 def talimat(nesne_adi):
     """Hedef nesnenin adindan talimat metni."""
     return f"pick up the {nesne_adi} cube and lift it"
+
+
+# ======================================================================
+# FAZ 2b -- COK FIILLI TALIMAT URETIMI VE FIILE OZEL BASARI OLCUTLERI
+# ======================================================================
+
+from multi_verb_expert import (LIFT, STACK, PLACE, PUSH, FIIL_ADI,
+                               BOLGELER, YONLER, CUBE, MASA_Z, BOLGE_Y)
+
+# Talimat sablonlari. Ayni fiil icin tek sablon kullaniliyor -- amac dil
+# cesitliligi degil, dilin DAVRANIS SECMESI. Sablon cesitliligi (esanlamlilar)
+# ayri bir eksen, sonra eklenebilir.
+def talimat_uret(fiil, hedef_ad, diger_ad, yer_ad):
+    if fiil == LIFT:
+        return f"pick up the {hedef_ad} cube"
+    if fiil == STACK:
+        return f"put the {hedef_ad} cube on the {diger_ad} cube"
+    if fiil == PLACE:
+        return f"put the {hedef_ad} cube on the {yer_ad} side"
+    if fiil == PUSH:
+        return f"push the {hedef_ad} cube to the {yer_ad}"
+    raise ValueError(fiil)
+
+
+def basari_olc(fiil, hedef_iz, diger_iz, parmak_iz, yer_ad):
+    """Fiile OZEL basari olcutu.
+
+    hedef_iz/diger_iz: (T,3) bolum boyunca konumlar
+    parmak_iz        : (T,)  parmak acikligi toplami
+    Tek bir olcut ("z esigi asti mi") kullanmak YANLIS olurdu: PUSH'ta kup hic
+    kalkmaz, STACK'te kup indirilir. Her fiil kendi kosuluyla olculur.
+    """
+    h0, hs = hedef_iz[0], hedef_iz[-1]
+    tepe_z = float(hedef_iz[:, 2].max())
+    acik_son = bool(parmak_iz[-1] > 0.06)
+
+    if fiil == LIFT:
+        return tepe_z > 0.10 and float(hs[2]) > 0.10
+
+    if fiil == STACK:
+        d_son = diger_iz[-1]
+        xy = float(np.linalg.norm(hs[:2] - d_son[:2]))
+        z_beklenen = float(d_son[2]) + CUBE
+        return (xy < 0.035 and abs(float(hs[2]) - z_beklenen) < 0.015
+                and acik_son)
+
+    if fiil == PLACE:
+        merkez = np.asarray(BOLGELER[yer_ad], dtype=np.float32)
+        xy = float(np.linalg.norm(hs[:2] - merkez))
+        masada = abs(float(hs[2]) - MASA_Z) < 0.015
+        return xy < 0.10 and masada and acik_son
+
+    if fiil == PUSH:
+        yon = np.asarray(YONLER[yer_ad], dtype=np.float32)
+        ilerleme = float(np.dot(hs[:2] - h0[:2], yon))
+        # MASADA KALMALI. Ilk surumde bu kosul yoktu ve kupu masadan DUSURMEK
+        # "basarili" sayiliyordu (son_z -1.029 = zemin). Olculdu: masanin y
+        # yari genisligi ~0.474.
+        masada = abs(float(hs[2]) - MASA_Z) < 0.015
+        hic_kalkmadi = tepe_z < 0.06        # itildi, KALDIRILMADI
+        # bolge cizgisini gectti mi (place ile AYNI hedef bolge)
+        vardi = float(hs[1]) * yon[1] > 0.24
+        return ilerleme > 0.05 and masada and hic_kalkmadi and vardi
+
+    raise ValueError(fiil)
